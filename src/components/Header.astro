@@ -113,14 +113,8 @@ const { currentPage = "", pageTitle = "Khu du lịch quốc gia Núi Bà Đen" }
 <!-- Removed old profile-only modal to avoid duplicate IDs -->
 
 <script>
-    // Menu toggle only (auth handled by unified modal below)
-    document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); });
-        }
-    });
+    // Centralized mobile menu logic lives in src/scripts/main.js (handles aria, focus, outside-click, Esc)
+    // Keeping this script empty avoids duplicate/conflicting listeners.
 </script>
 
 <!-- Unified Account Modal: Login/Register when logged out; Profile when logged in -->

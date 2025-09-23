@@ -11,9 +11,12 @@ import "../../styles/admin/poi-admin.css";
 <Layout title="Quản lý POI - Admin">
         <link
             rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         />
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script type="module">
+            import L from 'https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js';
+            window.L = L;
+        </script>
         <script>
             // Guard admin only
             document.addEventListener('DOMContentLoaded', async () => {

@@ -108,7 +108,25 @@ import Footer from '../components/Footer.astro';
       }catch(err){ showStatus(err.message || 'Lỗi', false); }
     }
 
-    async function loadStats(){ /* chỗ trống nếu sau này cần thêm thống kê khác */ }
+    async function loadStats(){
+      try{
+        const phoneEl = document.getElementById('phoneInput');
+        const phone = phoneEl ? phoneEl.value.trim() : '';
+        if (!phone) { return; }
+        const res = await fetch('/.netlify/functions/auth', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ action:'getClimbCountByPhone', phoneNumber: phone })
+        });
+        const json = await res.json();
+        if (res.ok && json.success){
+          document.getElementById('climbCount').textContent = json.count || 0;
+          document.getElementById('lastClimb').textContent = json.lastClimbAt ? new Date(json.lastClimbAt).toLocaleString('vi-VN') : '-';
+        }
+      } catch (err) {
+        // giữ im lặng nếu lỗi, không phá UI hồ sơ
+      }
+    }
 
     document.getElementById('saveBtn')?.addEventListener('click', async () => {
       try{
@@ -125,6 +143,7 @@ import Footer from '../components/Footer.astro';
         const raw = localStorage.getItem('authUser');
         if (raw) { try { const u = JSON.parse(raw); u.name = name || u.name; localStorage.setItem('authUser', JSON.stringify(u)); } catch {} }
         showStatus('Đã lưu thay đổi', true);
+        loadStats();
       }catch(err){ showStatus(err.message || 'Lỗi', false); }
     });
 

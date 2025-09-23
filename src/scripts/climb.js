@@ -40,8 +40,7 @@ let cropModal, imageToCrop, cancelCropBtn, confirmCropBtn;
 let commitmentModal, closeCommitmentBtn, cancelCommitmentBtn, confirmCommitmentBtn, clearSignatureBtn, signatureCanvas;
 let commitmentName, commitmentPhone, commitmentCCCD, commitmentEmail, commitmentAddress, commitmentGroupSize, commitmentDate, commitmentTime, commitmentBirthday;
 let downloadGpxBtn;
-let representativeModal, startRegistrationBtn, startRegistrationArea, registrationFormContainer;
-let cancelRepresentativeBtn, confirmRepresentativeBtn;
+let representativeModal, startRegistrationBtn, startRegistrationArea, registrationFormContainer, confirmRepresentativeBtn, cancelRepresentativeBtn;
 
 // --- Trekking Route Data (Unchanged) ---
 const powerPoleTrailGeoJSON = { /* ... GeoJSON data ... */
@@ -1668,6 +1667,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         initializeLeafletMap();
     }, 100);
+    
+    // Expose functions globally for HTML onclick handlers
+    window.selectRepresentativeType = selectRepresentativeType;
+    window.handleConfirmRepresentative = handleConfirmRepresentative;
 
             // Khởi tạo flatpickr cho ngày sinh (nếu có)
         const birthdayInput = document.getElementById('birthday');

@@ -164,7 +164,7 @@ export default async function handler(request, context) {
       const db = await readUsers();
       const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (!user || !comparePassword(password, user.passwordHash)) {
-        return new Response(JSON.stringify({ success: false, error: 'Invalid credentials' }), { status: 401, headers });
+        return new Response(JSON.stringify({ success: false, error: 'Email hoặc mật khẩu không đúng' }), { status: 401, headers });
       }
 
       const token = generateToken({ userId: user.id, email: user.email, role: user.role });
