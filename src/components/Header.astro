@@ -7,14 +7,60 @@ export interface Props {
 const { currentPage = "", pageTitle = "Khu du lịch quốc gia Núi Bà Đen" } = Astro.props;
 ---
 
+<style>
+  /* Custom responsive text sizing for header title */
+  .header-title {
+    font-size: clamp(0.875rem, 2.5vw + 0.5rem, 1.5rem);
+    line-height: 1.2;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Extra small screens */
+  @media (max-width: 475px) {
+    .header-title {
+      font-size: 0.75rem;
+      line-height: 1.1;
+    }
+  }
+  
+  /* Small screens */
+  @media (min-width: 476px) and (max-width: 639px) {
+    .header-title {
+      font-size: 0.875rem;
+    }
+  }
+  
+  /* Medium screens */
+  @media (min-width: 640px) and (max-width: 767px) {
+    .header-title {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Large screens */
+  @media (min-width: 768px) {
+    .header-title {
+      font-size: 1.25rem;
+    }
+  }
+  
+  /* Extra large screens */
+  @media (min-width: 1024px) {
+    .header-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
 <!-- Header -->
 <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100">
     <div class="container mx-auto px-4 py-3">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <img src="/assets/images/android-chrome-512x512.png" alt="Logo Núi Bà Đen" class="w-12 h-12 rounded-full object-cover border-2 border-primary-100">
-                <div>
-                    <h1 class="text-base sm:text-lg md:text-xl font-bold text-primary-600">{pageTitle}</h1>
+                <div class="min-w-0 flex-1">
+                    <h1 class="header-title font-bold text-primary-600">{pageTitle}</h1>
                     <p class="text-xs text-primary-700 hidden sm:block">Tây Ninh, Việt Nam</p>
                     <p id="headerGreeting" class="text-xs text-emerald-700 hidden">Xin chào, <span id="headerUserName"></span></p>
                 </div>

@@ -31,6 +31,40 @@ import Layout from "../layouts/Layout.astro";
   </main>
 
   <script>
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) return; // User not logged in, show register form
+      
+      try {
+        // Verify token is still valid
+        const res = await fetch('/.netlify/functions/auth', {
+          method: 'POST',
+          headers: { 
+            'Authorization': 'Bearer ' + token, 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ action: 'verify' })
+        });
+        const json = await res.json();
+        
+        if (res.ok && json.success) {
+          // User is already logged in, redirect based on role
+          if (json.role === 'admin') {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/account';
+          }
+          return;
+        }
+      } catch (error) {
+        // Token invalid, clear it and show register form
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+      }
+    });
+
+    // Register form handler
     document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.currentTarget as HTMLFormElement | null;
@@ -50,7 +84,13 @@ import Layout from "../layouts/Layout.astro";
         if (!res.ok || !json.success) throw new Error(json.error || 'Đăng ký thất bại');
         localStorage.setItem('authToken', json.token);
         localStorage.setItem('authUser', JSON.stringify(json.user));
-        window.location.href = '/admin';
+        
+        // Redirect based on role
+        if (json.user.role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/account';
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Có lỗi xảy ra';
         if (msg) { msg.textContent = message; msg.classList.remove('hidden'); }

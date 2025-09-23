@@ -356,7 +356,7 @@ function initializeLeafletMap() {
             const r = radius || 50;
             if (!userMarker) {
                 const arrowSvg = `\
-<div class="heading-arrow" style="width:36px;height:36px;transform-origin:50% 50%">\
+<div class="heading-arrow" style="width:36px;height:36px;transform-origin:50% 50%;transition:transform 0.1s ease-out;">\
   <svg viewBox="0 0 24 24" width="36" height="36">\
     <path d="M12 2l4 10-4-2-4 2 4-10z" fill="#2563eb"/>\
     <circle cx="12" cy="12" r="3" fill="#1d4ed8"/>\
@@ -364,8 +364,18 @@ function initializeLeafletMap() {
 </div>`;
                 const icon = L.divIcon({ className: 'heading-marker', html: arrowSvg, iconAnchor: [18, 18] });
                 userMarker = L.marker(latlng, { title: 'Vị trí của bạn', icon }).addTo(map);
+                
+                // Store reference to arrow element for better access
+                userMarker._arrowElement = userMarker.getElement().querySelector('.heading-arrow');
             } else {
                 userMarker.setLatLng(latlng);
+                // Update arrow reference if needed
+                if (!userMarker._arrowElement) {
+                    const el = userMarker.getElement();
+                    if (el) {
+                        userMarker._arrowElement = el.querySelector('.heading-arrow');
+                    }
+                }
             }
             if (!accuracyCircle) {
                 accuracyCircle = L.circle(latlng, { radius: r, color: '#2563eb', fillColor: '#60a5fa', fillOpacity: 0.12 }).addTo(map);
@@ -390,18 +400,34 @@ function initializeLeafletMap() {
         }
 
         // Device orientation (compass) to rotate arrow
+        let orientationHandler = null;
+        
         function rotateHeading(deg) {
             if (!userMarker) return;
-            const el = userMarker.getElement();
-            if (!el) return;
-            const arrow = el.querySelector('.heading-arrow');
+            
+            // Try to use stored reference first
+            let arrow = userMarker._arrowElement;
+            
+            // If stored reference is not available, try to find it
+            if (!arrow) {
+                const el = userMarker.getElement();
+                if (el) {
+                    arrow = el.querySelector('.heading-arrow');
+                    userMarker._arrowElement = arrow; // Store for next time
+                }
+            }
+            
             if (arrow) {
                 arrow.style.transform = `rotate(${deg}deg)`;
             }
         }
 
         function startOrientationTracking() {
-            const handler = (e) => {
+            if (orientationHandler) {
+                window.removeEventListener('deviceorientation', orientationHandler, true);
+            }
+            
+            orientationHandler = (e) => {
                 let headingDeg = null;
                 if (typeof e.webkitCompassHeading === 'number') {
                     headingDeg = e.webkitCompassHeading; // iOS
@@ -411,17 +437,39 @@ function initializeLeafletMap() {
                 }
                 if (headingDeg != null && !isNaN(headingDeg)) rotateHeading(headingDeg);
             };
-            window.addEventListener('deviceorientation', handler, true);
+            window.addEventListener('deviceorientation', orientationHandler, true);
         }
 
-        // iOS requires user gesture permission
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            map.once('click', async () => {
-                try { const res = await DeviceOrientationEvent.requestPermission(); if (res === 'granted') startOrientationTracking(); } catch (e) {}
-            });
-        } else if (window.DeviceOrientationEvent) {
-            startOrientationTracking();
+        // Request orientation permission and start tracking
+        async function requestOrientationPermission() {
+            try {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const result = await DeviceOrientationEvent.requestPermission();
+                    if (result === 'granted') {
+                        startOrientationTracking();
+                        console.log('Device orientation permission granted');
+                    } else {
+                        console.log('Device orientation permission denied');
+                    }
+                } else if (window.DeviceOrientationEvent) {
+                    startOrientationTracking();
+                    console.log('Device orientation tracking started');
+                }
+            } catch (error) {
+                console.warn('Failed to request device orientation permission:', error);
+            }
         }
+
+        // Start orientation tracking on map interaction or automatically
+        map.once('click', requestOrientationPermission);
+        
+        // Also try to start automatically after a short delay
+        setTimeout(requestOrientationPermission, 1000);
+        
+        // Re-request permission on orientation change (for some devices)
+        window.addEventListener('orientationchange', () => {
+            setTimeout(requestOrientationPermission, 500);
+        });
         
         map.on('locationerror', (e) => { showMessage(`Lỗi định vị bản đồ: ${e.message}`, 'error'); });
     } catch (error) {
@@ -1465,6 +1513,54 @@ async function handleConfirmCommitment() {
             registrationForm.reset();
             if (safetyCommitError) safetyCommitError.classList.add('hidden');
             
+            // Update user climb statistics
+            try {
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    // User is logged in, update by token
+                    const authResponse = await fetch('/.netlify/functions/auth', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ action: 'updateClimbStats' })
+                    });
+                    
+                    if (authResponse.ok) {
+                        const authResult = await authResponse.json();
+                        if (authResult.success) {
+                            console.log('Climb statistics updated by token:', authResult);
+                        }
+                    }
+                } else {
+                    // User is not logged in, try to update by phone number
+                    const phoneNumber = pendingRegistrationData?.phoneNumber;
+                    if (phoneNumber) {
+                        const authResponse = await fetch('/.netlify/functions/auth', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                action: 'updateClimbStatsByPhone',
+                                phoneNumber: phoneNumber
+                            })
+                        });
+                        
+                        if (authResponse.ok) {
+                            const authResult = await authResponse.json();
+                            if (authResult.success) {
+                                console.log('Climb statistics updated by phone:', authResult);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to update climb statistics:', error);
+                // Don't show error to user as registration was successful
+            }
+            
             // Đóng modal
             hideCommitmentModal();
         } else {
@@ -1484,6 +1580,70 @@ async function handleConfirmCommitment() {
     }
 }
 
+// --- Auto-fill User Information ---
+async function autoFillUserInformation() {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return; // User not logged in
+        
+        // Verify token and get user info
+        const response = await fetch('/.netlify/functions/auth', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'me' })
+        });
+        
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            console.log('User not authenticated or token expired');
+            return;
+        }
+        
+        const user = result.user;
+        if (!user) return;
+        
+        // Auto-fill form fields with user information
+        const leaderNameInput = document.getElementById('leaderName');
+        const phoneInput = document.getElementById('phoneNumber');
+        const birthdayInput = document.getElementById('birthday');
+        const cccdInput = document.getElementById('cccd');
+        const addressInput = document.getElementById('address');
+        const emailInput = document.getElementById('email');
+        
+        if (leaderNameInput && user.name) {
+            leaderNameInput.value = user.name;
+        }
+        
+        if (phoneInput && user.phone) {
+            phoneInput.value = user.phone;
+        }
+        
+        if (birthdayInput && user.dob) {
+            birthdayInput.value = user.dob;
+        }
+        
+        if (cccdInput && user.idCard) {
+            cccdInput.value = user.idCard;
+        }
+        
+        if (addressInput && user.address) {
+            addressInput.value = user.address;
+        }
+        
+        if (emailInput && user.email) {
+            emailInput.value = user.email;
+        }
+        
+        console.log('User information auto-filled successfully');
+        
+    } catch (error) {
+        console.error('Error auto-filling user information:', error);
+    }
+}
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Khởi tạo tất cả DOM elements
@@ -1494,6 +1654,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Tự động điền ngày và giờ hiện tại
     setupDefaultDateTime();
+    
+    // Auto-fill user information if logged in
+    await autoFillUserInformation();
     
     // Load all data from combined API
     await loadAllDataFromAPI();

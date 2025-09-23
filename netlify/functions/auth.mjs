@@ -144,7 +144,14 @@ export default async function handler(request, context) {
       return new Response(JSON.stringify({ 
         success: true, 
         token, 
-        user: { id: user.id, name: user.name, email: user.email, role: user.role } 
+        user: { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email, 
+          role: user.role,
+          successfulClimbCount: user.successfulClimbCount || 0,
+          lastClimbAt: user.lastClimbAt || null
+        } 
       }), { status: 200, headers });
     }
 
@@ -164,7 +171,14 @@ export default async function handler(request, context) {
       return new Response(JSON.stringify({ 
         success: true, 
         token, 
-        user: { id: user.id, name: user.name, email: user.email, role: user.role } 
+        user: { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email, 
+          role: user.role,
+          successfulClimbCount: user.successfulClimbCount || 0,
+          lastClimbAt: user.lastClimbAt || null
+        } 
       }), { status: 200, headers });
     }
 
@@ -223,7 +237,19 @@ export default async function handler(request, context) {
         return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers });
       }
       const db = await readUsers();
-      const users = db.users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt }));
+      const users = db.users.map(u => ({ 
+        id: u.id, 
+        name: u.name, 
+        email: u.email, 
+        role: u.role, 
+        phone: u.phone || '',
+        dob: u.dob || '',
+        idCard: u.idCard || '',
+        address: u.address || '',
+        successfulClimbCount: u.successfulClimbCount || 0,
+        lastClimbAt: u.lastClimbAt || null,
+        createdAt: u.createdAt 
+      }));
       return new Response(JSON.stringify({ success: true, users }), { status: 200, headers });
     }
 
@@ -245,6 +271,13 @@ export default async function handler(request, context) {
       }
       if (typeof name === 'string' && name.trim()) db.users[idx].name = name.trim();
       if (role === 'admin' || role === 'user') db.users[idx].role = role;
+      
+      // Update additional fields
+      const { phone, dob, idCard, address } = body;
+      if (typeof phone === 'string') db.users[idx].phone = phone.trim();
+      if (typeof dob === 'string') db.users[idx].dob = dob.trim();
+      if (typeof idCard === 'string') db.users[idx].idCard = idCard.trim();
+      if (typeof address === 'string') db.users[idx].address = address.trim();
       await writeUsers(db);
       return new Response(JSON.stringify({ success: true }), { status: 200, headers });
     }
@@ -268,6 +301,56 @@ export default async function handler(request, context) {
       }
       await writeUsers(db);
       return new Response(JSON.stringify({ success: true }), { status: 200, headers });
+    }
+
+    // Update climb statistics (requires token)
+    if (action === 'updateClimbStats') {
+      const authHeader = request.headers.get('authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : '';
+      const decoded = token ? verifyToken(token) : null;
+      if (!decoded) {
+        return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers });
+      }
+      
+      const db = await readUsers();
+      const idx = db.users.findIndex(u => u.id === decoded.userId);
+      if (idx === -1) return new Response(JSON.stringify({ success: false, error: 'User not found' }), { status: 404, headers });
+      
+      // Increment successful climb count and update last climb time
+      db.users[idx].successfulClimbCount = (db.users[idx].successfulClimbCount || 0) + 1;
+      db.users[idx].lastClimbAt = Date.now();
+      
+      await writeUsers(db);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        climbCount: db.users[idx].successfulClimbCount,
+        lastClimbAt: db.users[idx].lastClimbAt 
+      }), { status: 200, headers });
+    }
+
+    // Update climb statistics by phone number (for users who registered climbing before creating account)
+    if (action === 'updateClimbStatsByPhone') {
+      const { phoneNumber } = body;
+      if (!phoneNumber) {
+        return new Response(JSON.stringify({ success: false, error: 'Phone number is required' }), { status: 400, headers });
+      }
+      
+      const db = await readUsers();
+      const user = db.users.find(u => u.phone === phoneNumber);
+      if (!user) {
+        return new Response(JSON.stringify({ success: false, error: 'User not found with this phone number' }), { status: 404, headers });
+      }
+      
+      // Increment successful climb count and update last climb time
+      user.successfulClimbCount = (user.successfulClimbCount || 0) + 1;
+      user.lastClimbAt = Date.now();
+      
+      await writeUsers(db);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        climbCount: user.successfulClimbCount,
+        lastClimbAt: user.lastClimbAt 
+      }), { status: 200, headers });
     }
 
     // Verify token
