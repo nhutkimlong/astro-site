@@ -1,0 +1,1070 @@
+---
+// Admin POI Management Page
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/main.css";
+import "../../styles/tailwind.css";
+import "../../styles/admin/poi-admin.css";
+---
+
+<Layout title="Quản lý POI - Admin">
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script>
+            // Guard admin only
+            document.addEventListener('DOMContentLoaded', async () => {
+                const token = localStorage.getItem('authToken');
+                if (!token) { window.location.href = '/login'; return; }
+                try{
+                    const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{ 'Authorization':'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ action:'verify' }) });
+                    const json = await res.json();
+                    if (!res.ok || !json.success || json.role !== 'admin') { window.location.href = '/account'; }
+                }catch{ window.location.href = '/account'; }
+            });
+        </script>
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                min-height: 100vh;
+            }
+            .loader {
+                border: 4px solid #f1f5f9;
+                border-top: 4px solid #3b82f6;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .admin-card {
+                background: white;
+                border-radius: 16px;
+                box-shadow:
+                    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .admin-card:hover {
+                box-shadow:
+                    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-2px);
+            }
+            .admin-card-header {
+                padding: 1.5rem;
+                border-bottom: 1px solid #f1f5f9;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border-radius: 16px 16px 0 0;
+            }
+            #poiIdDisplay:read-only {
+                background-color: #f1f5f9;
+                cursor: not-allowed;
+            }
+            .btn-modern {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 0.875rem;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+                cursor: pointer;
+                text-decoration: none;
+            }
+            .btn-modern-primary {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+            }
+            .btn-modern-primary:hover {
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 8px 25px 0 rgba(59, 130, 246, 0.5);
+            }
+            .btn-modern-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
+            }
+            .btn-modern-success:hover {
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 8px 25px 0 rgba(16, 185, 129, 0.5);
+            }
+            .btn-modern-secondary {
+                background: #f8fafc;
+                color: #475569;
+                border: 1px solid #e2e8f0;
+            }
+            .btn-modern-secondary:hover {
+                background: #f1f5f9;
+                color: #334155;
+                transform: translateY(-1px);
+            }
+            .btn-modern-danger {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: white;
+                box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+            }
+            .btn-modern-danger:hover {
+                background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 8px 25px 0 rgba(239, 68, 68, 0.5);
+            }
+        </style>
+    </head>
+    <body class="bg-slate-50">
+        <Header currentPage="admin" />
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header Section -->
+            <div class="admin-card mb-8">
+                <div class="admin-card-header">
+                    <div
+                        class="flex items-center justify-between flex-col lg:flex-row gap-4"
+                    >
+                        <div class="flex items-center gap-4 w-full lg:w-auto">
+                            <a
+                                href="/admin"
+                                class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0"
+                            >
+                                <i
+                                    class="fas fa-arrow-left text-slate-600 text-xl"
+                                ></i>
+                            </a>
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div
+                                    class="p-3 bg-amber-100 rounded-xl flex-shrink-0"
+                                >
+                                    <i
+                                        class="fas fa-map-marker-alt text-amber-600 text-2xl"
+                                    ></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h1
+                                        class="text-xl lg:text-2xl font-bold text-slate-800 truncate"
+                                    >
+                                        Quản lý POI Núi Bà Đen
+                                    </h1>
+                                    <p
+                                        class="text-slate-600 text-sm lg:text-base truncate"
+                                    >
+                                        Quản lý và cập nhật thông tin các điểm
+                                        tham quan trên Núi Bà Đen
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Status Messages -->
+            <div
+                id="statusMessage"
+                class="hidden mb-6 p-4 rounded-lg text-sm font-medium border"
+            >
+                <span id="statusText"></span>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="hidden mb-6 text-center py-8">
+                <div class="loader"></div>
+                <p class="text-sm text-slate-500 mt-3">Đang tải dữ liệu...</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div
+                class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-slate-200"
+            >
+                <h2
+                    class="text-xl font-semibold text-slate-700 mb-6 flex items-center"
+                >
+                    <i class="fas fa-bolt mr-2 text-amber-500"></i> Hành động nhanh
+                </h2>
+                <div
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
+                >
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-transparent mb-2"
+                            >Ẩn</label
+                        >
+                        <button
+                            id="loadAllBtn"
+                            class="btn-modern btn-modern-primary w-full"
+                        >
+                            <i class="fas fa-list"></i> Tải tất cả POI
+                        </button>
+                    </div>
+                    <div>
+                        <label
+                            for="getPoiId"
+                            class="block text-sm font-medium text-slate-700 mb-2"
+                            >Lấy POI theo ID:</label
+                        >
+                        <div class="flex gap-2">
+                            <input
+                                type="number"
+                                id="getPoiId"
+                                placeholder="Nhập ID POI"
+                                class="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                            <button
+                                id="searchPoiBtn"
+                                class="btn-modern btn-modern-primary px-4 py-2"
+                            >
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            for="deletePoiId"
+                            class="block text-sm font-medium text-slate-700 mb-2"
+                            >Xóa POI theo ID:</label
+                        >
+                        <div class="flex gap-2">
+                            <input
+                                type="number"
+                                id="deletePoiId"
+                                placeholder="Nhập ID POI cần xóa"
+                                class="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            />
+                            <button
+                                id="deletePoiBtn"
+                                class="btn-modern btn-modern-danger px-4 py-2"
+                            >
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POI Form -->
+            <div
+                class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-slate-200"
+            >
+                <h2
+                    class="text-xl font-semibold text-slate-700 mb-6 flex items-center"
+                >
+                    <i class="fas fa-edit mr-2 text-green-600"></i> Thêm / Cập nhật
+                    POI
+                </h2>
+                <form id="poiForm" class="space-y-6">
+                    <input type="hidden" id="poiIdHidden" name="id" />
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                        <div class="space-y-6">
+                            <!-- Basic Information -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-slate-700 mb-3"
+                                >
+                                    Thông tin cơ bản
+                                </h3>
+                                <div>
+                                    <label
+                                        for="poiIdDisplay"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >ID</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="poiIdDisplay"
+                                        readonly
+                                        placeholder="(Tự động)"
+                                        class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiNameInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Tên (name) <span class="text-red-500"
+                                            >*</span
+                                        ></label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="poiNameInput"
+                                        name="name"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiNameEnInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Tên tiếng Anh (name_en)</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="poiNameEnInput"
+                                        name="name_en"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Location Information -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-slate-700 mb-3"
+                                >
+                                    Thông tin vị trí
+                                </h3>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Vị trí (latitude, longitude)</label
+                                    >
+                                    <div class="flex gap-2">
+                                        <input
+                                            type="number"
+                                            id="poiLatInput"
+                                            name="latitude"
+                                            step="any"
+                                            placeholder="Vĩ độ"
+                                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        />
+                                        <input
+                                            type="number"
+                                            id="poiLonInput"
+                                            name="longitude"
+                                            step="any"
+                                            placeholder="Kinh độ"
+                                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            id="mapPickerBtn"
+                                            class="btn-modern btn-modern-primary px-4 py-2 whitespace-nowrap"
+                                            >Chọn trên bản đồ</button
+                                        >
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiElevInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Độ cao (elevation)</label
+                                    >
+                                    <input
+                                        type="number"
+                                        id="poiElevInput"
+                                        name="elevation"
+                                        placeholder="Ví dụ: 986"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-slate-700 mb-3"
+                                >
+                                    Phân loại
+                                </h3>
+                                <div>
+                                    <label
+                                        for="poiCategoryInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Danh mục (category)</label
+                                    >
+                                    <select
+                                        id="poiCategoryInput"
+                                        name="category"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        required
+                                    >
+                                        <option value=""
+                                            >-- Chọn danh mục --</option
+                                        >
+                                        <option value="attraction"
+                                            >Điểm tham quan (attraction)</option
+                                        >
+                                        <option value="food"
+                                            >Ẩm thực (food)</option
+                                        >
+                                        <option value="religion"
+                                            >Tôn giáo (religion)</option
+                                        >
+                                        <option value="parking"
+                                            >Bãi đỗ xe (parking)</option
+                                        >
+                                        <option value="transport"
+                                            >Vận chuyển (transport)</option
+                                        >
+                                        <option value="amenities"
+                                            >Tiện ích (amenities)</option
+                                        >
+                                        <option value="viewpoint"
+                                            >Điểm ngắm cảnh (viewpoint)</option
+                                        >
+                                        <option value="historical"
+                                            >Di tích lịch sử (historical)</option
+                                        >
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiAreaSelect"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Khu vực (area)</label
+                                    >
+                                    <select
+                                        id="poiAreaSelect"
+                                        name="area"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value=""
+                                            >-- Chọn Khu vực --</option
+                                        >
+                                        <option value="Chân núi"
+                                            >Chân núi</option
+                                        >
+                                        <option value="Chùa Bà">Chùa Bà</option>
+                                        <option value="Đỉnh núi"
+                                            >Đỉnh núi</option
+                                        >
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiFeaturedInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Nổi bật (featured)</label
+                                    >
+                                    <select
+                                        id="poiFeaturedInput"
+                                        name="featured"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value=""
+                                            >-- Chọn trạng thái --</option
+                                        >
+                                        <option value="TRUE">Có (TRUE)</option>
+                                        <option value="FALSE"
+                                            >Không (FALSE)</option
+                                        >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <!-- Media URLs -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-slate-700 mb-3"
+                                >
+                                    URL Media
+                                </h3>
+                                <div>
+                                    <label
+                                        for="poiIconUrlInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >URL Biểu tượng (iconurl)</label
+                                    >
+                                    <input
+                                        type="url"
+                                        id="poiIconUrlInput"
+                                        name="iconurl"
+                                        placeholder="https://..."
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiImageUrlInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >URL Hình ảnh (imageurl)</label
+                                    >
+                                    <input
+                                        type="url"
+                                        id="poiImageUrlInput"
+                                        name="imageurl"
+                                        placeholder="https://..."
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiAudioUrlInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >URL Âm thanh (audio_url)</label
+                                    >
+                                    <input
+                                        type="url"
+                                        id="poiAudioUrlInput"
+                                        name="audio_url"
+                                        placeholder="https://..."
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-slate-700 mb-3"
+                                >
+                                    Thông tin bổ sung
+                                </h3>
+                                <div>
+                                    <label
+                                        for="poiAudioUrlEnInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >URL Âm thanh EN (audio_url_en)</label
+                                    >
+                                    <input
+                                        type="url"
+                                        id="poiAudioUrlEnInput"
+                                        name="audio_url_en"
+                                        placeholder="https://..."
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="poiWalkableInput"
+                                        class="block text-sm font-medium text-slate-700 mb-1"
+                                        >Đi bộ tới (walkable_to)</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="poiWalkableInput"
+                                        name="walkable_to"
+                                        placeholder="ID cách nhau bởi dấu phẩy, ví dụ: 2,3,5"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descriptions -->
+                    <div class="col-span-1 md:col-span-2 space-y-4">
+                        <h3 class="text-lg font-medium text-slate-700 mb-3">
+                            Mô tả
+                        </h3>
+                        <div>
+                            <label
+                                for="poiDescInput"
+                                class="block text-sm font-medium text-slate-700 mb-1"
+                                >Mô tả (description)</label
+                            >
+                            <textarea
+                                id="poiDescInput"
+                                name="description"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label
+                                for="poiDescEnInput"
+                                class="block text-sm font-medium text-slate-700 mb-1"
+                                >Mô tả tiếng Anh (description_en)</label
+                            >
+                            <textarea
+                                id="poiDescEnInput"
+                                name="description_en"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div
+                        class="flex justify-end gap-4 pt-6 border-t border-slate-200"
+                    >
+                        <button
+                            type="button"
+                            id="clearFormBtn"
+                            class="btn-modern btn-modern-secondary"
+                        >
+                            <i class="fas fa-eraser"></i> Xóa Form
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn-modern btn-modern-success"
+                        >
+                            <i class="fas fa-save"></i> Lưu (Thêm / Cập nhật)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- POI List -->
+            <div
+                class="bg-white p-6 rounded-xl shadow-sm border border-slate-200"
+            >
+                <h2
+                    class="text-xl font-semibold text-slate-700 mb-6 flex items-center"
+                >
+                    <i class="fas fa-th-list mr-2 text-blue-600"></i> Danh sách POI
+                </h2>
+                <div class="overflow-x-auto">
+                    <table
+                        id="poiTable"
+                        class="min-w-full divide-y divide-slate-200 border border-slate-200"
+                    >
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    scope="col"
+                                    class="w-16 px-4 py-3 text-left text-sm font-medium text-slate-700"
+                                    >ID</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="min-w-[200px] px-4 py-3 text-left text-sm font-medium text-slate-700"
+                                    >Tên</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="min-w-[150px] px-4 py-3 text-left text-sm font-medium text-slate-700"
+                                    >Danh mục</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="min-w-[120px] px-4 py-3 text-left text-sm font-medium text-slate-700"
+                                    >Khu vực</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="w-24 px-4 py-3 text-center text-sm font-medium text-slate-700"
+                                    >Nổi bật</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="w-28 px-4 py-3 text-center text-sm font-medium text-slate-700"
+                                    >Hành động</th
+                                >
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="poiTableBody"
+                            class="bg-white divide-y divide-slate-200"
+                        >
+                            <tr>
+                                <td
+                                    colspan="6"
+                                    class="px-4 py-6 text-center text-sm text-slate-500 italic"
+                                >
+                                    Chưa có dữ liệu. Nhấn "Tải tất cả POI" để
+                                    bắt đầu.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Modal -->
+        <div
+            id="mapModal"
+            class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+        >
+            <div
+                class="bg-white rounded-lg shadow-lg p-4 relative w-full max-w-2xl h-[500px] flex flex-col"
+            >
+                <button
+                    id="closeMapModal"
+                    class="absolute top-2 right-2 text-slate-500 hover:text-red-500 text-xl"
+                    >&times;</button
+                >
+                <h3 class="text-lg font-semibold mb-2">
+                    Chọn vị trí trên bản đồ vệ tinh
+                </h3>
+                <div id="mapContainer" style="height: 100%; width: 100%;"></div>
+                <div class="mt-4 text-right">
+                    <button
+                        id="closeMapBtn"
+                        class="btn-modern btn-modern-secondary">Đóng</button
+                    >
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // POI Management JavaScript
+            let poiList = [];
+            let gioHoatDongList = [];
+            let map = null;
+            let formCoordinates = null;
+
+            const API_URLS = {
+                poi: "/.netlify/functions/data-blobs?file=POI.json",
+                gioHoatDong:
+                    "/.netlify/functions/data-blobs?file=GioHoatDong.json",
+            };
+
+            // Initialize
+            document.addEventListener("DOMContentLoaded", function () {
+                setupEventListeners();
+            });
+
+            // Setup Event Listeners
+            function setupEventListeners() {
+                document
+                    .getElementById("loadAllBtn")
+                    .addEventListener("click", loadAllPoisAndSyncGioHoatDong);
+                document
+                    .getElementById("searchPoiBtn")
+                    .addEventListener("click", () => {
+                        const id = document.getElementById("getPoiId").value;
+                        getPoiByIdAndPopulate(id);
+                    });
+                document
+                    .getElementById("deletePoiBtn")
+                    .addEventListener("click", () => {
+                        const id = document.getElementById("deletePoiId").value;
+                        deletePoiFromRow(id);
+                    });
+                document
+                    .getElementById("clearFormBtn")
+                    .addEventListener("click", clearForm);
+                document
+                    .getElementById("poiForm")
+                    .addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        addOrUpdatePoi();
+                    });
+                document
+                    .getElementById("mapPickerBtn")
+                    .addEventListener("click", () => {
+                        document
+                            .getElementById("mapModal")
+                            .classList.remove("hidden");
+                        initMap();
+                    });
+                document
+                    .getElementById("closeMapModal")
+                    .addEventListener("click", closeMapModal);
+                document
+                    .getElementById("closeMapBtn")
+                    .addEventListener("click", closeMapModal);
+            }
+
+            // Status message functions
+            function showStatus(message, isError = false, duration = 5000) {
+                const statusDiv = document.getElementById("statusMessage");
+                const statusText = document.getElementById("statusText");
+
+                statusText.textContent = message;
+                statusDiv.className = `mb-6 p-4 rounded-lg text-sm font-medium border ${
+                    isError
+                        ? "bg-red-100 text-red-700 border-red-300"
+                        : "bg-green-100 text-green-700 border-green-300"
+                }`;
+                statusDiv.classList.remove("hidden");
+
+                setTimeout(() => statusDiv.classList.add("hidden"), duration);
+            }
+
+            function showLoading(show) {
+                document
+                    .getElementById("loading")
+                    .classList.toggle("hidden", !show);
+            }
+
+            // Fetch data function
+            async function fetchData(url, options = {}) {
+                showLoading(true);
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok)
+                        throw new Error(
+                            `HTTP error! status: ${response.status}`,
+                        );
+                    if (
+                        options.method &&
+                        options.method !== "GET" &&
+                        response.headers
+                            .get("content-type")
+                            ?.includes("application/json") === false
+                    ) {
+                        return await response.text();
+                    }
+                    return await response.json();
+                } catch (error) {
+                    showStatus(
+                        `Lỗi: ${error.message || "Không thể kết nối đến máy chủ."}`,
+                        true,
+                    );
+                    return null;
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            // Load all POIs and sync with operating hours
+            async function loadAllPoisAndSyncGioHoatDong() {
+                showLoading(true);
+                try {
+                    const [poiData, gioData] = await Promise.all([
+                        fetchData(API_URLS.poi),
+                        fetchData(API_URLS.gioHoatDong),
+                    ]);
+
+                    if (Array.isArray(poiData)) {
+                        poiList = poiData;
+                        renderPOIs();
+                    } else {
+                        showStatus(
+                            "Lỗi: Không nhận được dữ liệu POI hợp lệ từ server.",
+                            true,
+                        );
+                    }
+
+                    if (Array.isArray(gioData)) {
+                        gioHoatDongList = gioData;
+                    } else {
+                        showStatus(
+                            "Lỗi: Không nhận được dữ liệu Giờ Hoạt Động hợp lệ từ server.",
+                            true,
+                        );
+                    }
+                    showStatus(
+                        "Đã tải đồng bộ POI và Giờ Hoạt Động thành công!",
+                    );
+                } catch (e) {
+                    showStatus("Lỗi khi tải dữ liệu: " + e.message, true);
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            // Clear form
+            function clearForm() {
+                document.getElementById("poiForm").reset();
+                document.getElementById("poiIdHidden").value = "";
+                document.getElementById("poiIdDisplay").value = "(Tự động)";
+            }
+
+            // Populate form for editing
+            function populateFormForEdit(poi) {
+                clearForm();
+                if (!poi || typeof poi !== "object" || !poi.id) {
+                    showStatus(
+                        "Không có dữ liệu POI hợp lệ để điền vào form.",
+                        true,
+                    );
+                    return;
+                }
+
+                document.getElementById("poiIdDisplay").value = poi.id;
+                document.getElementById("poiIdHidden").value = poi.id;
+
+                const form = document.getElementById("poiForm");
+                const elements = form.elements;
+                for (let i = 0; i < elements.length; i++) {
+                    const element = elements[i];
+                    const key = element.name;
+                    if (key && poi.hasOwnProperty(key)) {
+                        element.value = poi[key];
+                    }
+                }
+
+                document
+                    .getElementById("poiForm")
+                    .scrollIntoView({ behavior: "smooth", block: "start" });
+                showStatus(
+                    `Đã tải dữ liệu POI ID ${poi.id} vào form.`,
+                    false,
+                    3000,
+                );
+            }
+
+            // Get POI by ID and populate form
+            function getPoiByIdAndPopulate(id) {
+                if (!id) return;
+                const poi = poiList.find((p) => String(p.id) === String(id));
+                if (poi) {
+                    populateFormForEdit(poi);
+                } else {
+                    showStatus(
+                        `Không tìm thấy POI với ID ${id} trong danh sách hiện tại.`,
+                        true,
+                    );
+                }
+            }
+
+            // Add or update POI
+            async function addOrUpdatePoi() {
+                const form = document.getElementById("poiForm");
+                const formData = new FormData(form);
+                const poiData = {};
+                formData.forEach((value, key) => {
+                    poiData[key] = value;
+                });
+
+                if (!poiData.name) {
+                    showStatus(
+                        "Vui lòng nhập Tên POI (trường bắt buộc).",
+                        true,
+                    );
+                    return;
+                }
+
+                let updatedList = [...poiList];
+                const currentIdValue = poiData.id;
+                let isUpdate = !!currentIdValue;
+
+                if (isUpdate) {
+                    const idx = updatedList.findIndex(
+                        (p) => String(p.id) === String(currentIdValue),
+                    );
+                    if (idx !== -1) {
+                        updatedList[idx] = { ...updatedList[idx], ...poiData };
+                    }
+                } else {
+                    let maxId = 0;
+                    updatedList.forEach((p) => {
+                        const idNum = parseInt(p.id);
+                        if (!isNaN(idNum) && idNum > maxId) maxId = idNum;
+                    });
+                    poiData.id = String(maxId + 1);
+                    updatedList.push(poiData);
+                }
+
+                await fetchData(API_URLS.poi, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedList),
+                });
+
+                showStatus("Đã lưu thành công lên server!", false);
+                await loadAllPoisAndSyncGioHoatDong();
+                clearForm();
+            }
+
+            // Delete POI from row
+            async function deletePoiFromRow(id) {
+                if (
+                    !id ||
+                    !window.confirm("Bạn có chắc chắn muốn xóa POI này?")
+                )
+                    return;
+
+                const updatedList = poiList.filter(
+                    (p) => String(p.id) !== String(id),
+                );
+
+                await fetchData(API_URLS.poi, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedList),
+                });
+
+                showStatus("Đã xóa và lưu thành công!", false);
+                await loadAllPoisAndSyncGioHoatDong();
+                clearForm();
+            }
+
+            // Render POIs table
+            function renderPOIs() {
+                const tbody = document.getElementById("poiTableBody");
+
+                if (poiList.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500 italic">
+                                Chưa có dữ liệu. Nhấn "Tải tất cả POI" để bắt đầu.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = poiList
+                    .map(
+                        (poi) => `
+                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                        <td class="px-4 py-3 font-medium text-slate-900">${poi.id}</td>
+                        <td class="px-4 py-3 text-slate-700 max-w-xs truncate" title="${poi.name}">${poi.name}</td>
+                        <td class="px-4 py-3">${poi.category || ""}</td>
+                        <td class="px-4 py-3">${poi.area || ""}</td>
+                        <td class="px-4 py-3 text-center">${poi.featured === "TRUE" ? "Có" : "Không"}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button class="text-indigo-600 hover:text-indigo-900" onclick="getPoiByIdAndPopulate('${poi.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 ml-4" onclick="deletePoiFromRow('${poi.id}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `,
+                    )
+                    .join("");
+            }
+
+            // Map functions
+            function initMap() {
+                if (map) {
+                    map.remove();
+                }
+
+                const defaultCoords = formCoordinates || [
+                    11.374232, 106.175094,
+                ];
+                map = L.map("mapContainer").setView(defaultCoords, 16);
+
+                L.tileLayer(
+                    "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+                    {
+                        attribution: "© Google",
+                    },
+                ).addTo(map);
+
+                if (formCoordinates) {
+                    L.marker(formCoordinates).addTo(map);
+                }
+
+                map.on("click", function (e) {
+                    formCoordinates = [e.latlng.lat, e.latlng.lng];
+                    document.getElementById("poiLatInput").value =
+                        e.latlng.lat.toFixed(6);
+                    document.getElementById("poiLonInput").value =
+                        e.latlng.lng.toFixed(6);
+                    closeMapModal();
+                });
+            }
+
+            function closeMapModal() {
+                document.getElementById("mapModal").classList.add("hidden");
+                if (map) {
+                    map.remove();
+                    map = null;
+                }
+            }
+
+            // Global functions for onclick handlers
+            window.getPoiByIdAndPopulate = getPoiByIdAndPopulate;
+            window.deletePoiFromRow = deletePoiFromRow;
+        </script>
+</Layout>

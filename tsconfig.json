@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "allowJs": true,
+    "jsx": "preserve",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@scripts/*": ["src/scripts/*"],
+      "@styles/*": ["src/styles/*"]
+    },
+    "types": ["astro/client"],
+    "noEmit": true,
+    "lib": ["ES2020", "DOM"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  }
+}

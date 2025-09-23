@@ -1,0 +1,486 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/climb.css';
+import climbScriptUrl from '@scripts/climb.js?url';
+import mainScriptUrl from '@scripts/main.js?url';
+---
+
+<Layout 
+  title="Đăng ký leo núi - Khu du lịch quốc gia Núi Bà Đen"
+  description="Đăng ký leo núi Bà Đen - Thông tin về lịch trình, quy định, hướng dẫn và đăng ký trực tuyến cho hoạt động leo núi."
+>
+  <Header currentPage="climb" pageTitle="Chinh phục Núi Bà Đen" />
+
+  <div id="messageBox" class="message-box z-[150]"></div>
+
+  <!-- Admin Notifications Container -->
+  <div id="adminNotifications" class="fixed top-20 left-4 right-4 z-[160] max-w-md mx-auto space-y-3"></div>
+  
+  <!-- Registration Time Status -->
+  <div id="registrationTimeStatus" class="fixed top-32 left-4 right-4 z-[150] max-w-md mx-auto"></div>
+
+  <div class="container mx-auto px-4 py-8 md:px-6 md:py-12 max-w-5xl">
+
+    <header class="text-center mb-10 md:mb-16">
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-3 tracking-tight">Chinh phục Núi Bà Đen</h1>
+      <p class="text-lg md:text-xl text-gray-600">Đăng ký chuyến đi, khám phá "Nóc nhà Nam Bộ" (986m) và nhận chứng nhận điện tử độc đáo.</p>
+    </header>
+
+    <main class="space-y-10 md:space-y-16">
+
+      <section id="emergency" class="bg-red-100 border-l-4 border-red-600 text-red-800 p-5 rounded-lg shadow-md flex items-start space-x-4">
+        <i class="fa-solid fa-triangle-exclamation text-2xl text-red-600 mt-1"></i>
+        <div>
+          <h2 class="font-bold text-lg uppercase mb-2">Thông Tin Cứu Hộ Khẩn Cấp</h2>
+          <p class="mb-3">Trong trường hợp khẩn cấp trên đường leo núi, vui lòng liên hệ ngay Hotline:</p>
+          <a href="tel:02763875678" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-lg transition duration-150 ease-in-out shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+            <i class="fa-solid fa-phone mr-2"></i>
+            <span>0276.387.5678</span>
+          </a>
+          <p class="mt-3 text-sm text-red-700">Luôn mang theo điện thoại, đảm bảo đủ pin và có sóng.</p>
+        </div>
+      </section>
+
+      <section id="trekking-routes" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 border-b border-indigo-200 pb-4 flex items-center">
+          <i class="fa-solid fa-map-location-dot text-3xl text-indigo-600 mr-4"></i>
+          Bản đồ Tuyến đường Leo núi
+        </h2>
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tuyến đường Cột Điện (Chính thức)</h3>
+          <p class="text-sm text-gray-600 mb-4">Đây là tuyến đường được Ban Quản lý cho phép. Vui lòng đi đúng theo lộ trình được đánh dấu. Nhấn nút <i class="fa-solid fa-location-crosshairs"></i> trên bản đồ để xem vị trí của bạn.</p>
+          <div id="mapCanvas" class="w-full rounded-md border border-gray-300 shadow-sm bg-gray-200 z-0 relative">
+            <div class="flex items-center justify-center h-full text-gray-500">
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải bản đồ...
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Sử dụng nút +/- để phóng to/thu nhỏ.</p>
+          <div class="mt-4 text-center sm:text-left">
+            <button type="button" id="downloadGpxBtn" class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              <i class="fa-solid fa-route mr-2"></i>
+              <span>Tải Tuyến đường GPX</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="regulations" class="bg-yellow-50 border border-yellow-300 p-6 rounded-lg shadow-sm">
+        <h2 class="text-xl font-semibold text-yellow-900 mb-5 flex items-center">
+          <i class="fa-solid fa-scroll text-2xl text-yellow-600 mr-3"></i>
+          Quy định An toàn & Bảo vệ Môi trường
+        </h2>
+        <p class="text-yellow-800 mb-4 text-sm">Vì sự an toàn của bạn và bảo tồn vẻ đẹp tự nhiên, vui lòng tuân thủ nghiêm ngặt các quy định sau:</p>
+        <ul class="list-none space-y-3 text-yellow-900 text-sm md:text-base">
+          <li class="flex items-start"><i class="fa-solid fa-shoe-prints text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Đi đúng đường mòn:</span> Luôn đi theo chỉ dẫn, không đi đường tắt.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-bottle-water text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Chuẩn bị kỹ lưỡng:</span> Mang đủ nước (1.5-2L+), thức ăn nhẹ, y tế cơ bản.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-shirt text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Trang phục & Trang bị:</span> Quần áo thoải mái, giày chuyên dụng, đèn pin, sạc dự phòng.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-cloud-sun-rain text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Kiểm tra thời tiết:</span> Xem dự báo, chuẩn bị áo mưa/áo khoác nếu cần.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-mobile-screen-button text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Thông báo lịch trình:</span> Cho người thân biết kế hoạch và thời gian dự kiến.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-trash-can text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Giữ gìn vệ sinh:</span> Mang toàn bộ rác xuống núi, không xả rác bừa bãi.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-leaf text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Bảo vệ thiên nhiên:</span> Không bẻ cành, hái hoa, khắc vẽ, săn bắt.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-fire-extinguisher text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Phòng chống cháy rừng:</span> Tuyệt đối không đốt lửa, hút thuốc sai quy định.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-people-group text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Giữ liên lạc:</span> Đi theo đoàn, không tách nhóm đi một mình.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-flag text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Báo cáo sự cố:</span> Gọi ngay Hotline cứu hộ nếu gặp sự cố hoặc nguy cơ.</span></li>
+        </ul>
+      </section>
+
+      <section id="registration" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-green-700 border-b border-green-200 pb-4 flex items-center">
+          <i class="fa-solid fa-clipboard-list text-3xl text-green-600 mr-4"></i>
+          Đăng ký thông tin leo núi
+        </h2>
+
+        <!-- Nút bắt đầu đăng ký -->
+        <div id="startRegistrationArea" class="text-center py-8">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-mountain text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Bắt đầu đăng ký leo núi</h3>
+            <p class="text-gray-600 mb-6">Vui lòng xác nhận vai trò của bạn trước khi tiến hành đăng ký</p>
+            <button type="button" id="startRegistrationBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md mx-auto">
+              <i class="fa-solid fa-play mr-2"></i>
+              <span>Bắt đầu đăng ký</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form đăng ký (ẩn ban đầu) -->
+        <div id="registrationFormContainer" class="hidden">
+          <form id="registrationForm" novalidate class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <div class="space-y-5">
+                <div class="relative">
+                  <label for="leaderName" class="block text-sm font-medium text-gray-700 mb-1">Họ tên Trưởng đoàn/Người đăng ký <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" id="leaderName" name="leaderName" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nguyễn Văn An">
+                  </div>
+                </div>
+                <div class="relative">
+                  <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-phone"></i></span>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]{10,11}" title="Nhập số điện thoại hợp lệ (10-11 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="09XXXXXXXX">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Dùng để xác thực nhận chứng nhận.</p>
+                </div>
+                <div class="relative">
+                  <label for="birthday" class="block text-sm font-medium text-gray-700 mb-1">Ngày sinh <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-cake-candles"></i></span>
+                    <input type="date" id="birthday" name="birthday" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" max="2009-12-31" placeholder="Chọn ngày sinh">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Chọn ngày sinh (phải từ 15 tuổi trở lên).
+                  </p>
+                </div>
+                <div class="relative">
+                  <label for="cccd" class="block text-sm font-medium text-gray-700 mb-1">Căn cước công dân <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-id-card"></i></span>
+                    <input type="text" id="cccd" name="cccd" required pattern="[0-9]{12}" title="Nhập CCCD hợp lệ (12 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="123456789012">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Nhập đầy đủ 12 số CCCD.</p>
+                </div>
+                <div class="relative">
+                  <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ (Tỉnh/Thành phố) <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-location-dot"></i></span>
+                    <input type="text" id="address" name="address" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="TP. Hồ Chí Minh">
+                  </div>
+                </div>
+                <div class="relative">
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ Email <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" id="email" name="email" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="nguyenvana@email.com">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Để nhận email xác nhận đăng ký.</p>
+                </div>
+              </div>
+
+              <div class="space-y-5">
+                <div class="relative">
+                  <label for="groupSize" class="block text_sm font-medium text-gray-700 mb-1">Số lượng thành viên (cả trưởng đoàn) <span class="text-red-500">*</span></label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-users"></i></span>
+                    <input type="number" id="groupSize" name="groupSize" required min="1" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nhập số người">
+                  </div>
+                  <div class="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+                    <p class="text-xs text-yellow-800">
+                      <i class="fas fa-exclamation-triangle text-yellow-600 mr-1"></i>
+                      <strong>Lưu ý:</strong> Vui lòng cung cấp chính xác.
+                    </p>
+                  </div>
+                </div>
+                <div class="relative">
+                  <label for="climbDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày leo núi</label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-calendar-days"></i></span>
+                    <input type="date" id="climbDate" name="climbDate" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base">
+                  </div>
+                </div>
+                <div class="relative">
+                  <label for="climbTime" class="block text-sm font-medium text-gray-700 mb-1">Giờ leo núi</label>
+                  <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-clock"></i></span>
+                    <input type="time" id="climbTime" name="climbTime" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base">
+                  </div>
+                  <div class="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
+                    <p class="text-xs text-blue-800">
+                      <i class="fas fa-info-circle text-blue-600 mr-1"></i>
+                      <strong>Thời gian leo:</strong> Sẽ được tính từ giờ này đến lúc xác nhận trên đỉnh núi. Thời gian thực sẽ được ghi nhận tự động.
+                    </p>
+                  </div>
+                </div>
+                <div class="relative">
+                  <label for="memberList" class="block text-sm font-medium text-gray-700 mb-1">Danh sách thành viên nhận chứng nhận</label>
+                  <div class="flex items-start border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
+                    <span class="pl-3 pr-2 pt-2 text-gray-400"><i class="fa-solid fa-list-ul"></i></span>
+                    <textarea id="memberList" name="memberList" rows="3" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nhập mỗi tên trên một dòng (tùy chọn)"></textarea>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Nhập đầy đủ họ tên để in chứng nhận. Sẽ hiển thị để chọn khi nhận chứng nhận.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex items-start">
+                <div class="flex items-center h-5 mt-0.5">
+                  <input id="safetyCommit" name="safetyCommit" type="checkbox" required class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 rounded">
+                </div>
+                <div class="ml-3 text-sm">
+                  <label for="safetyCommit" class="font-medium text-gray-700">Tôi đã đọc, hiểu rõ và cam kết tuân thủ các <a href="#regulations" class="text-blue-600 hover:underline font-semibold">Quy định An toàn & Bảo vệ Môi trường</a> khi tham gia leo núi <span class="text-red-500">*</span></label>
+                </div>
+              </div>
+              <p id="safetyCommitError" class="text-xs text-red-600 mt-1 hidden ml-8">Vui lòng xác nhận cam kết.</p>
+            </div>
+
+            <div class="pt-2 flex flex-col sm:flex-row gap-3">
+              <button type="submit" id="registerBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-paper-plane mr-2"></i>
+                <span>Đăng ký</span>  
+                <div id="registerSpinner" class="spinner hidden"></div>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="certification" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-blue-700 border-b border-blue-200 pb-4 flex items-center">
+          <i class="fa-solid fa-award text-3xl text-blue-600 mr-4"></i>
+          Nhận Chứng nhận
+        </h2>
+        
+        <!-- Thông tin về thời gian và chứng nhận -->
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
+          <div class="flex items-start">
+            <i class="fas fa-clock text-blue-600 mt-1 mr-3"></i>
+            <div class="text-sm text-blue-800">
+              <p class="font-semibold mb-2">⏱️ Thông tin thời gian leo núi:</p>
+              <ul class="list-disc list-inside space-y-1 text-xs">
+                <li><strong>Thời gian leo:</strong> Được tính từ lúc bắt đầu leo đến lúc xác nhận vị trí trên đỉnh</li>
+                <li><strong>Ghi nhận tự động:</strong> Hệ thống sẽ ghi nhận thời gian thực khi bạn ấn "Xác thực"</li>
+                <li><strong>Hiển thị trên chứng nhận:</strong> Thời gian leo sẽ được in trên chứng nhận</li>
+                <li><strong>Yêu cầu:</strong> Phải xác thực vị trí tại đỉnh núi (986m) để nhận chứng nhận</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="phoneVerificationArea">
+          <div class="mb-4 relative">
+            <label for="verifyPhoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Nhập Số điện thoại đã đăng ký <span class="text-red-500">*</span></label>
+            <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
+              <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-mobile-screen-button"></i></span>
+              <input type="tel" id="verifyPhoneNumber" name="verifyPhoneNumber" required pattern="[0-9]{10,11}" title="Nhập số điện thoại đã dùng để đăng ký" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm" placeholder="Nhập lại SĐT đã đăng ký">
+            </div>
+          </div>
+          <div class="pt-2 flex flex-col sm:flex-row gap-3">
+            <button type="button" id="verifyPhoneBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg focus:outline_none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-location-crosshairs mr-2"></i>
+              <span>Xác thực</span> 
+              <div id="certSpinner" class="spinner hidden"></div>
+            </button>
+          </div>
+        </div>
+
+        <div id="memberSelectionArea" class="mt-8 hidden border border-gray-200 rounded-lg p-4 md:p-6 bg-gray-50/50">
+          <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-3">Chọn thành viên & Tải ảnh (tùy chọn)</h3>
+          <p class="text-sm text-gray-600 mb-5">Đánh dấu chọn thành viên muốn nhận chứng nhận. Nhấn "Tải ảnh" để thêm hình ảnh cá nhân lên chứng nhận (bỏ qua nếu không muốn).</p>
+
+          <div id="memberListContainer" class="space-y-4 mb-6 max-h-96 overflow-y-auto border-t border-b border-gray-200 py-4">
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-200">
+            <button type="button" id="generateSelectedBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg focus:outline_none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-base shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-file-pdf mr-2"></i>
+              <span>Tạo Chứng nhận</span> 
+              <div id="generateSpinner" class="spinner hidden"></div>
+            </button>
+            <button type="button" id="resetVerificationBtn" class="w-full sm:w-auto text-sm text-gray-500 hover:text-gray-700 hover:underline">
+              <i class="fa-solid fa-arrow-left mr-1"></i> Nhập SĐT khác 
+            </button>
+          </div>
+        </div>
+
+        <div id="certificateResult" class="mt-8 hidden bg-green-50 p-6 rounded-lg border border-green-300 shadow-sm transition-all duration-500 ease-out">
+          <h3 id="certificateResultTitle" class="text-xl font-semibold text-green-800 mb-3 flex items-center">
+            <i class="fa-solid fa-circle-check text-green-600 mr-2"></i>
+            <span></span>
+          </h3>
+          <p id="certificateResultMessage" class="mb-4 text-green-700"></p>
+          <ul id="downloadLinks" class="space-y-3">
+          </ul>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="text-center mt-16 pt-8 border-t border-gray-200 text-sm text-gray-500">
+      <p class="mt-1">Chúc quý khách có một chuyến đi an toàn và ý nghĩa!</p>
+    </footer>
+  </div>
+
+  <Footer />
+
+  <!-- Modal Cam kết và Chữ ký -->
+  <div id="commitmentModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[200] p-2 md:p-4 overflow-y-auto hidden">
+    <div class="bg-white rounded-lg shadow-xl p-2 md:p-6 w-full max-w-2xl mx-auto max-h-[95vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg md:text-2xl font-bold text-gray-800">Cam kết đăng ký leo núi</h3>
+        <button type="button" id="closeCommitmentBtn" class="text-gray-400 hover:text-gray-600 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <!-- Bản cam kết -->
+      <div class="bg-blue-50 p-2 md:p-4 rounded-lg mb-4">
+        <div class="text-center mb-4">
+          <div class="font-bold text-base md:text-lg uppercase mb-1">BẢN CAM KẾT TỰ NGUYỆN THAM GIA LEO NÚI</div>
+          <div class="italic text-sm md:text-base">(Tại Khu du lịch Quốc gia Núi Bà Đen)</div>
+          <div class="font-semibold mt-2">
+            <span class="font-bold">Kính gửi:</span> Ban quản lý Khu du lịch Quốc gia Núi Bà Đen
+          </div>
+        </div>
+        <div class="mb-2 text-sm md:text-base">
+          <div><strong>Họ tên:</strong> <span id="commitmentName"></span></div>
+          <div><strong>Ngày sinh:</strong> <span id="commitmentBirthday"></span></div>
+          <div><strong>CMND/CCCD số:</strong> <span id="commitmentCCCD"></span></div>
+          <div><strong>Địa chỉ thường trú:</strong> <span id="commitmentAddress"></span></div>
+          <div><strong>Số điện thoại liên hệ:</strong> <span id="commitmentPhone"></span></div>
+          <div><strong>Email:</strong> <span id="commitmentEmail"></span></div>
+          <div><strong>Số lượng thành viên:</strong> <span id="commitmentGroupSize"></span></div>
+          <div><strong>Ngày leo:</strong> <span id="commitmentDate"></span></div>
+          <div><strong>Giờ leo:</strong> <span id="commitmentTime"></span></div>
+        </div>
+        <!-- Nội dung cam kết -->
+        <div class="text-justify text-xs md:text-sm text-blue-700 space-y-2 leading-relaxed mt-2">
+          <p>
+            Vào ngày <span id="commitmentDay"></span> tháng <span id="commitmentMonth"></span> năm <span id="commitmentYear"></span>, nay tôi làm bản cam kết này để xác nhận việc tham gia hoạt động leo núi tại Núi Bà Đen, với các nội dung sau:
+          </p>
+          <p><strong>1. Tự nguyện tham gia:</strong> Tôi tự nguyện tham gia hoạt động leo núi, đã được lực lượng của Ban Quản lý phổ biến đầy đủ thông tin, hướng dẫn và nhận thức rõ về các nguy cơ, rủi ro có thể xảy ra trong quá trình tham gia hoạt động.</p>
+          <p><strong>2. Đảm bảo sức khỏe cá nhân:</strong> Tôi cam kết có đủ điều kiện sức khỏe để tham gia hoạt động leo núi, không mắc các bệnh lý nguy hiểm hoặc ảnh hưởng đến việc vận động. Tôi hoàn toàn chịu trách nhiệm về tình trạng sức khỏe của bản thân.</p>
+          <p><strong>3. Tuân thủ quy định và hướng dẫn:</strong> Cam kết chấp hành nghiêm túc mọi nội quy, quy định, hướng dẫn của Ban Quản lý Khu du lịch quốc gia Núi Bà Đen, lực lượng chức năng và người hướng dẫn trong suốt quá trình tham gia hoạt động.</p>
+          <p><strong>4. Cam kết bảo vệ môi trường và phòng cháy chữa cháy rừng:</strong></p>
+          <ul class="list-disc ml-6 space-y-1">
+            <li>Không xả rác, không hủy hoại tài nguyên rừng, hệ sinh thái rừng, công trình bảo vệ và phát triển rừng;</li>
+            <li>Không sử dụng lửa trong rừng, không mang theo hóa chất độc, chất nổ, chất cháy, chất dễ cháy vào rừng;</li>
+            <li>Không săn, bắt, nhốt, giết, tàng trữ, vận chuyển, buôn bán động vật rừng, thu thập mẫu vật các loài thực vật rừng, động vật rừng trái quy định của pháp luật.</li>
+          </ul>
+          <p><strong>5. Cam kết giữ gìn an ninh trật tự và an toàn cá nhân:</strong></p>
+          <ul class="list-disc ml-6 space-y-1">
+            <li>Không tổ chức, sử dụng, mua bán trái phép chất ma túy; Không tổ chức đánh bạc, cá độ dưới mọi hình thức trong quá trình leo núi trên lâm phần của Ban Quản lý;</li>
+            <li>Không tự ý tách đoàn, không đi vào các khu vực cấm hoặc địa hình nguy hiểm. Nếu vi phạm, tôi hoàn toàn chịu trách nhiệm trước pháp luật và các cơ quan có thẩm quyền.</li>
+          </ul>
+          <p><strong>6. Chấp nhận rủi ro và miễn trừ trách nhiệm:</strong> Trong trường hợp xảy ra tai nạn, thương tích hoặc sự cố ngoài ý muốn trong quá trình tham gia hoạt động, tôi cam kết tự chịu trách nhiệm và không khiếu nại, khiếu kiện Ban Tổ chức hoặc Ban Quản lý Khu du lịch dưới bất kỳ hình thức nào.</p>
+          <p class="mt-4 font-semibold">
+            Tôi làm cam kết này với tinh thần tự nguyện, trung thực và hoàn toàn chịu trách nhiệm trước pháp luật về các thông tin đã khai và nội dung cam kết trên./.
+          </p>
+        </div>
+      </div>
+      <!-- Khu vực chữ ký -->
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-4 mb-4">
+        <h4 class="text-base md:text-lg font-semibold text-gray-800 mb-2">Chữ ký xác nhận:</h4>
+        <p class="text-xs md:text-sm text-gray-600 mb-2">Vui lòng ký tay vào ô bên dưới để xác nhận cam kết:</p>
+        <canvas id="signatureCanvas" class="w-full h-32 md:h-48 border border-gray-300 rounded bg-white cursor-crosshair"></canvas>
+        <div class="flex justify-between items-center mt-2">
+          <button type="button" id="clearSignatureBtn" class="text-xs md:text-sm text-red-600 hover:text-red-800">
+            <i class="fas fa-eraser mr-1"></i> Xóa chữ ký
+          </button>
+          <span class="text-xs text-gray-500">Ký bằng tay hoặc bút cảm ứng</span>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="cancelCommitmentBtn" class="py-2 px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md font-medium text-xs md:text-sm">
+          Hủy bỏ
+        </button>
+        <button type="button" id="confirmCommitmentBtn" class="py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md text-xs md:text-sm">
+          <i class="fas fa-check mr-2"></i> Xác nhận cam kết
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận Đại diện Nhóm/Cá nhân -->
+  <div id="representativeModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[200] p-2 md:p-4 overflow-y-auto hidden">
+    <div class="bg-white rounded-lg shadow-xl p-3 md:p-6 w-full max-w-lg mx-auto max-h-[95vh] overflow-y-auto">
+      <div class="text-center mb-4 md:mb-6">
+        <div class="w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+          <i class="fas fa-user-check text-xl md:text-2xl text-blue-600"></i>
+        </div>
+        <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-2">Xác nhận Đại diện</h3>
+        <p class="text-gray-600 text-xs md:text-sm lg:text-base">Vui lòng xác nhận vai trò của bạn trước khi đăng ký leo núi</p>
+      </div>
+      
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
+        <div class="flex items-start">
+          <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-2 md:mr-3 text-sm md:text-base"></i>
+          <div class="text-xs md:text-sm text-yellow-800">
+            <p class="font-semibold mb-2">Lưu ý quan trọng:</p>
+            <ul class="list-disc list-inside space-y-1 text-xs">
+              <li>Chỉ <strong>đại diện nhóm</strong> hoặc <strong>cá nhân</strong> mới được phép đăng ký</li>
+              <li>Mỗi nhóm chỉ đăng ký <strong>một lần duy nhất</strong></li>
+              <li>Tránh đăng ký trùng lặp để không tạo nhiều chứng nhận</li>
+              <li>Nếu bạn là thành viên nhóm, vui lòng liên hệ trưởng đoàn</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-3 md:space-y-4 mb-4 md:mb-6">
+        <div class="flex items-start p-2 md:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectRepresentativeType('leader')">
+          <input type="radio" id="leaderType" name="representativeType" value="leader" class="mr-2 md:mr-3 mt-1">
+          <div class="flex-1">
+            <label for="leaderType" class="font-semibold text-gray-800 cursor-pointer text-sm md:text-base">Tôi là Trưởng đoàn/Đại diện nhóm</label>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Tôi sẽ đăng ký cho cả nhóm và chịu trách nhiệm về thông tin</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start p-2 md:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectRepresentativeType('individual')">
+          <input type="radio" id="individualType" name="representativeType" value="individual" class="mr-2 md:mr-3 mt-1">
+          <div class="flex-1">
+            <label for="individualType" class="font-semibold text-gray-800 cursor-pointer text-sm md:text-base">Tôi là Cá nhân leo núi</label>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Tôi sẽ đăng ký cho bản thân mình</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start p-2 md:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectRepresentativeType('member')">
+          <input type="radio" id="memberType" name="representativeType" value="member" class="mr-2 md:mr-3 mt-1">
+          <div class="flex-1">
+            <label for="memberType" class="font-semibold text-gray-800 cursor-pointer text-sm md:text-base">Tôi là Thành viên nhóm</label>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Tôi không phải đại diện, vui lòng liên hệ trưởng đoàn</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+        <button type="button" id="cancelRepresentativeBtn" class="w-full sm:w-auto py-2 px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md font-medium text-sm">
+          Hủy bỏ
+        </button>
+        <button type="button" id="confirmRepresentativeBtn" class="w-full sm:w-auto py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-check mr-2"></i> Tiếp tục
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crop ảnh -->
+  <div id="cropModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100] hidden p-4">
+    <div class="bg-white rounded-lg shadow-xl p-5 max-w-xl w-full mx-auto">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Cắt ảnh theo tỷ lệ yêu cầu</h3>
+      <p class="text-sm text-gray-600 mb-4">Di chuyển và thay đổi kích thước vùng chọn để cắt ảnh.</p>
+      <div class="mb-4 max-h-[60vh] overflow-hidden bg-gray-100 border border-gray-300 rounded">
+        <img id="imageToCrop" src="" alt="Ảnh cần cắt" class="max-w-full block">
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button type="button" id="cancelCropBtn" class="py-2 px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition duration-150 ease-in-out text-sm font-medium">
+          Hủy bỏ
+        </button>
+        <button type="button" id="confirmCropBtn" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-150 ease-in-out text-sm">
+          <i class="fa-solid fa-crop-simple mr-1"></i> Xác nhận
+        </button>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<!-- Map-related CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.81.0/dist/L.Control.Locate.min.css">
+<!-- Cropper.js CSS for photo cropping -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
+<!-- Load Leaflet and dependencies -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.81.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+<!-- Cropper.js library (preload to ensure availability) -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<!-- Load main climb script -->
+<script type="module" src={climbScriptUrl}></script>
+<script type="module" src={mainScriptUrl}></script>

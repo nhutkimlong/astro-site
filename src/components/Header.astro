@@ -1,0 +1,253 @@
+---
+export interface Props {
+  currentPage?: string;
+  pageTitle?: string;
+}
+
+const { currentPage = "", pageTitle = "Khu du lịch quốc gia Núi Bà Đen" } = Astro.props;
+---
+
+<!-- Header -->
+<header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="/assets/images/android-chrome-512x512.png" alt="Logo Núi Bà Đen" class="w-12 h-12 rounded-full object-cover border-2 border-primary-100">
+                <div>
+                    <h1 class="text-base sm:text-lg md:text-xl font-bold text-primary-600">{pageTitle}</h1>
+                    <p class="text-xs text-primary-700 hidden sm:block">Tây Ninh, Việt Nam</p>
+                    <p id="headerGreeting" class="text-xs text-emerald-700 hidden">Xin chào, <span id="headerUserName"></span></p>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8 items-center">
+                    <li><a href="/" class={`nav-link px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'home' ? 'active' : ''}`}>Trang chủ</a></li>
+                    <li><a href="/map" class={`nav-link px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'map' ? 'active' : ''}`}>Bản đồ số</a></li>
+                    <li><a href="/guide" class={`nav-link px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'guide' ? 'active' : ''}`}>Cẩm nang du lịch</a></li>
+                    <li><a href="/climb" class={`nav-link px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'climb' ? 'active' : ''}`}>Đăng ký leo núi</a></li>
+                    <li>
+                        <div class="language-selector ml-2" onclick="toggleLanguageMenu()">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                    </li>
+                    <li>
+                        <button id="openAccountBtn" class="p-2 rounded-full hover:bg-gray-100" title="Tài khoản"><i class="fas fa-user-circle text-xl"></i></button>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- Mobile Language Selector & Menu Button -->
+            <div class="flex items-center md:hidden">
+                <div class="language-selector mr-2" onclick="toggleLanguageMenu()">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <button id="mobile-menu-button" class="text-gray-700 hover:text-primary-700 focus:outline-none" aria-label="Mở menu điều hướng">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden mt-3 border-t border-gray-100 pt-3">
+            <ul class="space-y-2">
+                <li><a href="/" class={`block px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'home' ? 'bg-gray-50 rounded-md text-primary-500' : ''}`}>Trang chủ</a></li>
+                <li><a href="/map" class={`block px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'map' ? 'bg-gray-50 rounded-md text-primary-500' : ''}`}>Bản đồ số</a></li>
+                <li><a href="/guide" class={`block px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'guide' ? 'bg-gray-50 rounded-md text-primary-500' : ''}`}>Cẩm nang du lịch</a></li>
+                <li><a href="/climb" class={`block px-2 py-2 font-medium hover:text-primary-500 transition duration-200 ${currentPage === 'climb' ? 'bg-gray-50 rounded-md text-primary-500' : ''}`}>Đăng ký leo núi</a></li>
+                <li><button id="openAccountBtnMobile" class="block w-full text-left px-2 py-2 font-medium hover:text-primary-500 transition duration-200">Tài khoản</button></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<!-- Removed old profile-only modal to avoid duplicate IDs -->
+
+<script>
+    // Menu toggle only (auth handled by unified modal below)
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); });
+        }
+    });
+</script>
+
+<!-- Unified Account Modal: Login/Register when logged out; Profile when logged in -->
+<div id="accountOverlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+    <button id="closeAccountBtn" class="absolute top-3 right-3 text-slate-500 hover:text-red-500" aria-label="Đóng"><i class="fas fa-times"></i></button>
+    <h3 class="text-lg font-semibold text-slate-800 mb-4">Tài khoản</h3>
+
+    <div id="authSection">
+      <div class="flex mb-4 border-b border-slate-200">
+        <button id="tabLogin" class="flex-1 py-2 text-center font-medium border-b-2 border-indigo-600 text-indigo-600">Đăng nhập</button>
+        <button id="tabRegister" class="flex-1 py-2 text-center font-medium text-slate-600 hover:text-slate-800">Đăng ký</button>
+      </div>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" name="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+          <input type="password" name="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Đăng nhập</button>
+      </form>
+      <form id="registerForm" class="space-y-4 hidden">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Họ tên</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" name="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+          <input type="password" name="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Đăng ký</button>
+      </form>
+      <p id="authMsg" class="mt-3 text-center text-sm text-red-600 hidden"></p>
+    </div>
+
+    <div id="profileSection" class="hidden">
+      <p class="text-sm text-slate-600 mb-4">Xin chào, <span id="accountUserName">User</span></p>
+      <div class="space-y-3">
+        <a href="/account" class="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900"><i class="fas fa-user"></i> Hồ sơ của tôi</a>
+        <button class="inline-flex items-center gap-2 text-red-600 hover:text-red-700" onclick="appLogout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Account modal controller and auth handlers
+  document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('accountOverlay');
+    const closeBtn = document.getElementById('closeAccountBtn');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginForm = document.getElementById('loginForm') as HTMLFormElement | null;
+    const registerForm = document.getElementById('registerForm') as HTMLFormElement | null;
+    const authMsg = document.getElementById('authMsg');
+
+    // Intercept header Login/Register links to open modal
+    document.querySelectorAll('a[href="/login"], a[href="/register"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        if (overlay) {
+          e.preventDefault();
+          overlay.classList.remove('hidden');
+          if (a.getAttribute('href') === '/register') {
+            tabRegister?.click();
+          } else {
+            tabLogin?.click();
+          }
+        }
+      });
+    });
+
+    // Open by icon button on desktop/mobile if present
+    document.getElementById('openAccountBtn')?.addEventListener('click', () => overlay?.classList.toggle('hidden'));
+    document.getElementById('openAccountBtnMobile')?.addEventListener('click', () => overlay?.classList.toggle('hidden'));
+    closeBtn?.addEventListener('click', () => overlay?.classList.add('hidden'));
+
+    // Switch view based on auth
+    const isLoggedIn = Boolean(localStorage.getItem('authToken'));
+    const authSection = document.getElementById('authSection');
+    const profileSection = document.getElementById('profileSection');
+    const accountUserName = document.getElementById('accountUserName');
+    try {
+      const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+      if (accountUserName && (u.name || u.email)) accountUserName.textContent = u.name || u.email;
+    } catch {}
+    if (isLoggedIn) {
+      authSection?.classList.add('hidden');
+      profileSection?.classList.remove('hidden');
+    } else {
+      authSection?.classList.remove('hidden');
+      profileSection?.classList.add('hidden');
+    }
+
+    // Tabs
+    tabLogin?.addEventListener('click', () => {
+      tabLogin.classList.add('border-indigo-600','text-indigo-600');
+      tabRegister?.classList.remove('border-indigo-600','text-indigo-600');
+      registerForm?.classList.add('hidden');
+      loginForm?.classList.remove('hidden');
+    });
+    tabRegister?.addEventListener('click', () => {
+      tabRegister.classList.add('border-indigo-600','text-indigo-600');
+      tabLogin?.classList.remove('border-indigo-600','text-indigo-600');
+      loginForm?.classList.add('hidden');
+      registerForm?.classList.remove('hidden');
+    });
+
+    // Submit
+    loginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formEl = e.currentTarget as HTMLFormElement;
+      const fd = new FormData(formEl);
+      try {
+        const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'login', email: fd.get('email'), password: fd.get('password') }) });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || 'Đăng nhập thất bại');
+        localStorage.setItem('authToken', json.token);
+        localStorage.setItem('authUser', JSON.stringify(json.user));
+        authMsg?.classList.add('hidden');
+        window.location.reload();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Lỗi';
+        if (authMsg) { authMsg.textContent = msg; authMsg.classList.remove('hidden'); }
+      }
+    });
+
+    registerForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formEl = e.currentTarget as HTMLFormElement;
+      const fd = new FormData(formEl);
+      try {
+        const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'register', name: fd.get('name'), email: fd.get('email'), password: fd.get('password') }) });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || 'Đăng ký thất bại');
+        localStorage.setItem('authToken', json.token);
+        localStorage.setItem('authUser', JSON.stringify(json.user));
+        authMsg?.classList.add('hidden');
+        window.location.reload();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Lỗi';
+        if (authMsg) { authMsg.textContent = msg; authMsg.classList.remove('hidden'); }
+      }
+    });
+  });
+
+  // Make appLogout globally accessible
+  (window as any).appLogout = function(){
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    window.location.reload();
+  }
+
+  // Show greeting name on header when logged in
+  function showGreeting() {
+    try {
+      const token = localStorage.getItem('authToken');
+      const raw = localStorage.getItem('authUser');
+      if (!token || !raw) return;
+      const u = JSON.parse(raw);
+      const gre = document.getElementById('headerGreeting');
+      const nameEl = document.getElementById('headerUserName');
+      if (gre && nameEl) {
+        nameEl.textContent = u?.name || u?.email || '';
+        gre.classList.remove('hidden');
+      }
+    } catch {}
+  }
+  showGreeting();
+</script>

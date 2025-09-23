@@ -1,0 +1,439 @@
+---
+// Guide Admin Page
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/main.css";
+import "../../styles/tailwind.css";
+import "../../styles/admin/guide-admin.css";
+---
+
+<Layout title="Quản lý Cẩm nang - Baden App">
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) { window.location.href = '/login'; return; }
+        try{
+          const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{ 'Authorization':'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ action:'verify' }) });
+          const json = await res.json();
+          if (!res.ok || !json.success || json.role !== 'admin') { window.location.href = '/account'; }
+        }catch{ window.location.href = '/account'; }
+      });
+    </script>
+</head>
+<body class="bg-gray-50">
+    <Header currentPage="admin" />
+    <div class="min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-8">
+                <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
+                    <div class="flex items-center gap-4 w-full lg:w-auto">
+                        <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
+                            <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
+                        </a>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="p-3 bg-emerald-100 rounded-xl flex-shrink-0">
+                                <i class="fas fa-book text-emerald-600 text-2xl"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Cẩm Nang Du Lịch</h1>
+                                <p class="text-slate-600 text-sm lg:text-base truncate">Quản lý và cập nhật thông tin cẩm nang du lịch Núi Bà Đen</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="mb-6">
+                <nav class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-lg">
+                    <button class="tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-white text-slate-700 shadow-sm" data-tab="tours">
+                        <i class="fas fa-route mr-1 lg:mr-2"></i>
+                        <span class="hidden sm:inline">Tours</span>
+                    </button>
+                    <button class="tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-transparent text-slate-600 hover:bg-white hover:text-slate-700" data-tab="accommodations">
+                        <i class="fas fa-bed mr-1 lg:mr-2"></i>
+                        <span class="hidden sm:inline">Accommodations</span>
+                    </button>
+                    <button class="tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-transparent text-slate-600 hover:bg-white hover:text-slate-700" data-tab="restaurants">
+                        <i class="fas fa-utensils mr-1 lg:mr-2"></i>
+                        <span class="hidden sm:inline">Restaurants</span>
+                    </button>
+                    <button class="tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-transparent text-slate-600 hover:bg-white hover:text-slate-700" data-tab="specialties">
+                        <i class="fas fa-gift mr-1 lg:mr-2"></i>
+                        <span class="hidden sm:inline">Specialties</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-5xl text-indigo-600"></i>
+                    <p class="mt-4 text-xl text-slate-700">Đang xử lý...</p>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tabContent">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+                    <h2 id="tabTitle" class="text-lg lg:text-xl font-semibold text-gray-700">Danh sách Tours (0 mục)</h2>
+                    <button id="addBtn" class="bg-indigo-600 text-white font-medium py-2.5 px-4 lg:px-5 rounded-lg shadow-md hover:bg-indigo-700 transition text-sm lg:text-base">
+                        <i class="fas fa-plus mr-1 lg:mr-2"></i>
+                        <span class="hidden sm:inline">Thêm mới</span>
+                        <span class="sm:hidden">Thêm</span>
+                    </button>
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="hidden md:block overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50" id="tableHead">
+                            <!-- Headers will be populated by JavaScript -->
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="md:hidden" id="mobileCards">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-80 h-full w-full p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl lg:max-w-3xl mx-auto mt-20 max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-200">
+                <h2 id="modalTitle" class="text-2xl font-semibold text-slate-800">Thêm mới</h2>
+                <button id="closeModal" class="text-slate-400 hover:text-red-500 transition duration-150 text-4xl leading-none focus:outline-none">&times;</button>
+            </div>
+            <form id="itemForm" class="flex flex-col flex-grow overflow-hidden p-6 pt-2">
+                <div id="formFields" class="space-y-5 overflow-y-auto flex-grow">
+                    <!-- Form fields will be populated by JavaScript -->
+                </div>
+                <div class="mt-auto flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-slate-200">
+                    <button type="button" id="cancelBtn" class="w-full sm:w-auto px-6 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition duration-150 font-medium text-sm">
+                        <i class="fas fa-times mr-2"></i>Hủy Bỏ
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150 font-medium text-sm">
+                        <i class="fas fa-save mr-2"></i>Lưu Thay Đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_MAP = {
+            tours: 'Tours',
+            accommodations: 'Accommodations',
+            restaurants: 'Restaurants',
+            specialties: 'Specialties'
+        };
+
+        const API_URLS = {
+            tours: '/.netlify/functions/data-blobs?file=Tours.json',
+            accommodations: '/.netlify/functions/data-blobs?file=Accommodations.json',
+            restaurants: '/.netlify/functions/data-blobs?file=Restaurants.json',
+            specialties: '/.netlify/functions/data-blobs?file=Specialties.json'
+        };
+
+        let currentTab = 'tours';
+        let data = [];
+        let headers = [];
+        let modalItem = null;
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function guessHeaders(data) {
+            if (!data || data.length === 0) return [];
+            let headers = Object.keys(data[0]);
+            const preferredOrder = ['id', 'name', 'isActive', 'image', 'address', 'description'];
+            headers.sort((a, b) => {
+                let posA = preferredOrder.indexOf(a);
+                let posB = preferredOrder.indexOf(b);
+                if (posA !== -1 && posB !== -1) return posA - posB;
+                if (posA !== -1) return -1;
+                if (posB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+            return headers;
+        }
+
+        async function loadTabData(tabId) {
+            showLoading();
+            try {
+                const response = await fetch(API_URLS[tabId]);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const jsonData = await response.json();
+                const guessedHeaders = guessHeaders(jsonData);
+                data = jsonData;
+                headers = guessedHeaders;
+                updateUI();
+            } catch (error) {
+                console.error(`Error loading data for ${tabId}:`, error);
+                data = [];
+                headers = [];
+                updateUI();
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateUI() {
+            // Update title
+            document.getElementById('tabTitle').textContent = `Danh sách ${SHEET_MAP[currentTab]} (${data.length} mục)`;
+            
+            // Update desktop table
+            updateDesktopTable();
+            
+            // Update mobile cards
+            updateMobileCards();
+        }
+
+        function updateDesktopTable() {
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            
+            // Update headers
+            tableHead.innerHTML = `
+                <tr>
+                    ${headers.map(header => `<th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">${header}</th>`).join('')}
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-48">Hành động</th>
+                </tr>
+            `;
+            
+            // Update body
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-gray-500 px-5 py-3.5">Chưa có dữ liệu nào.</td></tr>`;
+            } else {
+                tableBody.innerHTML = data.map((item, idx) => `
+                    <tr class="hover:bg-indigo-50 transition-colors duration-150">
+                        ${headers.map(header => {
+                            let value = item[header];
+                            let displayValue = '';
+                            if (typeof value === 'boolean') {
+                                displayValue = value ? 'Kích hoạt' : 'Vô hiệu';
+                            } else if (header.toLowerCase() === 'image' && value && typeof value === 'string' && value.startsWith('http')) {
+                                displayValue = `<img src="${value}" alt="Image" class="h-12 w-12 object-cover rounded-md shadow" loading="lazy" />`;
+                            } else {
+                                displayValue = value !== null && typeof value !== 'undefined' ? String(value).substring(0, 70) + (String(value).length > 70 ? '...' : '') : 'N/A';
+                            }
+                            return `<td class="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700">${displayValue}</td>`;
+                        }).join('')}
+                        <td class="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700 text-right">
+                            <button onclick="openModal('${item.id}')" class="text-indigo-600 bg-indigo-50 p-2 rounded-md hover:bg-indigo-100 transition mr-2">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button onclick="deleteItem('${item.id}')" class="text-red-600 bg-red-50 p-2 rounded-md hover:bg-red-100 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function updateMobileCards() {
+            const mobileCards = document.getElementById('mobileCards');
+            
+            if (data.length === 0) {
+                mobileCards.innerHTML = '<div class="text-center py-8 text-gray-500"><p>Chưa có dữ liệu nào.</p></div>';
+            } else {
+                mobileCards.innerHTML = data.map((item, index) => `
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 mb-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-semibold text-gray-800 text-sm">
+                                ${item.name || item.title || `Item ${index + 1}`}
+                            </h3>
+                            <div class="flex gap-2">
+                                <button onclick="openModal('${item.id}')" class="text-indigo-600 bg-indigo-50 p-2 rounded-md hover:bg-indigo-100 transition">
+                                    <i class="fas fa-pencil-alt text-xs"></i>
+                                </button>
+                                <button onclick="deleteItem('${item.id}')" class="text-red-600 bg-red-50 p-2 rounded-md hover:bg-red-100 transition">
+                                    <i class="fas fa-trash-alt text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${headers.slice(0, 3).map(header => {
+                                let value = item[header];
+                                if (header.toLowerCase() === 'id') return '';
+                                if (header.toLowerCase() === 'image' && value && typeof value === 'string' && value.startsWith('http')) {
+                                    return `
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-medium text-gray-500 w-16">${header}:</span>
+                                            <img src="${value}" alt="Image" class="h-8 w-8 object-cover rounded" loading="lazy" />
+                                        </div>
+                                    `;
+                                }
+                                return `
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-xs font-medium text-gray-500 w-16 flex-shrink-0">${header}:</span>
+                                        <span class="text-xs text-gray-700 line-clamp-2">
+                                            ${value !== null && typeof value !== 'undefined' ? String(value) : 'N/A'}
+                                        </span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openModal(itemId = null) {
+            modalItem = itemId ? data.find(item => item.id === itemId) : null;
+            document.getElementById('modalTitle').textContent = modalItem ? 'Sửa mục' : 'Thêm mới';
+            renderFormFields();
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            modalItem = null;
+        }
+
+        function renderFormFields() {
+            const formFields = document.getElementById('formFields');
+            
+            if (!headers || headers.length === 0) {
+                formFields.innerHTML = '<p class="text-red-500">Không thể tạo form, không có thông tin cột.</p>';
+                return;
+            }
+
+            formFields.innerHTML = headers.map(header => {
+                if (header.toLowerCase() === 'id' && modalItem) return '';
+
+                const value = modalItem ? (modalItem[header] || '') : '';
+                const inputType = header.toLowerCase().includes('image') || header.toLowerCase().includes('link') ? 'url' : 'text';
+
+                return `
+                    <div>
+                        <label for="field-${header}" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                            ${header.charAt(0).toUpperCase() + header.slice(1).replace(/([A-Z])/g, ' $1').trim()}
+                        </label>
+                        ${header.toLowerCase() === 'isactive' ? `
+                            <select id="field-${header}" name="${header}" class="mt-1 block w-full py-2.5 px-3.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="true" ${value.toString() === 'true' ? 'selected' : ''}>Hoạt động (True)</option>
+                                <option value="false" ${value.toString() === 'false' ? 'selected' : ''}>Không hoạt động (False)</option>
+                            </select>
+                        ` : header.toLowerCase().includes('description') ? `
+                            <textarea id="field-${header}" name="${header}" rows="4" class="mt-1 block w-full py-2.5 px-3.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">${value}</textarea>
+                        ` : `
+                            <input type="${inputType}" id="field-${header}" name="${header}" value="${value}" ${header.toLowerCase() === 'id' ? 'readonly' : ''} class="mt-1 block w-full py-2.5 px-3.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function saveCurrentSheetData(updatedData) {
+            showLoading();
+            try {
+                const url = API_URLS[currentTab];
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                await loadTabData(currentTab);
+            } catch (error) {
+                alert('Lỗi khi lưu dữ liệu: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function deleteItem(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) return;
+            const updatedData = data.filter(item => item.id !== id);
+            saveCurrentSheetData(updatedData);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTabData(currentTab);
+            
+            // Tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tabId = e.currentTarget.dataset.tab;
+                    currentTab = tabId;
+                    
+                    // Update tab styles
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.className = 'tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-transparent text-slate-600 hover:bg-white hover:text-slate-700';
+                    });
+                    e.currentTarget.className = 'tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-white text-slate-700 shadow-sm';
+                    
+                    loadTabData(tabId);
+                });
+            });
+            
+            // Add button
+            document.getElementById('addBtn').addEventListener('click', () => openModal());
+            
+            // Modal close buttons
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeModal);
+            
+            // Form submit
+            document.getElementById('itemForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const item = {};
+                headers.forEach(header => {
+                    let val = formData.get(header);
+                    if (header.toLowerCase() === 'isactive') {
+                        item[header] = val === 'true';
+                    } else {
+                        item[header] = val;
+                    }
+                });
+
+                let updatedData = [...data];
+                if (item.id) { // Edit
+                    const index = data.findIndex(d => d.id === item.id);
+                    if (index > -1) {
+                        updatedData[index] = item;
+                    }
+                } else { // Add
+                    let prefix = '';
+                    if (currentTab === 'tours') prefix = 'TOUR';
+                    else if (currentTab === 'accommodations') prefix = 'ACC';
+                    else if (currentTab === 'restaurants') prefix = 'RES';
+                    else if (currentTab === 'specialties') prefix = 'SPE';
+
+                    const maxId = data.reduce((max, it) => {
+                        const m = (it.id || '').match(/\d+/);
+                        return m ? Math.max(max, parseInt(m[0])) : max;
+                    }, 0);
+                    item.id = prefix + String(maxId + 1).padStart(3, '0');
+                    updatedData.push(item);
+                }
+
+                await saveCurrentSheetData(updatedData);
+                closeModal();
+            });
+        });
+
+        // Global functions for onclick handlers
+        window.openModal = openModal;
+        window.deleteItem = deleteItem;
+    </script>
+</Layout>

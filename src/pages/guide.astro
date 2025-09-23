@@ -1,0 +1,109 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/guide.css';
+import guideScriptUrl from '@scripts/guide.js?url';
+import mainScriptUrl from '@scripts/main.js?url';
+---
+
+<Layout 
+  title="Cẩm nang du lịch Núi Bà Đen"
+  description="Cẩm nang du lịch Núi Bà Đen - Hướng dẫn chi tiết về các điểm tham quan, lịch trình, kinh nghiệm và thông tin hữu ích cho du khách."
+>
+  <Header currentPage="guide" pageTitle="Cẩm nang du lịch Núi Bà Đen" />
+
+  <div class="container mx-auto px-4 py-8 md:px-6 md:py-12 max-w-6xl">
+
+    <header class="text-center mb-10 md:mb-16">
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-orange-600 mb-3 tracking-tight">Cẩm nang du lịch Núi Bà Đen</h1>
+      <p class="text-lg md:text-xl text-gray-600">Khám phá trọn vẹn Núi Bà Đen với các gợi ý tour, ẩm thực, lưu trú và đặc sản nổi bật.</p>
+    </header>
+
+    <main class="space-y-10 md:space-y-16">
+      <!-- CONTENT FOR GUIDE PAGE WILL GO HERE -->
+      <section id="tours" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-primary-700 border-b border-primary-200 pb-4 flex items-center">
+          <i class="fa-solid fa-route text-3xl text-primary-600 mr-4"></i>
+          Chương trình tour gợi ý
+        </h2>
+        <!-- MODIFIED: Container for dynamic tour cards -->
+        <div id="tours-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Tour cards will be dynamically inserted here by js/guide.js -->
+          <div id="loading-tours" class="text-center py-5 text-gray-500 col-span-full" style="display: none;">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải chương trình tour...
+          </div>
+        </div>
+        <!-- ADDED: Pagination controls for tours -->
+        <div id="tours-pagination" class="pagination-controls mt-8 text-center">
+          <!-- Pagination buttons will be inserted here -->
+        </div>
+      </section>
+
+      <section id="accommodations" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-accent-700 border-b border-accent-200 pb-4 flex items-center">
+          <i class="fa-solid fa-hotel text-3xl text-accent-600 mr-4"></i>
+          Khách sạn và Lưu trú
+        </h2>
+        <!-- MODIFIED: Container for dynamic accommodation cards -->
+        <div id="accommodations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Accommodation cards will be dynamically inserted here -->
+          <div id="loading-accommodations" class="text-center py-5 text-gray-500 col-span-full" style="display: none;">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông tin lưu trú...
+          </div>
+        </div>
+        <!-- ADDED: Pagination controls for accommodations -->
+        <div id="accommodations-pagination" class="pagination-controls mt-8 text-center">
+          <!-- Pagination buttons will be inserted here -->
+        </div>
+      </section>
+
+      <section id="restaurants" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-orange-700 border-b border-orange-200 pb-4 flex items-center">
+          <i class="fa-solid fa-utensils text-3xl text-orange-600 mr-4"></i>
+          Địa điểm ăn uống
+        </h2>
+         <!-- MODIFIED: Container for dynamic restaurant cards -->
+        <div id="restaurants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Restaurant cards will be dynamically inserted here -->
+          <div id="loading-restaurants" class="text-center py-5 text-gray-500 col-span-full" style="display: none;">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải địa điểm ăn uống...
+          </div>
+        </div>
+        <!-- ADDED: Pagination controls for restaurants -->
+        <div id="restaurants-pagination" class="pagination-controls mt-8 text-center">
+          <!-- Pagination buttons will be inserted here -->
+        </div>
+      </section>
+
+      <section id="specialties" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-lime-700 border-b border-lime-200 pb-4 flex items-center">
+          <i class="fa-solid fa-pepper-hot text-3xl text-lime-600 mr-4"></i>
+          Đặc sản địa phương
+        </h2>
+        <!-- MODIFIED: Container for dynamic specialty cards -->
+        <div id="specialties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Specialty cards will be dynamically inserted here -->
+          <div id="loading-specialties" class="text-center py-5 text-gray-500 col-span-full" style="display: none;">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Đang tải thông tin đặc sản...
+          </div>
+        </div>
+        <!-- ADDED: Pagination controls for specialties -->
+        <div id="specialties-pagination" class="pagination-controls mt-8 text-center">
+          <!-- Pagination buttons will be inserted here -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer for this page, if different, or rely on the main one below -->
+     <footer class="text-center mt-16 pt-8 border-t border-gray-200 text-sm text-gray-500">
+        <p class="mt-1">Chúc quý khách có những trải nghiệm tuyệt vời tại Núi Bà Đen!</p>
+    </footer>
+  </div>
+
+  <Footer />
+</Layout>
+
+
+<script type="module" src={guideScriptUrl}></script>
+<script type="module" src={mainScriptUrl}></script>

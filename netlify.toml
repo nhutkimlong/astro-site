@@ -1,0 +1,78 @@
+[build]
+# Build command
+command = "npm run build"
+# Publish directory
+publish = "dist"
+# Functions directory
+functions = "netlify/functions"
+
+[dev]
+# Run Astro during netlify dev and proxy to its port
+command = "npm run dev"
+targetPort = 4321
+framework = "#custom"
+publish = "dist"
+
+[build.environment]
+# Node.js version (match astro requirement)
+NODE_VERSION = "18"
+# Disable husky during CI to avoid prepare hook errors
+HUSKY = "0"
+# Ensure devDependencies are installed during build
+NPM_FLAGS = "--include=dev"
+
+# Function configurations
+[functions]
+# External modules that should not be bundled
+external_node_modules = ["@netlify/blobs"]
+
+# Redirects for API calls to Netlify Functions
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+
+# Headers for security and performance
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Headers for functions
+[[headers]]
+for = "/.netlify/functions/*"
+[headers.values]
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Headers = "Content-Type, Authorization"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+
+# Handle Astro's _astro assets
+[[headers]]
+for = "/_astro/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Asset optimization
+[[headers]]
+for = "*.png"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "*.jpg"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "*.webp"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML files should not be cached
+[[headers]]
+for = "*.html"
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"

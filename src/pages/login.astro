@@ -1,0 +1,57 @@
+---
+// Login Page
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Đăng nhập - Baden App">
+  <Header pageTitle="Đăng nhập" />
+  <main class="min-h-[70vh] flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <h1 class="text-2xl font-bold text-slate-800 mb-6 text-center">Đăng nhập</h1>
+      <form id="pageLoginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" name="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+          <input type="password" name="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Đăng nhập</button>
+      </form>
+      <p class="text-sm text-slate-600 mt-4 text-center">Chưa có tài khoản? <a href="/register" class="text-indigo-600 hover:underline">Đăng ký</a></p>
+      <p id="msg" class="mt-3 text-center text-sm text-red-600 hidden"></p>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('pageLoginForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget as HTMLFormElement | null;
+      const data = new FormData(form as HTMLFormElement);
+      const email = data.get('email');
+      const password = data.get('password');
+      const msg = document.getElementById('msg');
+      if (msg) { msg.classList.add('hidden'); msg.textContent = ''; }
+      try {
+        const res = await fetch('/.netlify/functions/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'login', email, password })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || 'Đăng nhập thất bại');
+        localStorage.setItem('authToken', json.token);
+        localStorage.setItem('authUser', JSON.stringify(json.user));
+        window.location.href = '/admin';
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Có lỗi xảy ra';
+        if (msg) { msg.textContent = message; msg.classList.remove('hidden'); }
+      }
+    });
+  </script>
+
+  <Footer />
+</Layout>

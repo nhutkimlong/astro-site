@@ -1,0 +1,860 @@
+---
+// @ts-nocheck
+// Admin Climb Management Page
+import Header from "../../components/Header.astro";
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/main.css";
+import "../../styles/tailwind.css";
+import "../../styles/admin/climb-admin.css";
+---
+
+<Layout title="Quản lý Leo núi - Admin">
+    <Header currentPage="climb" pageTitle="Quản lý Leo núi - Admin" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // @ts-nocheck
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) { window.location.href = '/login'; return; }
+        try{
+          const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{ 'Authorization':'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ action:'verify' }) });
+          const json = await res.json();
+          if (!res.ok || !json.success || json.role !== 'admin') { window.location.href = '/account'; }
+        }catch{ window.location.href = '/account'; }
+      });
+    </script>
+
+    <!-- Header Card -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
+                <div class="flex items-center gap-4 w-full lg:w-auto">
+                    <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
+                        <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
+                    </a>
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="p-3 bg-blue-100 rounded-xl flex-shrink-0">
+                            <i class="fas fa-mountain text-blue-600 text-2xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Leo núi</h1>
+                            <p class="text-slate-600 text-sm lg:text-base truncate">Thống kê, thông báo và cài đặt GPS</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
+                    <div class="text-right">
+                        <p class="text-sm text-slate-600" id="currentDate">Loading...</p>
+                        <p class="text-xs text-slate-500">Hệ thống quản lý</p>
+                    </div>
+                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+            <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                <span id="errorMessage" class="text-red-700"></span>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                <span id="successMessage" class="text-green-700"></span>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="hidden space-y-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tổng đăng ký</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalRegistrations">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-calendar-day text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Hôm nay</p>
+                            <p class="text-2xl font-bold text-gray-900" id="todayRegistrations">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-calendar-alt text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tháng này</p>
+                            <p class="text-2xl font-bold text-gray-900" id="monthlyRegistrations">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-bell text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Thông báo</p>
+                            <p class="text-2xl font-bold text-gray-900" id="activeNotifications">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Notifications Management -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-bell mr-2 text-blue-600"></i>
+                            Quản lý thông báo
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <!-- Create Notification Form -->
+                        <form id="notificationForm" class="space-y-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Loại thông báo</label>
+                                <select name="type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Chọn loại thông báo</option>
+                                    <option value="weather">🌧️ Cảnh báo thời tiết</option>
+                                    <option value="maintenance">🔧 Bảo trì</option>
+                                    <option value="announcement">📢 Thông báo chung</option>
+                                    <option value="emergency">🚨 Khẩn cấp</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
+                                <input type="text" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập tiêu đề thông báo">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung</label>
+                                <textarea name="message" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập nội dung thông báo"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Tạo thông báo
+                            </button>
+                        </form>
+
+                        <!-- Active Notifications List -->
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-800 mb-3">Thông báo đang hoạt động</h3>
+                            <div id="notificationsList" class="space-y-3">
+                                <!-- Notifications will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GPS Settings -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                            Cài đặt GPS
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <form id="gpsForm" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bán kính đăng ký (m)</label>
+                                    <input type="number" name="registrationRadius" min="10" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bán kính chứng nhận (m)</label>
+                                    <input type="number" name="certificateRadius" min="10" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="requireGpsRegistration" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Yêu cầu GPS khi đăng ký</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="requireGpsCertificate" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Yêu cầu GPS khi nhận chứng nhận</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="registrationTimeEnabled" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Giới hạn thời gian đăng ký</span>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Giờ bắt đầu</label>
+                                    <input type="time" name="registrationStartTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Giờ kết thúc</label>
+                                    <input type="time" name="registrationEndTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-save mr-2"></i>Lưu cài đặt GPS
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-search mr-2 text-purple-600"></i>
+                        Tra cứu người leo núi
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <div class="flex-1">
+                            <input type="tel" id="searchPhone" placeholder="Nhập số điện thoại để tìm kiếm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <button id="searchBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div id="searchResults" class="hidden">
+                        <h3 class="text-sm font-semibold text-gray-800 mb-3">Kết quả tìm kiếm</h3>
+                        <div id="searchResultsList" class="space-y-3">
+                            <!-- Search results will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Registrations -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-history mr-2 text-orange-600"></i>
+                        Đăng ký gần đây
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="recentRegistrations" class="space-y-4">
+                        <!-- Recent registrations will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>   
+ <script>
+        // @ts-nocheck
+        // Climb Admin Management JavaScript
+        /** @typedef {'weather'|'maintenance'|'announcement'|'emergency'} NotificationType */
+        /**
+         * @typedef {Object} NotificationItem
+         * @property {string} id
+         * @property {NotificationType} type
+         * @property {string} title
+         * @property {string} message
+         * @property {string} createdAt
+         * @property {boolean} active
+         */
+        /**
+         * @typedef {Object} GpsSettings
+         * @property {number} registrationRadius
+         * @property {number} certificateRadius
+         * @property {boolean} requireGpsRegistration
+         * @property {boolean} requireGpsCertificate
+         * @property {boolean} registrationTimeEnabled
+         * @property {string} registrationStartTime
+         * @property {string} registrationEndTime
+         */
+        /**
+         * @typedef {Object} RecentRegistration
+         * @property {string} leaderName
+         * @property {string} phoneNumber
+         * @property {number} groupSize
+         * @property {string} registrationDate
+         * @property {string} registrationTime
+         * @property {string=} birthday
+         */
+        /**
+         * @typedef {Object} SearchResult
+         * @property {string} representativeName
+         * @property {string} phone
+         * @property {number} memberCount
+         * @property {string} registrationDate
+         * @property {string} registrationTime
+         * @property {'completed'|'pending'} status
+         * @property {boolean} certificateIssued
+         */
+        /**
+         * @typedef {Object} Stats
+         * @property {number} totalRegistrations
+         * @property {number} todayRegistrations
+         * @property {number} monthlyRegistrations
+         * @property {number} yearlyRegistrations
+         */
+
+        /** @type {Stats} */
+        let stats = { totalRegistrations: 0, todayRegistrations: 0, monthlyRegistrations: 0, yearlyRegistrations: 0 };
+        /** @type {NotificationItem[]} */
+        let notifications = [];
+        /** @type {GpsSettings} */
+        let gpsSettings = {
+            registrationRadius: 100,
+            certificateRadius: 50,
+            requireGpsRegistration: true,
+            requireGpsCertificate: true,
+            registrationTimeEnabled: false,
+            registrationStartTime: '06:00',
+            registrationEndTime: '18:00'
+        };
+        /** @type {RecentRegistration[]} */
+        let recentRegistrations = [];
+        /** @type {SearchResult[]} */
+        let searchResults = [];
+
+         // Google Apps Script endpoint for admin analytics (thongkeleonui.gs)
+         const ADMIN_GS_URL = 'https://script.google.com/macros/s/AKfycbyWYJtTjYvSFT--TPpV6bk4-o6jKtqXBhe5di-h6ozC2sKscM_i8_PCJxzPpL_bEDNT/exec';
+
+        // DOM Elements
+        const loading = /** @type {HTMLElement|null} */(document.getElementById('loading'));
+        const error = /** @type {HTMLElement|null} */(document.getElementById('error'));
+        const success = /** @type {HTMLElement|null} */(document.getElementById('success'));
+        const dashboard = /** @type {HTMLElement|null} */(document.getElementById('dashboard'));
+        const notificationForm = /** @type {HTMLFormElement|null} */(document.getElementById('notificationForm'));
+        const gpsForm = /** @type {HTMLFormElement|null} */(document.getElementById('gpsForm'));
+        const searchBtn = /** @type {HTMLButtonElement|null} */(document.getElementById('searchBtn'));
+        const refreshBtn = /** @type {HTMLButtonElement|null} */(document.getElementById('refreshBtn'));
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialData();
+            setupEventListeners();
+            updateCurrentDate();
+            
+            // Update date every minute
+            setInterval(updateCurrentDate, 60000);
+        });
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            notificationForm?.addEventListener('submit', handleCreateNotification);
+            gpsForm?.addEventListener('submit', handleSaveGpsSettings);
+            searchBtn?.addEventListener('click', handleSearch);
+            refreshBtn?.addEventListener('click', loadInitialData);
+            
+            // Enter key for search
+            const searchInput = /** @type {HTMLInputElement|null} */(document.getElementById('searchPhone'));
+            searchInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+        }
+
+        // Update current date display
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const el = document.getElementById('currentDate');
+            if (el) el.textContent = dateStr;
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            try {
+                showLoading(true);
+                hideMessages();
+                
+                await Promise.all([
+                    loadCombinedData(),
+                    loadStats(),
+                    loadRecentRegistrations()
+                ]);
+                
+                renderDashboard();
+                showLoading(false);
+                dashboard?.classList.remove('hidden');
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+                showError('Lỗi khi tải dữ liệu: ' + msg);
+                showLoading(false);
+            }
+        }
+
+        // Load combined data (notifications + GPS settings)
+        async function loadCombinedData() {
+            try {
+                const response = await fetch('/.netlify/functions/combined-data');
+                if (!response.ok) throw new Error('Không thể tải dữ liệu');
+                
+                const result = await response.json();
+                notifications = /** @type {NotificationItem[]} */(result.notifications?.data || []);
+                gpsSettings = /** @type {GpsSettings} */(result.gpsSettings?.data || gpsSettings);
+            } catch (error) {
+                console.error('Error loading combined data:', error);
+                // Use fallback data
+                notifications = [];
+                gpsSettings = {
+                    registrationRadius: 100,
+                    certificateRadius: 50,
+                    requireGpsRegistration: true,
+                    requireGpsCertificate: true,
+                    registrationTimeEnabled: false,
+                    registrationStartTime: '06:00',
+                    registrationEndTime: '18:00'
+                };
+            }
+        }
+
+         // Load stats (from Google Apps Script thongkeleonui.gs)
+         async function loadStats() {
+             try {
+                 // 1) Initial stats (monthly/yearly)
+                 const url1 = new URL(ADMIN_GS_URL);
+                 url1.searchParams.set('action', 'getInitialStats');
+                 const res1 = await fetch(url1.toString());
+                 if (!res1.ok) throw new Error('Không thể tải thống kê cơ bản');
+                 const json1 = await res1.json();
+                 const base = json1?.data || {};
+
+                 // 2) Today stats via getPeriodStats(start=today,end=today)
+                 const today = new Date();
+                 const yyyy = today.getFullYear();
+                 const mm = String(today.getMonth() + 1).padStart(2, '0');
+                 const dd = String(today.getDate()).padStart(2, '0');
+                 const isoDate = `${yyyy}-${mm}-${dd}`;
+                 const url2 = new URL(ADMIN_GS_URL);
+                 url2.searchParams.set('action', 'getPeriodStats');
+                 url2.searchParams.set('startDate', isoDate);
+                 url2.searchParams.set('endDate', isoDate);
+                 let todayCount = 0;
+                 try {
+                     const res2 = await fetch(url2.toString());
+                     if (res2.ok) {
+                         const json2 = await res2.json();
+                         todayCount = Number(json2?.data?.periodCount || 0);
+                     }
+                 } catch (_) { /* ignore */ }
+
+                 stats = {
+                     totalRegistrations: Number(base?.yearlyCount || 0),
+                     todayRegistrations: todayCount,
+                     monthlyRegistrations: Number(base?.monthlyCount || 0),
+                     yearlyRegistrations: Number(base?.yearlyCount || 0)
+                 };
+            } catch (e) {
+                 stats = { totalRegistrations: 0, todayRegistrations: 0, monthlyRegistrations: 0, yearlyRegistrations: 0 };
+             }
+         }
+
+        // Load recent registrations directly from Google Apps Script
+        async function loadRecentRegistrations() {
+            try {
+                const url = new URL(ADMIN_GS_URL);
+                url.searchParams.set('action', 'getRecentRegistrations');
+                url.searchParams.set('limit', '10');
+                const res = await fetch(url.toString());
+                if (!res.ok) throw new Error('Google Apps Script error');
+                const json = await res.json();
+                const raw = Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []);
+                // Normalize to { leaderName, phoneNumber, groupSize, registrationDate, registrationTime }
+                recentRegistrations = raw.map((it) => ({
+                    leaderName: it.leaderName || it.representativeName || it.name || '',
+                    phoneNumber: it.phoneNumber || it.phone || '',
+                    groupSize: Number(it.groupSize ?? it.memberCount ?? 0),
+                    registrationDate: it.registrationDate || (it.timestamp ? String(it.timestamp) : ''),
+                    registrationTime: it.registrationTime || (it.time ? String(it.time) : ''),
+                    birthday: it.birthday || ''
+                }));
+                console.log('Recent registrations normalized:', recentRegistrations);
+            } catch (e) {
+                recentRegistrations = [];
+                console.error('Failed to load recent registrations', e);
+            }
+        }
+
+        // Render dashboard
+        function renderDashboard() {
+            // Update stats
+            const totalEl = document.getElementById('totalRegistrations');
+            const todayEl = document.getElementById('todayRegistrations');
+            const monthlyEl = document.getElementById('monthlyRegistrations');
+            const activeEl = document.getElementById('activeNotifications');
+            if (totalEl) totalEl.textContent = String(stats.totalRegistrations || 0);
+            if (todayEl) todayEl.textContent = String(stats.todayRegistrations || 0);
+            if (monthlyEl) monthlyEl.textContent = String(stats.monthlyRegistrations || 0);
+            if (activeEl) activeEl.textContent = String((notifications as NotificationItem[]).filter(n => n.active).length);
+
+            // Render notifications
+            renderNotifications();
+            
+            // Populate GPS form
+            populateGpsForm();
+            
+            // Render recent registrations
+            renderRecentRegistrations();
+        }
+
+        // Render notifications list
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList') as HTMLElement | null;
+            const activeNotifications = (notifications as NotificationItem[]).filter(n => n.active);
+            
+            if (!container) return;
+            if (activeNotifications.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Chưa có thông báo nào</p>';
+                return;
+            }
+
+            container.innerHTML = activeNotifications.map(notification => `
+                <div class="flex items-start justify-between p-3 bg-gray-50 rounded-lg border-l-4 ${getNotificationBorderColor(notification.type)}">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="text-sm font-medium text-gray-900">${notification.title}</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getNotificationBadgeColor(notification.type)}">
+                                ${getNotificationTypeLabel(notification.type)}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">${notification.message}</p>
+                        <p class="text-xs text-gray-500">${formatDate(notification.createdAt)}</p>
+                    </div>
+                    <button onclick="deleteNotification('${notification.id}')" class="ml-3 p-1 text-red-600 hover:bg-red-50 rounded">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Get notification border color
+        function getNotificationBorderColor(type) {
+            const colors = {
+                weather: 'border-blue-500',
+                maintenance: 'border-yellow-500',
+                announcement: 'border-green-500',
+                emergency: 'border-red-500'
+            };
+            return (colors as Record<NotificationType, string>)[type] || 'border-gray-500';
+        }
+
+        // Get notification badge color
+        function getNotificationBadgeColor(type) {
+            const colors = {
+                weather: 'bg-blue-100 text-blue-800',
+                maintenance: 'bg-yellow-100 text-yellow-800',
+                announcement: 'bg-green-100 text-green-800',
+                emergency: 'bg-red-100 text-red-800'
+            };
+            return (colors as Record<NotificationType, string>)[type] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Get notification type label
+        function getNotificationTypeLabel(type) {
+            const labels = {
+                weather: 'Thời tiết',
+                maintenance: 'Bảo trì',
+                announcement: 'Thông báo',
+                emergency: 'Khẩn cấp'
+            };
+            return (labels as Record<NotificationType, string>)[type] || type;
+        }
+
+        // Populate GPS form with current settings
+        function populateGpsForm() {
+            const form = document.getElementById('gpsForm') as HTMLFormElement | null;
+            if (!form) return;
+            const registrationRadius = form.elements.namedItem('registrationRadius') as HTMLInputElement | null;
+            const certificateRadius = form.elements.namedItem('certificateRadius') as HTMLInputElement | null;
+            const requireGpsRegistration = form.elements.namedItem('requireGpsRegistration') as HTMLInputElement | null;
+            const requireGpsCertificate = form.elements.namedItem('requireGpsCertificate') as HTMLInputElement | null;
+            const registrationTimeEnabled = form.elements.namedItem('registrationTimeEnabled') as HTMLInputElement | null;
+            const registrationStartTime = form.elements.namedItem('registrationStartTime') as HTMLInputElement | null;
+            const registrationEndTime = form.elements.namedItem('registrationEndTime') as HTMLInputElement | null;
+
+            if (registrationRadius) registrationRadius.value = String(gpsSettings.registrationRadius ?? 100);
+            if (certificateRadius) certificateRadius.value = String(gpsSettings.certificateRadius ?? 50);
+            if (requireGpsRegistration) requireGpsRegistration.checked = gpsSettings.requireGpsRegistration !== false;
+            if (requireGpsCertificate) requireGpsCertificate.checked = gpsSettings.requireGpsCertificate !== false;
+            if (registrationTimeEnabled) registrationTimeEnabled.checked = Boolean(gpsSettings.registrationTimeEnabled);
+            if (registrationStartTime) registrationStartTime.value = gpsSettings.registrationStartTime || '06:00';
+            if (registrationEndTime) registrationEndTime.value = gpsSettings.registrationEndTime || '18:00';
+        }
+
+        // Render recent registrations
+        function renderRecentRegistrations() {
+            const container = document.getElementById('recentRegistrations') as HTMLElement | null;
+            if (!container) return;
+            
+            if (recentRegistrations.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Chưa có đăng ký nào</p>';
+                return;
+            }
+
+            container.innerHTML = recentRegistrations.slice(0, 10).map(reg => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${reg.leaderName || ''}</p>
+                            <p class="text-sm text-gray-600">${reg.phoneNumber || ''}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-900">${reg.groupSize || 0} người</p>
+                        <p class="text-xs text-gray-500">${reg.registrationDate || ''} ${reg.registrationTime || ''}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Handle create notification
+        async function handleCreateNotification(e) {
+            e.preventDefault();
+            
+            const formEl = /** @type {HTMLFormElement} */(e.currentTarget);
+            const formData = new FormData(formEl);
+            /** @type {NotificationItem} */
+            const notification = {
+                id: Date.now().toString(),
+                type: /** @type {NotificationType} */(formData.get('type') || 'announcement'),
+                title: String(formData.get('title') || ''),
+                message: String(formData.get('message') || ''),
+                createdAt: new Date().toISOString(),
+                active: true
+            };
+
+            try {
+                const res = await fetch('/.netlify/functions/combined-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'createNotification', data: notification })
+                });
+                if (!res.ok) throw new Error('Không thể tạo thông báo');
+                await loadCombinedData();
+                renderDashboard();
+                notificationForm?.reset();
+                showSuccess('Thông báo đã được tạo thành công!');
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+                showError('Lỗi khi tạo thông báo: ' + msg);
+            }
+        }
+
+        // Handle save GPS settings
+        async function handleSaveGpsSettings(e) {
+            e.preventDefault();
+            
+            const formEl = /** @type {HTMLFormElement} */(e.currentTarget);
+            const formData = new FormData(formEl);
+            /** @type {GpsSettings} */
+            const newSettings = {
+                registrationRadius: parseInt(String(formData.get('registrationRadius') ?? '0')),
+                certificateRadius: parseInt(String(formData.get('certificateRadius') ?? '0')),
+                requireGpsRegistration: formData.get('requireGpsRegistration') === 'on',
+                requireGpsCertificate: formData.get('requireGpsCertificate') === 'on',
+                registrationTimeEnabled: formData.get('registrationTimeEnabled') === 'on',
+                registrationStartTime: String(formData.get('registrationStartTime') ?? ''),
+                registrationEndTime: String(formData.get('registrationEndTime') ?? '')
+            };
+
+            try {
+                const res = await fetch('/.netlify/functions/combined-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'updateGpsSettings', data: newSettings })
+                });
+                if (!res.ok) throw new Error('Không thể lưu cài đặt GPS');
+                await loadCombinedData();
+                renderDashboard();
+                showSuccess('Cài đặt GPS đã được lưu thành công!');
+                // Phát tín hiệu cập nhật ngay cho các tab/trang khác (climb page lắng nghe storage event)
+                try {
+                    localStorage.setItem('gpsSettings', JSON.stringify(newSettings));
+                } catch (_) { /* ignore */ }
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+                showError('Lỗi khi lưu cài đặt GPS: ' + msg);
+            }
+        }
+
+        // Handle search
+         async function handleSearch() {
+             const phoneInput = /** @type {HTMLInputElement|null} */(document.getElementById('searchPhone'));
+             const phone = (phoneInput?.value || '').trim();
+             
+             if (!phone) {
+                 showError('Vui lòng nhập số điện thoại để tìm kiếm');
+                 return;
+             }
+
+             try {
+                 if (searchBtn) {
+                    searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang tìm...';
+                    searchBtn.disabled = true;
+                 }
+
+                 const url = new URL(ADMIN_GS_URL);
+                 url.searchParams.set('action', 'searchPhone');
+                 url.searchParams.set('phone', phone);
+                 const res = await fetch(url.toString());
+                 if (!res.ok) throw new Error('Không thể kết nối Google Apps Script');
+                 const json = await res.json();
+                const items = Array.isArray(json?.data) ? json.data : [];
+                // Map to UI structure (fields from thongkeleonui.gs searchPhone)
+                searchResults = items.map((it) => ({
+                    representativeName: it.leaderName || '',
+                    phone: it.phone || it.phoneNumber || phone,
+                    memberCount: Number(it.memberCount || 0),
+                    registrationDate: it.timestamp || '', // already formatted dd/MM/yyyy
+                    registrationTime: it.registrationTime || '',
+                    status: Number(it.certificateCount || 0) > 0 ? 'completed' : 'pending',
+                    certificateIssued: Number(it.certificateCount || 0) > 0
+                }));
+
+                 renderSearchResults();
+                 
+             } catch (err) {
+                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+                 showError('Lỗi khi tìm kiếm: ' + msg);
+             } finally {
+                 if (searchBtn) {
+                    searchBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Tìm kiếm';
+                    searchBtn.disabled = false;
+                 }
+             }
+         }
+
+        // Render search results
+        function renderSearchResults() {
+            const container = document.getElementById('searchResults') as HTMLElement | null;
+            const listContainer = document.getElementById('searchResultsList') as HTMLElement | null;
+            
+            if (!container || !listContainer) return;
+            if (searchResults.length === 0) {
+                container.classList.add('hidden');
+                showError('Không tìm thấy người leo núi với số điện thoại này');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            listContainer.innerHTML = searchResults.map(result => `
+                <div class="p-4 bg-gray-50 rounded-lg border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${result.representativeName}</p>
+                            <p class="text-sm text-gray-600">${result.phone}</p>
+                            <p class="text-xs text-gray-500 mt-1">Đăng ký: ${result.registrationDate} ${result.registrationTime || ''}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">${result.memberCount} người</p>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${result.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${result.status === 'completed' ? 'Hoàn thành' : 'Đang xử lý'}
+                            </span>
+                            ${result.certificateIssued ? '<p class="text-xs text-green-600 mt-1"><i class="fas fa-certificate mr-1"></i>Đã cấp chứng nhận</p>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete notification
+        async function deleteNotification(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa thông báo này?')) return;
+
+            try {
+                const res = await fetch('/.netlify/functions/combined-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'deleteNotification', data: { id } })
+                });
+                if (!res.ok) throw new Error('Không thể xóa thông báo');
+                await loadCombinedData();
+                renderDashboard();
+                showSuccess('Thông báo đã được xóa thành công!');
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
+                showError('Lỗi khi xóa thông báo: ' + msg);
+            }
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showLoading(show) {
+            loading?.classList.toggle('hidden', !show);
+        }
+
+        function showError(message) {
+            const msgEl = document.getElementById('errorMessage');
+            if (msgEl) msgEl.textContent = message;
+            error?.classList.remove('hidden');
+            if (error) setTimeout(() => error.classList.add('hidden'), 5000);
+        }
+
+        function showSuccess(message) {
+            const msgEl = document.getElementById('successMessage');
+            if (msgEl) msgEl.textContent = message;
+            success?.classList.remove('hidden');
+            if (success) setTimeout(() => success.classList.add('hidden'), 3000);
+        }
+
+        function hideMessages() {
+            error?.classList.add('hidden');
+            success?.classList.add('hidden');
+        }
+        // Expose delete function globally for inline onclick
+        // @ts-ignore
+        window.deleteNotification = deleteNotification;
+    </script>
+</Layout>
