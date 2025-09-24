@@ -6,7 +6,6 @@ import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
 import adminUsersScriptUrl from "@scripts/admin-users.js?url";
-import mainScriptUrl from "@scripts/main.js?url";
 ---
 
 <Layout title="Quản lý Người dùng - Admin">
@@ -153,7 +152,7 @@ import mainScriptUrl from "@scripts/main.js?url";
   </div>
 
   <script type="module" src={adminUsersScriptUrl}></script>
-  <script type="module" src={mainScriptUrl}></script>
+  <!-- main.js is already included via Layout -->
 </Layout>
 
 

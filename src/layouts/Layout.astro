@@ -22,7 +22,7 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
 <html lang={lang} class="notranslate">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content={description}>
     <meta http-equiv="Content-Language" content="vi">
     <meta name="language" content="Vietnamese">
@@ -57,7 +57,7 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <!-- Removed unused Tailwind CDN preconnect (using local Tailwind) -->
     
     <!-- Critical CSS - Load first -->
     <!-- CSS is imported in the frontmatter -->
@@ -170,12 +170,16 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
             }
         });
 
-        // Add Google Translate script
-        function loadGoogleTranslate() {
-            var script = document.createElement('script');
-            script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-            document.body.appendChild(script);
-        }
+    // Load Google Translate on demand (first open)
+    let googleTranslateLoaded = false;
+    function loadGoogleTranslate() {
+        if (googleTranslateLoaded) return;
+        googleTranslateLoaded = true;
+        var script = document.createElement('script');
+        script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.async = true;
+        document.body.appendChild(script);
+    }
 
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
@@ -186,8 +190,11 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
             }, 'google_translate_element');
         }
 
-        // Load Google Translate when the page loads
-        window.onload = loadGoogleTranslate;
+        // Load Google Translate only when user opens language popup
+        const langButtons = document.querySelectorAll('.language-selector');
+        langButtons.forEach(btn => btn.addEventListener('click', () => {
+            loadGoogleTranslate();
+        }));
     </script>
 
     <!-- Your existing scripts -->

@@ -4,7 +4,6 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/map.css';
 import mapScriptUrl from '@scripts/map.js?url';
-import mainScriptUrl from '@scripts/main.js?url';
 ---
  
 <Layout 
@@ -199,7 +198,6 @@ import mainScriptUrl from '@scripts/main.js?url';
 
   <!-- Load main scripts after plugins are loaded (use Vite-resolved URLs) -->
   <script type="module" src={mapScriptUrl}></script>
-  <script type="module" src={mainScriptUrl}></script>
   
   <script is:inline>
     // Toggle top-bar visibility

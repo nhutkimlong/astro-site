@@ -4,7 +4,6 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/guide.css';
 import guideScriptUrl from '@scripts/guide.js?url';
-import mainScriptUrl from '@scripts/main.js?url';
 ---
 
 <Layout 
@@ -106,4 +105,4 @@ import mainScriptUrl from '@scripts/main.js?url';
 
 
 <script type="module" src={guideScriptUrl}></script>
-<script type="module" src={mainScriptUrl}></script>
+<!-- main.js is already included via Layout -->
