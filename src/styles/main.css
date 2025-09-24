@@ -32,3 +32,37 @@
         margin-left: 1rem;
     }
 }
+
+/* Force-hide Google Translate injected UI */
+html.notranslate, body.notranslate {
+    translate: none !important;
+}
+/* Banner frame & containers */
+body .goog-te-banner-frame.skiptranslate,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-xl07Ob-OEVmcd,
+.VIpgJd-ZVi9od-SmfZ-OEVmcd,
+iframe[id=":0.container"],
+iframe.goog-te-menu-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+#goog-translate-element,
+#google_translate_element,
+.skiptranslate {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    z-index: -999999 !important;
+    top: -99999px !important;
+    left: -99999px !important;
+    height: 0 !important;
+    width: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Prevent layout shift applied by translate */
+body {
+    top: 0 !important;
+}

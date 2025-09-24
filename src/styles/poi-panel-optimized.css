@@ -52,6 +52,37 @@
     }
 }
 
+/* === UI BASELINE SIZES (align with tutorial popup) === */
+:root {
+    --ui-text: 0.875rem;         /* ~14px */
+    --ui-text-small: 0.80rem;    /* small buttons */
+    --ui-title: 1.10rem;         /* compact title */
+    --ui-btn-py: 0.45rem;        /* vertical padding */
+    --ui-btn-minh: 32px;         /* min height */
+}
+
+.poi-info-card,
+.route-instructions-panel { 
+    font-size: var(--ui-text);
+}
+
+.poi-info-card .poi-title {
+    font-size: var(--ui-title) !important;
+}
+
+.poi-info-card .route-from-btn,
+.poi-info-card .route-to-btn,
+.poi-info-card .audio-play-btn,
+.poi-info-card .close-panel-btn {
+    font-size: var(--ui-text-small) !important;
+    padding: var(--ui-btn-py) 0 !important;
+    min-height: var(--ui-btn-minh) !important;
+}
+
+.route-instructions-panel .route-step {
+    font-size: var(--ui-text) !important;
+}
+
 /* === ROUTE INPUTS OPTIMIZATION === */
 .route-inputs-container {
     /* Optimize height for better display */
@@ -105,8 +136,8 @@
     background: #fff;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    padding: 1.5rem;
-    padding-top: 2rem;
+    padding: 1rem;
+    padding-top: 1.25rem;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -142,9 +173,9 @@
 .poi-info-card .poi-image {
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     width: 100%;
-    height: 220px;
+    height: 200px;
 }
 
 .poi-info-card .poi-image img {
@@ -154,10 +185,10 @@
 }
 
 .poi-info-card .poi-title {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 700;
     margin-bottom: .25rem;
-    color: #1f2937;
+    color: #0f766e; /* more prominent title color */
 }
 
 .poi-info-card .poi-status.open,
@@ -192,8 +223,8 @@
 
 .poi-info-card .poi-description {
     color: #222;
-    font-size: 0.95rem;
-    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.9rem;
     line-height: 1.4;
     /* Remove max-height so description can expand naturally */
     /* overflow-y: auto; */
@@ -207,8 +238,8 @@
     width: 100%;
     background: #f59e42;
     color: #fff;
-    font-size: 0.85rem;
-    padding: .5rem 0;
+    font-size: 0.8rem;
+    padding: .45rem 0;
     border-radius: 8px;
     border: none;
     display: flex;
@@ -219,7 +250,7 @@
     margin-bottom: 0;
     cursor: pointer;
     transition: background-color .2s;
-    min-height: 36px;
+    min-height: 32px;
 }
 
 .poi-info-card .audio-play-btn:hover {
@@ -281,8 +312,8 @@
     flex: 1;
     background: #22c55e;
     color: #fff;
-    font-size: 0.85rem;
-    padding: .5rem 0;
+    font-size: 0.8rem;
+    padding: .45rem 0;
     border-radius: 8px;
     border: none;
     display: flex;
@@ -292,7 +323,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background-color .2s;
-    min-height: 36px;
+    min-height: 32px;
 }
 
 .poi-info-card .route-from-btn:hover {
@@ -303,8 +334,8 @@
     flex: 1;
     background: #3b82f6;
     color: #fff;
-    font-size: 0.85rem;
-    padding: .5rem 0;
+    font-size: 0.8rem;
+    padding: .45rem 0;
     border-radius: 8px;
     border: none;
     display: flex;
@@ -314,7 +345,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background-color .2s;
-    min-height: 36px;
+    min-height: 32px;
 }
 
 .poi-info-card .route-to-btn:hover {
@@ -325,8 +356,8 @@
     width: 100%;
     background: #ef4444;
     color: #fff;
-    font-size: 0.85rem;
-    padding: .5rem 0;
+    font-size: 0.8rem;
+    padding: .45rem 0;
     border-radius: 8px;
     border: none;
     justify-content: center;
@@ -336,7 +367,7 @@
     transition: background-color .2s;
     display: flex;
     align-items: center;
-    min-height: 36px;
+    min-height: 32px;
 }
 
 .poi-info-card .close-panel-btn:hover {

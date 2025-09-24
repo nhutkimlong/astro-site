@@ -1041,20 +1041,18 @@ function locateUser(setAsStart = false) {
 function toggleRouteInputs() {
     if (!routeInputsContainer) return;
     const topBar = document.querySelector('.top-bar');
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
     const isRouteInputsHidden = routeInputsContainer.style.display === 'none' || routeInputsContainer.style.display === '';
 
     if (isRouteInputsHidden) {
         // Mở thanh tìm đường, ẩn top-bar
         routeInputsContainer.style.display = 'grid';
-        if (isDesktop && topBar) topBar.classList.add('hidden');
+        if (topBar) topBar.classList.add('hidden');
         startInput?.focus();
     } else {
         // Đóng thanh tìm đường, hiện lại top-bar
         routeInputsContainer.style.display = 'none';
         if (topBar) {
-
-            if (isDesktop) topBar.classList.remove('hidden');
+            topBar.classList.remove('hidden');
             topBar.style.display = '';
         }
     }
