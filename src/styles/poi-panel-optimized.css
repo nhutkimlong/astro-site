@@ -755,7 +755,7 @@
     display: flex;
     flex-direction: column;
     width: auto !important;
-    max-width: 400px !important;
+    max-width: none !important;
     /* Ensure content is clickable on desktop */
     pointer-events: auto;
     position: relative;
@@ -973,7 +973,7 @@
     }
     
     #route-instructions-content {
-        max-width: 400px;
+        max-width: none !important;
         width: 100%;
     }
 }
