@@ -62,19 +62,17 @@ import mainScriptUrl from '@scripts/main.js?url';
 
         
         
-        <div id="info-panel" class="poi-panel absolute bottom-0 left-0 right-0 md:left-0 md:top-0 md:bottom-auto md:right-auto md:w-80 lg:w-96 bg-white shadow-lg rounded-t-lg md:rounded-none md:rounded-r-lg p-3 sm:p-4 z-[1001] transform translate-y-full md:-translate-x-full transition-transform duration-300 ease-in-out" style="display: none;">
+        <!-- POI Panel Backdrop -->
+        <div id="poi-panel-backdrop" class="poi-panel-backdrop hidden"></div>
+        
+        <div id="info-panel" class="poi-panel hidden" style="display: none;">
           <div class="poi-panel-content">
-            <button id="close-poi-panel-btn" class="absolute top-2 right-2 bg-red-500 !bg-red-500 hover:bg-red-600 text-white p-2 z-10 rounded">
-              <i class="fas fa-times text-lg"></i>
-            </button>
+            <!-- Content will be dynamically inserted by JavaScript -->
           </div>
         </div>
 
-        <div id="route-instructions-panel" class="absolute bottom-0 left-0 right-0 md:left-0 md:top-0 md:bottom-auto md:right-auto md:w-80 lg:w-96 bg-white shadow-lg rounded-t-lg md:rounded-none md:rounded-r-lg p-3 sm:p-4 z-[1002] transform translate-y-full md:-translate-x-full transition-transform duration-300 ease-in-out" style="display: none;">
+        <div id="route-instructions-panel" class="route-instructions-panel hidden" style="display: none;">
           <div id="route-instructions-content"></div>
-          <button class="close-route-panel-btn">
-            <i class="fas fa-times mr-1"></i> Đóng
-          </button>
         </div>
       </div>
 

@@ -740,65 +740,101 @@ function showPOIInfoPanel(poi) {
     const status = checkOperationalStatus(poi.id);
     const audioSrc = (currentLang === 'en' && poi.audio_url_en) ? poi.audio_url_en : poi.audio_url;
 
-    let contentHTML = `
-        <button id="close-poi-panel-btn" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 z-10 rounded" aria-label="${getUIText('close')}">
-            <i class="fas fa-times text-lg"></i>
-        </button>
-        <div class="relative max-h-[inherit] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">`;
+    let contentHTML = `<div class="poi-info-card">`;
 
     // Chỉ render phần khung ảnh nếu có poi.imageurl
     if (poi.imageurl) {
         contentHTML += `
-        <div class="w-full h-[200px] sm:h-[280px] bg-gray-100 rounded-t-lg overflow-hidden flex items-center justify-center">
-          <img src="${poi.imageurl}" alt="${name}" class="w-full h-full object-cover" />
-        </div>
-      `;
+        <div class="poi-image">
+          <img src="${poi.imageurl}" alt="${name}" />
+        </div>`;
     }
+
     contentHTML += `
-            <div class="p-3 sm:p-4">
-                <h3 class="text-lg sm:text-xl font-bold mb-1 text-primary-600">${name}</h3>
-                <p class="text-xs text-black mb-2">${getUIText('poiInfoArea')}: ${area}</p>`;
+            <h3 class="poi-title">${name}</h3>
+            <p class="poi-area">${getUIText('poiInfoArea')}: ${area}</p>`;
+    
     if (status.message) {
-        contentHTML += `<p class="poi-status text-xs sm:text-sm font-semibold mb-2 ${status.operational ? 'open text-green-600' : 'closed text-red-600'}">
-                            <i class="fas ${status.operational ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
+        contentHTML += `<p class="poi-status ${status.operational ? 'open' : 'closed'}">
+                            <i class="fas ${status.operational ? 'fa-check-circle' : 'fa-times-circle'}"></i>
                             ${status.message}
                          </p>`;
     }
-    contentHTML += `<p class="text-xs sm:text-sm text-black mb-3 leading-relaxed">${description || '&nbsp;'}</p>`;
-
-    if (audioSrc && audioPlayer) {
-        const isPlayingThisSrc = (!audioPlayer.paused && audioPlayer.currentSrc === audioSrc);
-        const initialIconClass = isPlayingThisSrc ? 'fa-pause' : 'fa-play';
-        contentHTML += `
-            <button id="poi-info-audio-btn" data-src="${audioSrc}" class="w-full flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded-md text-xs sm:text-sm transition duration-150 mb-3">
-                <i class="fas ${initialIconClass} mr-1"></i> ${getUIText('audioNarrate')}
-            </button>`;
-    }
+    
+    contentHTML += `<p class="poi-description">${description || '&nbsp;'}</p>`;
 
     contentHTML += `
-                <div class="flex gap-2 text-xs sm:text-sm">
-                    <button id="poi-info-route-from" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md transition duration-150">
-                        <i class="fas fa-map-marker-alt mr-1"></i> ${getUIText('routeFromHere')}
+                <div class="poi-actions">
+                    ${(() => {
+                        if (audioSrc && audioPlayer) {
+                            const isPlayingThisSrc = (!audioPlayer.paused && audioPlayer.currentSrc === audioSrc);
+                            const initialIconClass = isPlayingThisSrc ? 'fa-pause' : 'fa-play';
+                            return `
+                                <button id="poi-info-audio-btn" data-src="${audioSrc}" class="audio-play-btn">
+                                    <i class=\"fas ${initialIconClass}\"></i> ${getUIText('audioNarrate')}
+                                </button>`;
+                        }
+                        return '';
+                    })()}
+                    <button id="poi-info-route-from" class="route-from-btn">
+                        <i class="fas fa-map-marker-alt"></i> ${getUIText('routeFromHere')}
                     </button>
-                    <button id="poi-info-route-to" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-3 rounded-md transition duration-150">
-                        <i class="fas fa-flag-checkered mr-1"></i> ${getUIText('routeToHere')}
+                    <button id="poi-info-route-to" class="route-to-btn">
+                        <i class="fas fa-flag-checkered"></i> ${getUIText('routeToHere')}
+                    </button>
+                    <button id="close-poi-panel-btn" class="close-panel-btn" aria-label="${getUIText('close')}">
+                        <i class="fas fa-times"></i> ${getUIText('close')}
                     </button>
                 </div>
-            </div>
-        </div>`;
+            </div>`;
 
-    // Thêm min-height cho poiPanelContent
-    poiPanelContent.innerHTML = `<div style="min-height:260px;">${contentHTML}</div>`;
+    // Set content and show panel
+    poiPanelContent.innerHTML = contentHTML;
+    
+    // Ensure proper sizing like mobile on desktop (container non-interactive, card centered)
+    if (window.innerWidth > 767) {
+        // Don't set width to auto, keep it centered but visible
+        poiPanel.style.width = 'auto';
+        poiPanel.style.maxWidth = 'none';
+        // Ensure content is visible
+        poiPanelContent.style.width = 'auto';
+        poiPanelContent.style.maxWidth = '420px';
+    }
+    
     poiPanel.style.display = 'block';
+    
+    // Hide top bar on mobile when POI panel is open
+    if (window.innerWidth <= 767) {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar) {
+            topBar.style.display = 'none';
+        }
+    }
+    
+    // Show backdrop (disabled for slide-up design)
+    // const backdropElement = document.getElementById('poi-panel-backdrop');
+    // if (backdropElement) {
+    //     backdropElement.classList.remove('hidden');
+    //     backdropElement.classList.add('visible');
+    // }
+    
     requestAnimationFrame(() => {
-        poiPanel.classList.remove('translate-y-full', 'md:translate-x-full');
-        poiPanel.classList.add('translate-y-0', 'md:translate-x-0');
+        poiPanel.classList.remove('hidden');
+        poiPanel.classList.add('visible');
     });
 
-    document.getElementById('close-poi-panel-btn')?.addEventListener('click', hidePOIInfoPanel);
+    // Setup close button listener
+    const closeBtn = document.getElementById('close-poi-panel-btn');
+    closeBtn?.addEventListener('click', hidePOIInfoPanel);
+    
     document.getElementById('poi-info-audio-btn')?.addEventListener('click', handlePOIAudioPlay);
     document.getElementById('poi-info-route-from')?.addEventListener('click', () => handleRouteFromPOI(poi));
     document.getElementById('poi-info-route-to')?.addEventListener('click', () => handleRouteToPOI(poi));
+    
+    // Add backdrop click listener (disabled for slide-up design)
+    // if (backdropElement) {
+    //     backdropElement.addEventListener('click', hidePOIInfoPanel);
+    // }
 }
 
 function hidePOIInfoPanel() {
@@ -808,10 +844,27 @@ function hidePOIInfoPanel() {
         const audioBtn = document.getElementById('poi-info-audio-btn');
         if (audioBtn) audioBtn.querySelector('i')?.classList.replace('fa-pause', 'fa-play');
     }
-    poiPanel.classList.add('translate-y-full', 'md:translate-x-full');
-    poiPanel.classList.remove('translate-y-0', 'md:translate-x-0');
+    
+    // Hide backdrop (disabled for slide-up design)
+    // const backdropElement = document.getElementById('poi-panel-backdrop');
+    // if (backdropElement) {
+    //     backdropElement.classList.remove('visible');
+    //     backdropElement.classList.add('hidden');
+    // }
+    
+    poiPanel.classList.remove('visible');
+    poiPanel.classList.add('hidden');
+    
+    // Show top bar again on mobile when POI panel is closed
+    if (window.innerWidth <= 767) {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar) {
+            topBar.style.display = '';
+        }
+    }
+    
     setTimeout(() => {
-        if (poiPanel.classList.contains('translate-y-full') || poiPanel.classList.contains('md:translate-x-full')) {
+        if (poiPanel.classList.contains('hidden')) {
             poiPanel.style.display = 'none';
         }
     }, 300);
@@ -988,19 +1041,20 @@ function locateUser(setAsStart = false) {
 function toggleRouteInputs() {
     if (!routeInputsContainer) return;
     const topBar = document.querySelector('.top-bar');
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
     const isRouteInputsHidden = routeInputsContainer.style.display === 'none' || routeInputsContainer.style.display === '';
 
     if (isRouteInputsHidden) {
         // Mở thanh tìm đường, ẩn top-bar
         routeInputsContainer.style.display = 'grid';
-        if (topBar) topBar.classList.add('hidden');
+        if (isDesktop && topBar) topBar.classList.add('hidden');
         startInput?.focus();
     } else {
         // Đóng thanh tìm đường, hiện lại top-bar
         routeInputsContainer.style.display = 'none';
         if (topBar) {
 
-            topBar.classList.remove('hidden');
+            if (isDesktop) topBar.classList.remove('hidden');
             topBar.style.display = '';
         }
     }
@@ -1166,7 +1220,7 @@ function switchLanguage(lang) {
         if (currentPOI && poiPanel?.style.display !== 'none') {
             showPOIInfoPanel(currentPOI);
         }
-        if (routeInstructionsPanel && routeInstructionsPanel.style.display !== 'none' && currentRoutePolyline && startPOI && endPOI) {
+        if (routeInstructionsPanel && !routeInstructionsPanel.classList.contains('hidden') && currentRoutePolyline && startPOI && endPOI) {
             // Attempt to re-generate instructions with new language
             const pathIds = currentRoutePolyline.getLatLngs().map(latlng => {
                 // This is a simplified way to get path IDs, might not be perfectly accurate
@@ -1179,10 +1233,10 @@ function switchLanguage(lang) {
                 // Assuming currentDescentChoice is still relevant or default to 'cable_car'
                 displayRouteInstructions(pathIds, currentDescentChoice);
             } else {
-                if (routeInstructionsPanel) routeInstructionsPanel.style.display = 'none';
+                if (routeInstructionsPanel) closeRouteInstructionsPanel();
             }
-        } else if (routeInstructionsPanel) {
-            routeInstructionsPanel.style.display = 'none';
+        } else if (routeInstructionsPanel && !routeInstructionsPanel.classList.contains('hidden')) {
+            closeRouteInstructionsPanel();
         }
         // Update Leaflet Locate Control title
         const locateControl = map.locateControl; // Access the control if available
@@ -2126,6 +2180,12 @@ async function findAndDisplayRouteWithChoice(choice, descentOptions) {
 
 function displayRouteInstructions(path, descentChoice) {
     if (!routeInstructionsPanel) return;
+    
+    // Hide POI panel when showing route instructions
+    if (poiPanel && poiPanel.style.display !== 'none') {
+        hidePOIInfoPanel();
+    }
+    
     const instructions = [];
     let currentTransport = null;
     let currentRoute = null;
@@ -2211,7 +2271,12 @@ function displayRouteInstructions(path, descentChoice) {
 
     // Chỉ hiển thị "(ưu tiên Máng trượt)" khi thực sự có sử dụng máng trượt
     let instructionsHTML = `
-      <h3><i class="fas fa-route"></i> ${getUIText('routeInstructionTitle', getPoiName(getPoi(path[0])), getPoiName(getPoi(path[path.length - 1])), hasCoaster ? descentChoice : null)}</h3>
+      <div class="route-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <h3 style="margin:0;"><i class="fas fa-route"></i> ${getUIText('routeInstructionTitle', getPoiName(getPoi(path[0])), getPoiName(getPoi(path[path.length - 1])), hasCoaster ? descentChoice : null)}</h3>
+        <button class="close-route-panel-btn" aria-label="${getUIText('close')}" title="${getUIText('close')}" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;background:#ef4444;color:#ffffff;border:none;border-radius:6px;cursor:pointer;outline:none;box-shadow:none;padding:0;line-height:1;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
       <div>
         ${instructions.map(instruction => {
         let icon = '';
@@ -2225,11 +2290,51 @@ function displayRouteInstructions(path, descentChoice) {
     `;
 
     const content = document.getElementById('route-instructions-content');
-    if (content) content.innerHTML = instructionsHTML;
+    if (content) {
+        content.innerHTML = instructionsHTML;
+        const internalCloseBtn = content.querySelector('.close-route-panel-btn');
+        if (internalCloseBtn) internalCloseBtn.addEventListener('click', closeRouteInstructionsPanel);
+    }
+
+    // Auto-adjust height for mobile
+    if (window.innerWidth <= 767) {
+        const routeSteps = content.querySelectorAll('.route-step');
+        const stepCount = routeSteps.length;
+        const baseHeight = 120; // Base height for header and close button
+        const stepHeight = 60; // Height per step
+        const calculatedHeight = Math.min(baseHeight + (stepCount * stepHeight), window.innerHeight * 0.7);
+        
+        content.style.maxHeight = `${calculatedHeight}px`;
+        content.style.height = 'auto';
+    } else {
+        // Desktop: reset height and ensure proper sizing
+        content.style.maxHeight = '70vh';
+        content.style.height = 'auto';
+        content.style.width = 'auto';
+        content.style.maxWidth = '400px';
+    }
 
     routeInstructionsPanel.style.display = 'block';
-    routeInstructionsPanel.classList.remove('translate-y-full', 'md:-translate-x-full');
-    routeInstructionsPanel.classList.add('translate-y-0', 'md:translate-x-0');
+    
+    // Hide top bar on mobile when route instructions panel is open
+    if (window.innerWidth <= 767) {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar) {
+            topBar.style.display = 'none';
+        }
+    }
+    
+    // Show backdrop (disabled for slide-up design)
+    // const backdropElement = document.getElementById('poi-panel-backdrop');
+    // if (backdropElement) {
+    //     backdropElement.classList.remove('hidden');
+    //     backdropElement.classList.add('visible');
+    // }
+    
+    requestAnimationFrame(() => {
+        routeInstructionsPanel.classList.remove('hidden');
+        routeInstructionsPanel.classList.add('visible');
+    });
 }
 
 
@@ -2254,23 +2359,35 @@ function suggestGoogleMapsDirections(startPOI, endPOI) {
 function closeRouteInstructionsPanel() {
     if (!routeInstructionsPanel) return;
 
+    // Hide backdrop (disabled for slide-up design)
+    // const backdropElement = document.getElementById('poi-panel-backdrop');
+    // if (backdropElement) {
+    //     backdropElement.classList.remove('visible');
+    //     backdropElement.classList.add('hidden');
+    // }
+
     // Hide panel with animation
-    routeInstructionsPanel.classList.remove('translate-y-0', 'md:translate-x-0');
-    routeInstructionsPanel.classList.add('translate-y-full', 'md:-translate-x-full');
+    routeInstructionsPanel.classList.remove('visible');
+    routeInstructionsPanel.classList.add('hidden');
+    
+    // Show top bar again on mobile when route instructions panel is closed
+    if (window.innerWidth <= 767) {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar) {
+            topBar.style.display = '';
+        }
+    }
 
     // Hide panel after animation completes
     setTimeout(() => {
-        routeInstructionsPanel.style.display = 'none';
+        if (routeInstructionsPanel.classList.contains('hidden')) {
+            routeInstructionsPanel.style.display = 'none';
+        }
     }, 300); // Match transition duration
 }
 
 // Add event listener for close button
-document.addEventListener('DOMContentLoaded', function () {
-    const closeButton = document.querySelector('.close-route-panel-btn');
-    if (closeButton) {
-        closeButton.addEventListener('click', closeRouteInstructionsPanel);
-    }
-});
+// Note: close button is now rendered inside route-instructions-content; handler attached after render
 // ... existing code ...
 
 // --- Local Storage Keys ---

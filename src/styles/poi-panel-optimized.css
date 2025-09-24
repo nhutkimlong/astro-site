@@ -1,0 +1,948 @@
+/* POI Panel Optimized Styles - Based on bando-nuibaden */
+/* Extracted and optimized for current project */
+
+/* === TOP BAR MOBILE BEHAVIOR === */
+.top-bar {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    /* Optimize height for better display */
+    padding: 0.5rem 1rem !important;
+}
+
+.top-bar.hidden {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+}
+
+/* Reduce search bar height */
+.top-bar .search-bar {
+    padding: 0.5rem 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Reduce filter categories spacing */
+.top-bar .filter-categories-wrapper {
+    padding: 0 !important;
+}
+
+.top-bar .filter-categories {
+    padding: 0.25rem 0 !important;
+}
+
+/* Reduce button sizes in filter */
+.top-bar .filter-categories button {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+}
+
+/* Mobile specific optimizations */
+@media (max-width: 767px) {
+    .top-bar {
+        padding: 0.4rem 0.75rem !important;
+    }
+    
+    .top-bar .search-bar {
+        padding: 0.4rem 0.6rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+    
+    .top-bar .filter-categories button {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* === ROUTE INPUTS OPTIMIZATION === */
+.route-inputs-container {
+    /* Optimize height for better display */
+    padding: 0.5rem 1rem !important;
+    gap: 0.5rem !important;
+}
+
+.route-inputs-container .route-input-group {
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+}
+
+.route-inputs-container input[type="text"] {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 6px !important;
+}
+
+.route-inputs-container .get-directions-button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 6px !important;
+}
+
+/* Mobile route inputs optimization */
+@media (max-width: 767px) {
+    .route-inputs-container {
+        padding: 0.4rem 0.75rem !important;
+        gap: 0.4rem !important;
+    }
+    
+    .route-inputs-container .route-input-group {
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .route-inputs-container input[type="text"] {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .route-inputs-container .get-directions-button {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* === POI INFO CARD === */
+.poi-info-card {
+    width: 100%;
+    max-width: 320px;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    padding-top: 2rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 80vh;
+    border: none;
+    backdrop-filter: blur(10px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+/* === POI CARD SCROLLBAR === */
+.poi-info-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.poi-info-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.poi-info-card::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+.poi-info-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.3);
+}
+
+.poi-info-card .poi-image {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.2rem;
+    width: 100%;
+    height: 220px;
+}
+
+.poi-info-card .poi-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.poi-info-card .poi-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+    color: #1f2937;
+}
+
+.poi-info-card .poi-status.open,
+.poi-info-card .poi-title.open {
+    color: #22c55e;
+}
+
+.poi-info-card .poi-status.closed,
+.poi-info-card .poi-title.closed {
+    color: #ef4444;
+}
+
+.poi-info-card .poi-area {
+    font-style: italic;
+    color: #555;
+    font-size: 0.85rem;
+    margin-bottom: .5rem;
+}
+
+.poi-info-card .poi-status {
+    font-weight: 600;
+    margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    font-size: 0.8rem;
+}
+
+.poi-info-card .poi-status i {
+    color: #059669;
+}
+
+.poi-info-card .poi-description {
+    color: #222;
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+    line-height: 1.4;
+    /* Remove max-height so description can expand naturally */
+    /* overflow-y: auto; */
+    /* scrollbar-width: thin; */
+    /* scrollbar-color: #cbd5e1 #f1f5f9; */
+    /* padding-right: 0.5rem; */
+}
+
+/* === AUDIO BUTTON === */
+.poi-info-card .audio-play-btn {
+    width: 100%;
+    background: #f59e42;
+    color: #fff;
+    font-size: 0.85rem;
+    padding: .5rem 0;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    font-weight: 600;
+    margin-bottom: 0;
+    cursor: pointer;
+    transition: background-color .2s;
+    min-height: 36px;
+}
+
+.poi-info-card .audio-play-btn:hover {
+    background: #d97706;
+}
+
+/* === ACTION BUTTONS === */
+.poi-info-card .poi-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+/* Remove individual margins so spacing is controlled by gap only */
+.poi-info-card .poi-actions > * {
+    margin: 0 !important;
+}
+
+/* Desktop: Optimize button layout - 2 columns */
+@media (min-width: 768px) {
+    /* Desktop: give the card and container more room */
+    .poi-info-card {
+        max-width: 420px;
+        padding: 1.5rem;
+        padding-top: 2rem;
+        max-height: 75vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .poi-panel-content {
+        max-width: none;
+    }
+
+    .poi-info-card .poi-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    /* Make close button span full width on desktop grid */
+    .poi-info-card .poi-actions .close-panel-btn,
+    .poi-info-card .poi-actions .audio-play-btn {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Mobile: Stack buttons vertically with smaller size */
+@media (max-width: 767px) {
+    .poi-info-card .poi-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.poi-info-card .route-from-btn {
+    flex: 1;
+    background: #22c55e;
+    color: #fff;
+    font-size: 0.85rem;
+    padding: .5rem 0;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s;
+    min-height: 36px;
+}
+
+.poi-info-card .route-from-btn:hover {
+    background: #16a34a;
+}
+
+.poi-info-card .route-to-btn {
+    flex: 1;
+    background: #3b82f6;
+    color: #fff;
+    font-size: 0.85rem;
+    padding: .5rem 0;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s;
+    min-height: 36px;
+}
+
+.poi-info-card .route-to-btn:hover {
+    background: #2563eb;
+}
+
+.poi-info-card .close-panel-btn {
+    width: 100%;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.85rem;
+    padding: .5rem 0;
+    border-radius: 8px;
+    border: none;
+    justify-content: center;
+    gap: .5em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s;
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+}
+
+.poi-info-card .close-panel-btn:hover {
+    background: #dc2626;
+}
+
+/* === POI PANEL CONTAINER === */
+.poi-panel {
+    position: fixed;
+    top: auto;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) translateY(100%);
+    width: auto !important;
+    max-width: none !important;
+    height: auto;
+    max-height: 70vh;
+    z-index: 1001;
+    transition: transform 0.3s ease-in-out;
+    /* Make container non-interactive so only the card captures events */
+    pointer-events: none;
+    /* Override any background from other CSS files */
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.poi-panel.visible {
+    transform: translateX(-50%) translateY(0);
+    /* Keep container non-interactive on desktop like mobile */
+    pointer-events: none;
+}
+
+.poi-panel.hidden {
+    transform: translateX(-50%) translateY(100%);
+    pointer-events: none;
+}
+
+.poi-panel-content {
+    width: auto;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+    word-break: break-word;
+    white-space: normal;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 !important;
+    /* Only the card should capture interactions */
+    pointer-events: auto;
+    /* Center the card and constrain width so panel feels removed */
+    max-width: 420px;
+    margin: 0;
+    /* Ensure content is clickable on desktop */
+    position: relative;
+    z-index: 10;
+    /* Remove background to avoid white strip */
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.poi-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.poi-panel-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.poi-panel-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    border: 2px solid #f1f5f9;
+}
+
+.poi-panel-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* === LOADING STATES === */
+.poi-info-card.loading {
+    opacity: .7;
+}
+
+.poi-info-card .loading-placeholder {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: 1.5s infinite loading;
+    border-radius: 4px;
+}
+
+.poi-image.loading {
+    height: 220px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.poi-image img.loading {
+    opacity: 0;
+}
+
+.poi-title.loading {
+    height: 24px;
+    width: 80%;
+    margin: 1rem 0;
+}
+
+.poi-description.loading {
+    height: 100px;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* === ERROR STATES === */
+.poi-info-card.error {
+    padding: 2rem;
+    text-align: center;
+    color: #ef4444;
+}
+
+.poi-info-card .error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.poi-info-card .error-message i {
+    font-size: 2rem;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 767px) {
+    .poi-panel {
+        position: fixed;
+        top: auto;
+        left: 0 !important;
+        right: 0;
+        bottom: 0;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: auto;
+        max-height: 85vh;
+        transform: translateY(100%) !important;
+        transition: transform 0.3s ease-in-out;
+        /* Override any background from other CSS files */
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    .poi-panel.visible {
+        transform: translateY(0) !important;
+    }
+    
+    .poi-panel.hidden {
+        transform: translateY(100%) !important;
+    }
+    
+    .poi-panel-content {
+        height: 100vh;
+        width: 100% !important;
+        padding: 0.75rem !important;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding-top: 2rem !important;
+        max-width: 100vw !important;
+        margin: 0;
+        pointer-events: auto;
+        position: relative;
+        z-index: 10;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    .poi-info-card {
+        padding: 1rem;
+        padding-top: 1.5rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+        position: relative;
+        max-height: 85vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    
+    /* Mobile: close button behaves like other action buttons */
+    .poi-info-card .close-panel-btn {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        padding: .7rem 0;
+        font-size: 0.95rem;
+        background: #ef4444;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .poi-info-card .poi-image img {
+        height: 160px;
+    }
+    
+    .poi-image {
+        height: 180px;
+    }
+    
+    .poi-title {
+        font-size: 1.2rem;
+    }
+    
+    .poi-description {
+        font-size: 0.9rem;
+    }
+    
+    .poi-info-card .route-from-btn,
+    .poi-info-card .route-to-btn,
+    .poi-info-card .audio-play-btn,
+    .poi-info-card .close-panel-btn {
+        padding: .4rem 0;
+        font-size: 0.8rem;
+        border-radius: 8px;
+        min-height: 32px;
+    }
+    
+    /* Mobile: Make buttons smaller and more compact */
+    .poi-info-card .poi-actions {
+        margin-bottom: 0.75rem;
+    }
+    
+    .poi-info-card .close-panel-btn {
+        margin-top: 0;
+        padding: .4rem 0;
+        font-size: 0.8rem;
+        min-height: 32px;
+    }
+}
+
+@media (min-width: 768px) {
+    .poi-panel {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+    }
+    
+    .poi-panel-content {
+        padding: 1rem;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 2rem;
+    }
+}
+
+/* === ACCESSIBILITY === */
+.action-button:focus {
+    outline: #3b82f6 solid 2px;
+    outline-offset: 2px;
+}
+
+.action-button:focus:not(:focus-visible) {
+    outline: 0;
+}
+
+.action-button:focus-visible {
+    outline: #3b82f6 solid 2px;
+    outline-offset: 2px;
+}
+
+/* === ANIMATIONS === */
+.poi-panel {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.poi-info-card {
+    transition: all 0.3s ease-in-out;
+}
+
+/* === TOUCH SCROLLING OPTIMIZATION === */
+.poi-panel-content,
+#route-instructions-content {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+}
+
+/* === FORCE SCROLLING === */
+.poi-panel-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+#route-instructions-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Ensure scrolling works on all devices */
+.poi-info-card {
+    overflow-y: visible;
+}
+
+.poi-panel-content {
+    overscroll-behavior: contain;
+}
+
+/* === SCROLL INDICATORS === */
+.poi-panel-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #cbd5e1, #94a3b8);
+}
+
+#route-instructions-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #cbd5e1, #94a3b8);
+}
+
+/* === ROUTE INSTRUCTIONS PANEL === */
+.route-instructions-panel {
+    position: fixed;
+    top: auto;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) translateY(100%);
+    width: auto !important;
+    max-width: none !important;
+    height: auto;
+    max-height: 70vh;
+    z-index: 1002;
+    transition: transform 0.3s ease-in-out;
+    pointer-events: none;
+    /* Override any background from other CSS files */
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Override legacy ID styles to remove white outline */
+#route-instructions-panel {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important; /* remove outer spacing to make content flush */
+}
+
+.route-instructions-panel.visible {
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.route-instructions-panel.hidden {
+    transform: translateX(-50%) translateY(100%);
+    pointer-events: none;
+}
+
+#route-instructions-content {
+    background: #fff;
+    border-radius: 16px; /* rounded on all corners for seamless look on desktop */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    max-height: 70vh;
+    min-height: auto;
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+    border: none;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    width: auto !important;
+    max-width: 400px !important;
+    /* Ensure content is clickable on desktop */
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+    /* Ensure all content can scroll */
+    scroll-behavior: smooth;
+}
+
+#route-instructions-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#route-instructions-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+#route-instructions-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    border: 2px solid #f1f5f9;
+}
+
+#route-instructions-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.route-instructions-panel h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+/* Remove any default focus outlines/halos from the close button */
+.route-instructions-panel .close-route-panel-btn {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.route-instructions-panel .route-step {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    font-size: .95rem;
+    background: #f9fafb;
+    border-radius: .75rem;
+    padding: .6rem .9rem;
+    margin-bottom: .4rem;
+    box-shadow: 0 1px 4px 0 rgba(16,185,129,.04);
+    transition: background .2s;
+    min-height: 50px;
+    line-height: 1.4;
+}
+
+.route-instructions-panel .route-step:last-child {
+    margin-bottom: 0;
+}
+
+.route-instructions-panel .route-step:hover {
+    background: #f3f4f6; /* neutral hover to avoid light-blue tint */
+}
+
+.route-instructions-panel .route-icon {
+    font-size: 1.1em;
+    min-width: 1.5em;
+    text-align: center;
+    color: #10b981;
+}
+
+.close-route-panel-btn {
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    margin-top: 1.5rem;
+    margin-bottom: .5rem;
+    background: #ef4444;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px;
+    padding: .9rem 0;
+    transition: background .2s;
+    cursor: pointer;
+}
+
+.close-route-panel-btn:hover {
+    background: #dc2626;
+}
+
+/* === BACKDROP OVERLAY === */
+.poi-panel-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.poi-panel-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* === Z-INDEX MANAGEMENT === */
+.poi-panel {
+    z-index: 1001;
+}
+
+.route-instructions-panel {
+    z-index: 1002;
+}
+
+.floating-action-buttons {
+    z-index: 1000;
+}
+
+/* === PANEL STATES === */
+.poi-panel.hidden {
+    pointer-events: none;
+}
+
+.poi-panel.visible {
+    pointer-events: auto;
+}
+
+/* Mobile panel states */
+@media (max-width: 767px) {
+    .poi-panel.hidden {
+        transform: translateY(100%);
+    }
+    
+    .poi-panel.visible {
+        transform: translateY(0);
+    }
+    
+    .route-instructions-panel {
+        position: fixed;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: auto;
+        max-height: 70vh;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-in-out;
+        /* Override any background from other CSS files */
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    .route-instructions-panel.hidden {
+        transform: translateY(100%);
+    }
+    
+    .route-instructions-panel.visible {
+        transform: translateY(0);
+    }
+    
+    #route-instructions-content {
+        border-radius: 16px 16px 0 0; /* on mobile keep bottom straight to dock */
+        padding: 1rem;
+        max-height: 70vh;
+        height: auto;
+        min-height: auto;
+        width: 100% !important;
+        pointer-events: auto;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .route-instructions-panel .route-step {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        min-height: 45px;
+        margin-bottom: 0.3rem;
+    }
+    
+    .route-instructions-panel h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .close-route-panel-btn {
+        font-size: 1rem;
+        padding: .7rem 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .route-instructions-panel {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+    }
+    
+    .route-instructions-panel.hidden {
+        pointer-events: none;
+    }
+    
+    .route-instructions-panel.visible {
+        pointer-events: auto;
+    }
+    
+    #route-instructions-content {
+        max-width: 400px;
+        width: 100%;
+    }
+}
