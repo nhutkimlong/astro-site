@@ -4,9 +4,11 @@ import Header from "../components/Header.astro";
 import "../styles/main.css";
 import "../styles/tailwind.css";
 import "../styles/admin/admin-styles.css";
+import "../styles/admin/responsive-optimization.css";
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Bảng điều khiển Admin - Baden App">
+    <Header currentPage="admin" pageTitle="Bảng điều khiển Admin" />
     <script>
       // Route guard: only admin can access
       document.addEventListener('DOMContentLoaded', async () => {
@@ -78,31 +80,7 @@ import Layout from '../layouts/Layout.astro';
         }
     </style>
 
-    <!-- Header -->
-    <header class="gradient-bg shadow-lg">
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-            <div class="flex items-center justify-between h-14 sm:h-16">
-                <div class="flex items-center min-w-0 flex-1">
-                    <i class="fas fa-tachometer-alt text-white text-lg sm:text-2xl mr-2 sm:mr-3 flex-shrink-0"></i>
-                    <h1 class="text-sm sm:text-xl font-bold text-white truncate">Bảng điều khiển Quản trị - Núi Bà Đen</h1>
-                </div>
-                <div class="flex items-center space-x-2 sm:space-x-4 ml-2">
-                    <span class="text-white text-xs sm:text-sm hidden sm:block">
-                        <i class="fas fa-calendar-alt mr-1 sm:mr-2"></i>
-                        <span id="currentDate"></span>
-                    </span>
-                    <button 
-                        id="logoutBtn"
-                        class="text-white hover:text-red-200 transition-colors px-2 sm:px-3 py-1 rounded-lg hover:bg-white/10 text-xs sm:text-sm"
-                        title="Đăng xuất"
-                    >
-                        <i class="fas fa-sign-out-alt mr-1"></i>
-                        <span class="hidden sm:inline">Đăng xuất</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+    
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
@@ -110,8 +88,8 @@ import Layout from '../layouts/Layout.astro';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header Section -->
             <div class="mb-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
+                <div class="flex items-center justify-between flex-col sm:flex-row gap-4 mobile-stack">
+                    <div class="flex items-center gap-4 mobile-text-center">
                         <div class="p-3 bg-white rounded-xl shadow-sm">
                             <i class="fas fa-cog text-2xl text-slate-600"></i>
                         </div>
@@ -120,9 +98,10 @@ import Layout from '../layouts/Layout.astro';
                             <p class="text-slate-600 mt-1">Quản lý toàn bộ hệ thống Baden App</p>
                         </div>
                     </div>
-                    <button id="logoutBtn" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200">
+                    <button id="logoutBtn" class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200 mobile-full-width sm:w-auto">
                         <i class="fas fa-sign-out-alt"></i>
-                        Đăng xuất
+                        <span class="hidden sm:inline">Đăng xuất</span>
+                        <span class="sm:hidden">Đăng xuất</span>
                     </button>
                 </div>
             </div>
@@ -140,56 +119,56 @@ import Layout from '../layouts/Layout.astro';
             </div>
 
             <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mobile-stack">
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between">
-                        <div>
+                    <div class="flex items-center justify-between mobile-stack">
+                        <div class="mobile-text-center">
                             <p class="text-sm font-medium text-slate-600">Tổng đăng ký</p>
                             <div id="totalRegistrations" class="mt-2">
                                 <p class="text-2xl font-bold text-slate-800">--</p>
-                                <div class="flex items-center mt-1">
+                                <div class="flex items-center mt-1 justify-center sm:justify-start">
                                     <i class="fas fa-spinner fa-spin text-blue-600 mr-2 text-sm"></i>
                                     <span class="text-xs text-slate-400">Đang cập nhật...</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-3 bg-blue-50 rounded-xl">
+                        <div class="p-3 bg-blue-50 rounded-xl mx-auto sm:mx-0">
                             <i class="fas fa-users text-xl text-blue-600"></i>
                         </div>
                     </div>
                 </div>
                 
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between">
-                        <div>
+                    <div class="flex items-center justify-between mobile-stack">
+                        <div class="mobile-text-center">
                             <p class="text-sm font-medium text-slate-600">Điểm quan tâm</p>
                             <div id="totalPOIs" class="mt-2">
                                 <p class="text-2xl font-bold text-slate-800">--</p>
-                                <div class="flex items-center mt-1">
+                                <div class="flex items-center mt-1 justify-center sm:justify-start">
                                     <i class="fas fa-spinner fa-spin text-emerald-600 mr-2 text-sm"></i>
                                     <span class="text-xs text-slate-400">Đang cập nhật...</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-3 bg-emerald-50 rounded-xl">
+                        <div class="p-3 bg-emerald-50 rounded-xl mx-auto sm:mx-0">
                             <i class="fas fa-map-marker-alt text-xl text-emerald-600"></i>
                         </div>
                     </div>
                 </div>
                 
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between">
-                        <div>
+                    <div class="flex items-center justify-between mobile-stack">
+                        <div class="mobile-text-center">
                             <p class="text-sm font-medium text-slate-600">Tổng cẩm nang</p>
                             <div id="totalGuide" class="mt-2">
                                 <p class="text-2xl font-bold text-slate-800">--</p>
-                                <div class="flex items-center mt-1">
+                                <div class="flex items-center mt-1 justify-center sm:justify-start">
                                     <i class="fas fa-spinner fa-spin text-amber-600 mr-2 text-sm"></i>
                                     <span class="text-xs text-slate-400">Đang cập nhật...</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-3 bg-amber-50 rounded-xl">
+                        <div class="p-3 bg-amber-50 rounded-xl mx-auto sm:mx-0">
                             <i class="fas fa-chart-line text-xl text-amber-600"></i>
                         </div>
                     </div>
@@ -199,11 +178,11 @@ import Layout from '../layouts/Layout.astro';
             
             
             <!-- Admin Modules -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="adminModules">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mobile-stack" id="adminModules">
                 <a href="/admin/climb" class="group block">
                     <div class="bg-blue-50 rounded-2xl p-6 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-slate-200">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="p-3 rounded-xl bg-white shadow-sm">
+                        <div class="flex items-start justify-between mb-4 mobile-stack">
+                            <div class="p-3 rounded-xl bg-white shadow-sm mx-auto sm:mx-0">
                                 <i class="fas fa-mountain text-2xl text-blue-600"></i>
                             </div>
                             <div class="text-slate-400 group-hover:text-slate-600 transition-colors">
@@ -211,20 +190,20 @@ import Layout from '../layouts/Layout.astro';
                             </div>
                         </div>
                         
-                        <h3 class="text-xl font-semibold text-slate-800 mb-2 group-hover:text-slate-900 transition-colors">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2 group-hover:text-slate-900 transition-colors mobile-text-center">
                             Quản lý Leo núi
                         </h3>
                         
-                        <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                        <p class="text-slate-600 text-sm leading-relaxed mb-3 mobile-text-center">
                             Quản lý đăng ký, chứng nhận và thống kê leo núi
                         </p>
 
-                        <div class="flex items-center justify-between">
-                            <div class="inline-flex items-center text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+                        <div class="flex items-center justify-between mobile-stack">
+                            <div class="inline-flex items-center text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent mx-auto sm:mx-0">
                                 Truy cập ngay
                                 <i class="fas fa-chevron-right ml-1 group-hover:translate-x-1 transition-transform"></i>
                             </div>
-                            <div class="text-right">
+                            <div class="text-center sm:text-right">
                                 <p class="text-xs text-slate-500">Tổng số</p>
                                 <p class="text-lg font-bold text-slate-800">--</p>
                             </div>
@@ -331,22 +310,30 @@ import Layout from '../layouts/Layout.astro';
 
             <!-- Quick Actions -->
             <div class="mt-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-4 mobile-stack">
                     <h3 class="text-lg font-semibold text-slate-800">Thao tác nhanh</h3>
-                    <button id="refreshBtn" class="flex items-center gap-2 px-3 py-1 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                    <button id="refreshBtn" class="flex items-center gap-2 px-3 py-1 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors mobile-full-width">
                         <i class="fas fa-sync-alt"></i>
-                        Làm mới dữ liệu
+                        <span class="hidden sm:inline">Làm mới dữ liệu</span>
+                        <span class="sm:hidden">Làm mới</span>
                     </button>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="/admin/climb" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
-                        Xem đăng ký leo núi
+                <div class="flex flex-wrap gap-3 mobile-stack">
+                    <a href="/admin/climb" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-mountain"></i>
+                        <span>Quản lý Leo núi</span>
                     </a>
-                    <a href="/admin/poi" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors">
-                        Quản lý POI
+                    <a href="/admin/guide" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors">
+                        <i class="fas fa-book"></i>
+                        <span>Quản lý Cẩm nang</span>
                     </a>
-                    <a href="/admin/guide" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors">
-                        Quản lý cẩm nang
+                    <a href="/admin/poi" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Quản lý POI</span>
+                    </a>
+                    <a href="/admin/users" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors">
+                        <i class="fas fa-users"></i>
+                        <span>Quản lý Người dùng</span>
                     </a>
                     <div id="activeNotifications" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">
                         <span>Thông báo đang hoạt động: </span>
@@ -484,6 +471,21 @@ import Layout from '../layouts/Layout.astro';
                 const restaurantsData = restaurantsResponse.ok ? await restaurantsResponse.json() : [];
                 const specialtiesData = specialtiesResponse.ok ? await specialtiesResponse.json() : [];
                 
+                // Load users count
+                let usersCount = 0;
+                try {
+                    const token = localStorage.getItem('authToken') || '';
+                    const usersRes = await fetch('/.netlify/functions/auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                        body: JSON.stringify({ action: 'list' })
+                    });
+                    const usersJson = await usersRes.json().catch(() => ({ success:false, users:[] }));
+                    if (usersRes.ok && usersJson.success && Array.isArray(usersJson.users)) {
+                        usersCount = usersJson.users.length;
+                    }
+                } catch (_) { usersCount = 0; }
+
                 // Load notifications (use local cache 60s)
                 const notificationsData = await fetchCombinedWithLocalCache();
                 
@@ -499,7 +501,7 @@ import Layout from '../layouts/Layout.astro';
                 };
 
                 stats.totalGuide = stats.totalTours + stats.totalAccommodations + stats.totalRestaurants + stats.totalSpecialties;
-                stats.totalUsers = 0; // Placeholder
+                stats.totalUsers = usersCount;
 
                 updateUI();
                 
@@ -534,27 +536,16 @@ import Layout from '../layouts/Layout.astro';
             const element = document.getElementById(elementId);
             if (!element) return;
             
-            // Animate the number change
             const numberEl = element.querySelector('p.text-2xl');
-            const spinnerEl = element.querySelector('.fa-spinner');
-            const statusEl = element.querySelector('.text-xs');
-            
             if (numberEl) {
                 numberEl.textContent = formatNumber(value);
-                // Add a subtle animation
                 numberEl.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                    numberEl.style.transform = 'scale(1)';
-                }, 200);
+                setTimeout(() => { numberEl.style.transform = 'scale(1)'; }, 200);
             }
-            
-            if (spinnerEl) {
-                spinnerEl.className = 'fas fa-check-circle text-green-500 mr-2 text-sm';
-            }
-            
-            if (statusEl) {
-                statusEl.textContent = 'Đã cập nhật';
-                statusEl.className = 'text-xs text-green-600';
+
+            const statusRow = element.closest('.bg-white.rounded-2xl.p-6')?.querySelector('.flex.items-center.mt-1');
+            if (statusRow) {
+                statusRow.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 text-sm"></i><span class="text-xs text-green-600">Đã cập nhật</span>';
             }
         }
 

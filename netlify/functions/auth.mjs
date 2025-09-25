@@ -253,6 +253,44 @@ export default async function handler(request, context) {
       return new Response(JSON.stringify({ success: true, users }), { status: 200, headers });
     }
 
+    // Create user (admin only)
+    if (action === 'createUser') {
+      const authHeader = request.headers.get('authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : '';
+      const decoded = token ? verifyToken(token) : null;
+      if (!decoded || decoded.role !== 'admin') {
+        return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers });
+      }
+      if (!email || !password || !name) {
+        return new Response(JSON.stringify({ success:false, error:'Name, email, and password are required' }), { status:400, headers });
+      }
+      if (typeof role !== 'string' || (role !== 'admin' && role !== 'user')) {
+        return new Response(JSON.stringify({ success:false, error:'Invalid role' }), { status:400, headers });
+      }
+      const db = await readUsers();
+      const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        return new Response(JSON.stringify({ success:false, error:'Email already registered' }), { status:409, headers });
+      }
+      const user = {
+        id: String(Date.now()),
+        name: String(name),
+        email: String(email),
+        passwordHash: hashPassword(String(password)),
+        role,
+        createdAt: Date.now(),
+        phone: '',
+        dob: '',
+        idCard: '',
+        address: '',
+        successfulClimbCount: 0,
+        lastClimbAt: null
+      };
+      db.users.push(user);
+      await writeUsers(db);
+      return new Response(JSON.stringify({ success:true, user:{ id:user.id, name:user.name, email:user.email, role:user.role } }), { status:200, headers });
+    }
+
     // Update user (admin only)
     if (action === 'update') {
       const authHeader = request.headers.get('authorization') || '';

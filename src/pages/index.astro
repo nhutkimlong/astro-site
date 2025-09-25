@@ -11,18 +11,18 @@ import Footer from '../components/Footer.astro';
   <Header currentPage="home" pageTitle="Khu du lịch quốc gia Núi Bà Đen" />
 
   <!-- Hero Section -->
-  <section class="hero-bg min-h-[60vh] md:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-4 py-16 sm:py-24">
+  <section class="hero-bg min-h-[50vh] md:min-h-[70vh] flex flex-col items-center justify-center text-center text-white px-3 py-12 sm:py-16 md:py-24">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-3xl md:text-4xl lg:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">Khám phá vẻ đẹp hùng vĩ <br class="hidden md:block"> Núi Bà Đen</h1>
-      <p class="text-base md:text-xl text-gray-100 mb-8 max-w-2xl mx-auto drop-shadow-md">"Nóc nhà Nam Bộ" - điểm đến tâm linh và du lịch sinh thái hấp dẫn.</p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a href="#features" class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center space-x-2 transition duration-300 md:transform md:hover:scale-105 shadow-lg">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-extrabold mb-3 md:mb-4 leading-tight drop-shadow-lg">Khám phá vẻ đẹp hùng vĩ <br class="hidden md:block"> Núi Bà Đen</h1>
+      <p class="text-sm sm:text-base md:text-xl text-gray-100 mb-6 md:mb-8 max-w-2xl mx-auto drop-shadow-md">"Nóc nhà Nam Bộ" - điểm đến tâm linh và du lịch sinh thái hấp dẫn.</p>
+      <div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+        <a href="#features" class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2.5 px-5 sm:py-3 sm:px-6 rounded-full inline-flex items-center space-x-2 transition duration-300 md:transform md:hover:scale-105 shadow-lg text-sm sm:text-base">
           <span>Khám phá ngay</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
           </svg>
         </a>
-        <a href="https://booking.sunworld.vn/catalog?land=SunParadiseLandTayNinh" target="_blank" rel="noopener noreferrer" class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center space-x-2 transition duration-300 md:transform md:hover:scale-105 shadow-lg">
+        <a href="https://booking.sunworld.vn/catalog?land=SunParadiseLandTayNinh" target="_blank" rel="noopener noreferrer" class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2.5 px-5 sm:py-3 sm:px-6 rounded-full inline-flex items-center space-x-2 transition duration-300 md:transform md:hover:scale-105 shadow-lg text-sm sm:text-base">
           <span>Đặt vé trực tuyến</span>
           <i class="fas fa-ticket-alt"></i>
         </a>
@@ -31,47 +31,47 @@ import Footer from '../components/Footer.astro';
   </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-12 px-4 -mt-20 sm:-mt-24 md:-mt-32 relative z-20">
+  <section id="features" class="py-8 sm:py-12 px-3 sm:px-4 -mt-16 sm:-mt-20 md:-mt-24 lg:-mt-32 relative z-20">
     <div class="container mx-auto max-w-5xl">
-      <p class="text-center text-lg sm:text-xl font-semibold text-white mb-8">Xin kính chào quý du khách!</p>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <p class="text-center text-base sm:text-lg md:text-xl font-semibold text-white mb-6 sm:mb-8">Xin kính chào quý du khách!</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         
         <!-- Card 1: Digital Map -->
         <div class="feature-card bg-white rounded-xl shadow-xl overflow-hidden border-t-4 border-accent-500 h-full flex flex-col">
-          <div class="p-6 sm:p-8 flex flex-col flex-grow">
-            <div class="mx-auto w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center text-accent-500 mb-6">
-              <i class="fas fa-map-location-dot text-3xl"></i>
+          <div class="p-4 sm:p-6 md:p-8 flex flex-col flex-grow">
+            <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-accent-100 rounded-full flex items-center justify-center text-accent-500 mb-4 sm:mb-6">
+              <i class="fas fa-map-location-dot text-2xl sm:text-3xl"></i>
             </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-accent-700 mb-3">Bản đồ Du lịch Số</h2>
-            <p class="text-gray-600 mb-4">Khám phá Núi Bà Đen trực quan và tiện lợi:</p>
-            <ul class="space-y-2 mb-8">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-accent-700 mb-2 sm:mb-3">Bản đồ Du lịch Số</h2>
+            <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Khám phá Núi Bà Đen trực quan và tiện lợi:</p>
+            <ul class="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8">
               <li class="flex items-start">
-                <i class="fas fa-search text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Tìm kiếm địa điểm theo tên, loại hình.</span>
+                <i class="fas fa-search text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Tìm kiếm địa điểm theo tên, loại hình.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-directions text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Chỉ dẫn đường đi bộ, cáp treo, máng trượt.</span>
+                <i class="fas fa-directions text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Chỉ dẫn đường đi bộ, cáp treo, máng trượt.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-street-view text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Xác định vị trí hiện tại của bạn.</span>
+                <i class="fas fa-street-view text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Xác định vị trí hiện tại của bạn.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-info-circle text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Xem thông tin chi tiết điểm đến.</span>
+                <i class="fas fa-info-circle text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Xem thông tin chi tiết điểm đến.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-clock text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Kiểm tra giờ hoạt động (cáp treo, dịch vụ).</span>
+                <i class="fas fa-clock text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Kiểm tra giờ hoạt động (cáp treo, dịch vụ).</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-language text-accent-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Hỗ trợ ngôn ngữ Việt/Anh.</span>
+                <i class="fas fa-language text-accent-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Hỗ trợ ngôn ngữ Việt/Anh.</span>
               </li>
             </ul>
             <div class="mt-auto">
-              <a href="/map" class="inline-block bg-accent-500 hover:bg-accent-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2">
+              <a href="/map" class="inline-block bg-accent-500 hover:bg-accent-600 text-white font-bold py-2.5 px-5 sm:py-3 sm:px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2 text-sm sm:text-base">
                 <span>Truy cập Bản đồ</span>
                 <i class="fas fa-arrow-right"></i>
               </a>
@@ -81,32 +81,32 @@ import Footer from '../components/Footer.astro';
         
         <!-- Card 2: Travel Guide -->
         <div class="feature-card bg-white rounded-xl shadow-xl overflow-hidden border-t-4 border-orange-500 h-full flex flex-col">
-          <div class="p-6 sm:p-8 flex flex-col flex-grow">
-            <div class="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-6">
-              <i class="fas fa-book-open-reader text-3xl"></i>
+          <div class="p-4 sm:p-6 md:p-8 flex flex-col flex-grow">
+            <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-4 sm:mb-6">
+              <i class="fas fa-book-open-reader text-2xl sm:text-3xl"></i>
             </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-orange-700 mb-3">Cẩm nang Du lịch</h2>
-            <p class="text-gray-600 mb-4">Thông tin hữu ích cho chuyến đi của bạn:</p>
-            <ul class="space-y-2 mb-8">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-orange-700 mb-2 sm:mb-3">Cẩm nang Du lịch</h2>
+            <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Thông tin hữu ích cho chuyến đi của bạn:</p>
+            <ul class="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8">
               <li class="flex items-start">
-                <i class="fas fa-route text-orange-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Các chương trình tour gợi ý.</span>
+                <i class="fas fa-route text-orange-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Các chương trình tour gợi ý.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-hotel text-orange-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Khách sạn, nhà nghỉ, homestay.</span>
+                <i class="fas fa-hotel text-orange-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Khách sạn, nhà nghỉ, homestay.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-utensils text-orange-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Nhà hàng, quán ăn ngon.</span>
+                <i class="fas fa-utensils text-orange-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Nhà hàng, quán ăn ngon.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-pepper-hot text-orange-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Đặc sản địa phương hấp dẫn.</span>
+                <i class="fas fa-pepper-hot text-orange-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Đặc sản địa phương hấp dẫn.</span>
               </li>
             </ul>
             <div class="mt-auto">
-              <a href="/guide" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2">
+              <a href="/guide" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-5 sm:py-3 sm:px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2 text-sm sm:text-base">
                 <span>Xem cẩm nang</span>
                 <i class="fas fa-arrow-right"></i>
               </a>
@@ -116,36 +116,36 @@ import Footer from '../components/Footer.astro';
         
         <!-- Card 3: Mountain Climbing -->
         <div class="feature-card bg-white rounded-xl shadow-xl overflow-hidden border-t-4 border-primary-500 h-full flex flex-col">
-          <div class="p-6 sm:p-8 flex flex-col flex-grow">
-            <div class="mx-auto w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-500 mb-6">
-              <i class="fas fa-hiking text-3xl"></i>
+          <div class="p-4 sm:p-6 md:p-8 flex flex-col flex-grow">
+            <div class="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-500 mb-4 sm:mb-6">
+              <i class="fas fa-hiking text-2xl sm:text-3xl"></i>
             </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-primary-700 mb-3">Đăng ký leo núi</h2>
-            <p class="text-gray-600 mb-4">Chuẩn bị chinh phục "Nóc nhà Nam Bộ":</p>
-            <ul class="space-y-2 mb-8">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-primary-700 mb-2 sm:mb-3">Đăng ký leo núi</h2>
+            <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Chuẩn bị chinh phục "Nóc nhà Nam Bộ":</p>
+            <ul class="space-y-1.5 sm:space-y-2 mb-6 sm:mb-8">
               <li class="flex items-start">
-                <i class="fas fa-clipboard-list text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Đăng ký thông tin leo núi.</span>
+                <i class="fas fa-clipboard-list text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Đăng ký thông tin leo núi.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-calendar-check text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Cam kết tuân thủ quy định an toàn.</span>
+                <i class="fas fa-calendar-check text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Cam kết tuân thủ quy định an toàn.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-check-circle text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Nhận xác nhận trước chuyến đi.</span>
+                <i class="fas fa-check-circle text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Nhận xác nhận trước chuyến đi.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-award text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Nhận chứng nhận điện tử khi hoàn thành.</span>
+                <i class="fas fa-award text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Nhận chứng nhận điện tử khi hoàn thành.</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-headset text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2 text-gray-600">Hỗ trợ thông tin cần thiết cho trekker.</span>
+                <i class="fas fa-headset text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-gray-600 text-xs sm:text-sm">Hỗ trợ thông tin cần thiết cho trekker.</span>
               </li>
             </ul>
             <div class="mt-auto">
-              <a href="/climb" class="inline-block bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2">
+              <a href="/climb" class="inline-block bg-primary-500 hover:bg-primary-600 text-white font-bold py-2.5 px-5 sm:py-3 sm:px-6 rounded-full shadow-md transition duration-300 md:transform md:hover:scale-105 flex items-center justify-center space-x-2 text-sm sm:text-base">
                 <span>Đăng ký ngay</span>
                 <i class="fas fa-signature"></i>
               </a>
@@ -157,34 +157,34 @@ import Footer from '../components/Footer.astro';
   </section>
   
   <!-- About Section -->
-  <section class="py-16 px-4">
+  <section class="py-12 sm:py-16 px-3 sm:px-4">
     <div class="container mx-auto max-w-5xl">
-      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">Về Núi Bà Đen</h2>
-      <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">Về Núi Bà Đen</h2>
+      <div class="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center">
           <div>
-            <p class="text-gray-600 mb-4">Núi Bà Đen là ngọn núi cao nhất Nam Bộ với độ cao 986m, nằm tại tỉnh Tây Ninh, Việt Nam. Núi Bà được mệnh danh là "Đệ nhất thiên sơn" của vùng Đông Nam Bộ.</p>
-            <p class="text-gray-600 mb-4">Đây không chỉ là điểm du lịch sinh thái hấp dẫn mà còn là trung tâm tâm linh với nhiều di tích lịch sử văn hoá quan trọng như Điện Bà, chùa Linh Sơn Tiên Thạch.</p>
-            <p class="text-gray-600">Hệ thống cáp treo hiện đại và các tiện ích du lịch ngày càng được đầu tư đã giúp Núi Bà Đen trở thành điểm đến hấp dẫn cho du khách từ khắp nơi.</p>
+            <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Núi Bà Đen là ngọn núi cao nhất Nam Bộ với độ cao 986m, nằm tại tỉnh Tây Ninh, Việt Nam. Núi Bà được mệnh danh là "Đệ nhất thiên sơn" của vùng Đông Nam Bộ.</p>
+            <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Đây không chỉ là điểm du lịch sinh thái hấp dẫn mà còn là trung tâm tâm linh với nhiều di tích lịch sử văn hoá quan trọng như Điện Bà, chùa Linh Sơn Tiên Thạch.</p>
+            <p class="text-gray-600 text-sm sm:text-base">Hệ thống cáp treo hiện đại và các tiện ích du lịch ngày càng được đầu tư đã giúp Núi Bà Đen trở thành điểm đến hấp dẫn cho du khách từ khắp nơi.</p>
           </div>
-          <div class="bg-gray-100 p-6 rounded-lg">
-            <h3 class="text-xl font-semibold text-primary-600 mb-4">Thông tin cơ bản</h3>
-            <ul class="space-y-3">
+          <div class="bg-gray-100 p-4 sm:p-6 rounded-lg">
+            <h3 class="text-lg sm:text-xl font-semibold text-primary-600 mb-3 sm:mb-4">Thông tin cơ bản</h3>
+            <ul class="space-y-2 sm:space-y-3">
               <li class="flex items-start">
-                <i class="fas fa-mountain text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2">Độ cao: 986m (so với mực nước biển)</span>
+                <i class="fas fa-mountain text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-sm sm:text-base">Độ cao: 986m (so với mực nước biển)</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-map-marker-alt text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2">Vị trí: Phường Bình Minh, tỉnh Tây Ninh</span>
+                <i class="fas fa-map-marker-alt text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-sm sm:text-base">Vị trí: Phường Bình Minh, tỉnh Tây Ninh</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-route text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2">Cách TP. Hồ Chí Minh khoảng 100km</span>
+                <i class="fas fa-route text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-sm sm:text-base">Cách TP. Hồ Chí Minh khoảng 100km</span>
               </li>
               <li class="flex items-start">
-                <i class="fas fa-clock text-primary-500 mt-1 w-5"></i>
-                <span class="ml-2">Giờ mở cửa: 7:00 - 18:00 (có thể thay đổi theo mùa)</span>
+                <i class="fas fa-clock text-primary-500 mt-0.5 sm:mt-1 w-4 sm:w-5 text-sm"></i>
+                <span class="ml-2 text-sm sm:text-base">Giờ mở cửa: 7:00 - 18:00 (có thể thay đổi theo mùa)</span>
               </li>
             </ul>
           </div>
@@ -194,13 +194,13 @@ import Footer from '../components/Footer.astro';
   </section>
 
   <!-- Gallery Section -->
-  <section class="py-16 px-4 bg-gray-50">
+  <section class="py-12 sm:py-16 px-3 sm:px-4 bg-gray-50">
     <div class="container mx-auto max-w-5xl">
-      <h2 class="text-2xl md:text-3xl font-bold text-center mb-2 text-gray-800">Khám phá hình ảnh</h2>
-      <p class="text-center text-gray-600 mb-8">Một số hình ảnh đẹp về Núi Bà Đen</p>
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-2 text-gray-800">Khám phá hình ảnh</h2>
+      <p class="text-center text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Một số hình ảnh đẹp về Núi Bà Đen</p>
       
       <!-- Image gallery would go here - for now using placeholders -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div class="aspect-square rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
           <img src="/assets/images/gallery/placeholder-1-800.webp" srcset="/assets/images/gallery/placeholder-1-400.webp 400w, /assets/images/gallery/placeholder-1-800.webp 800w, /assets/images/gallery/placeholder-1-1200.webp 1200w" sizes="(max-width: 600px) 400px, (max-width: 1024px) 800px, 1200px" alt="Chùa Bà tại Núi Bà Đen" class="w-full h-full object-cover" loading="lazy">
         </div>

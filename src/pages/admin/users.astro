@@ -4,11 +4,12 @@ import Header from "../../components/Header.astro";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
+import "../../styles/admin/responsive-optimization.css";
 import adminUsersScriptUrl from "@scripts/admin-users.js?url";
 ---
 
 <Layout title="Quản lý Người dùng - Admin">
-    <Header currentPage="users" pageTitle="Quản lý Người dùng - Admin" />
+    <Header currentPage="admin" pageTitle="Quản lý Người dùng - Admin" />
     <script>
         // Guard admin only
         document.addEventListener('DOMContentLoaded', async () => {
@@ -65,29 +66,36 @@ import adminUsersScriptUrl from "@scripts/admin-users.js?url";
     <!-- Header Card -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
-                <div class="flex items-center gap-4 w-full lg:w-auto">
+            <div class="flex items-center justify-between flex-col lg:flex-row gap-4 mobile-stack">
+                <div class="flex items-center gap-4 w-full lg:w-auto mobile-text-center">
                     <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
                         <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
                     </a>
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="p-3 bg-indigo-100 rounded-xl flex-shrink-0">
+                    <div class="flex items-center gap-3 min-w-0 mobile-stack">
+                        <div class="p-3 bg-indigo-100 rounded-xl flex-shrink-0 mx-auto sm:mx-0">
                             <i class="fas fa-users-cog text-indigo-600 text-2xl"></i>
                         </div>
-                        <div class="min-w-0">
+                        <div class="min-w-0 mobile-text-center">
                             <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Người dùng</h1>
                             <p class="text-slate-600 text-sm lg:text-base truncate">Xem, cập nhật quyền và thông tin người dùng</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
-                    <div class="text-right">
+                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end mobile-stack">
+                    <div class="text-center sm:text-right">
                         <p class="text-sm text-slate-600" id="currentDate">Loading...</p>
                         <p class="text-xs text-slate-500">Hệ thống quản lý</p>
                     </div>
-                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
+                    <div class="flex gap-2 mobile-stack">
+                        <button id="openAddUser" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 mobile-full-width">
+                            <i class="fas fa-user-plus"></i>
+                            <span class="hidden sm:inline">Thêm người dùng</span>
+                            <span class="sm:hidden">Thêm</span>
+                        </button>
+                        <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition mobile-full-width">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,7 +150,7 @@ import adminUsersScriptUrl from "@scripts/admin-users.js?url";
         </div>
         
         <form id="editUserForm" class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mobile-stack">
             <!-- Left Column -->
             <div class="space-y-4">
               <div>
@@ -193,16 +201,53 @@ import adminUsersScriptUrl from "@scripts/admin-users.js?url";
             </div>
           </div>
           
-          <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
-            <button type="button" id="cancelEdit" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">
+          <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200 mobile-stack">
+            <button type="button" id="cancelEdit" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 mobile-full-width">
               Hủy
             </button>
-            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 mobile-full-width">
               Lưu
             </button>
           </div>
         </form>
       </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div id="addUserModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg">
+      <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="text-xl font-semibold text-slate-800">Thêm người dùng</h3>
+        <button id="closeAddModal" class="text-slate-400 hover:text-slate-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <form id="addUserForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Tên</label>
+          <input type="text" id="addName" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" id="addEmail" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu tạm</label>
+          <input type="password" id="addPassword" minlength="6" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Vai trò</label>
+          <select id="addRole" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-3 pt-2 mobile-stack">
+          <button type="button" id="cancelAdd" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 mobile-full-width">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 mobile-full-width">Tạo</button>
+        </div>
+      </form>
     </div>
   </div>
 

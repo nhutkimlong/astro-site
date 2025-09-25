@@ -182,6 +182,38 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(err instanceof Error ? err.message : 'Lỗi');
     }
   });
+
+  // Add User modal handlers
+  document.getElementById('openAddUser')?.addEventListener('click', () => {
+    document.getElementById('addUserModal')?.classList.remove('hidden');
+  });
+  const closeAdd = () => document.getElementById('addUserModal')?.classList.add('hidden');
+  document.getElementById('closeAddModal')?.addEventListener('click', closeAdd);
+  document.getElementById('cancelAdd')?.addEventListener('click', closeAdd);
+  document.getElementById('addUserModal')?.addEventListener('click', (e) => {
+    if ((e.target && /** @type {HTMLElement} */(e.target).id) === 'addUserModal') closeAdd();
+  });
+  document.getElementById('addUserForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = /** @type {HTMLInputElement} */(document.getElementById('addName'))?.value.trim();
+    const email = /** @type {HTMLInputElement} */(document.getElementById('addEmail'))?.value.trim();
+    const password = /** @type {HTMLInputElement} */(document.getElementById('addPassword'))?.value;
+    const role = /** @type {HTMLSelectElement} */(document.getElementById('addRole'))?.value || 'user';
+    if (!name || !email || !password) { showError('Vui lòng nhập đầy đủ thông tin'); return; }
+    try{
+      const res = await fetch('/.netlify/functions/auth', { 
+        method:'POST', 
+        headers:{ 'Content-Type':'application/json', 'Authorization': 'Bearer ' + getToken() }, 
+        body: JSON.stringify({ action: 'createUser', name, email, password, role })
+      });
+      const json = await res.json();
+      if(!res.ok || !json.success) throw new Error(json.error || 'Tạo người dùng thất bại');
+      showSuccess('Đã tạo người dùng mới');
+      closeAdd();
+      (document.getElementById('addUserForm'))?.reset();
+      await loadUsers();
+    }catch(err){ showError(err instanceof Error ? err.message : 'Lỗi'); }
+  });
 });
 
 document.getElementById('refreshBtn')?.addEventListener('click', () => { void loadUsers(); });

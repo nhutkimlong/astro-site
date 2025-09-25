@@ -5,18 +5,16 @@ import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
 import "../../styles/admin/poi-admin.css";
+import "../../styles/admin/responsive-optimization.css";
 ---
 
 <Layout title="Quản lý POI - Admin">
-    <Header currentPage="poi" pageTitle="Quản lý POI - Admin" />
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
-        <script type="module">
-            import L from 'https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js';
-            window.L = L;
-        </script>
+    <Header currentPage="admin" pageTitle="Quản lý POI - Admin" />
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
             // Guard admin only
             document.addEventListener('DOMContentLoaded', async () => {
@@ -132,17 +130,15 @@ import "../../styles/admin/poi-admin.css";
                 box-shadow: 0 8px 25px 0 rgba(239, 68, 68, 0.5);
             }
         </style>
-    </head>
-    <body class="bg-slate-50">
-        <Header currentPage="admin" />
+    <div class="bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Header Section -->
             <div class="admin-card mb-8">
                 <div class="admin-card-header">
                     <div
-                        class="flex items-center justify-between flex-col lg:flex-row gap-4"
+                        class="flex items-center justify-between flex-col lg:flex-row gap-4 mobile-stack"
                     >
-                        <div class="flex items-center gap-4 w-full lg:w-auto">
+                        <div class="flex items-center gap-4 w-full lg:w-auto mobile-text-center">
                             <a
                                 href="/admin"
                                 class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0"
@@ -151,15 +147,15 @@ import "../../styles/admin/poi-admin.css";
                                     class="fas fa-arrow-left text-slate-600 text-xl"
                                 ></i>
                             </a>
-                            <div class="flex items-center gap-3 min-w-0">
+                            <div class="flex items-center gap-3 min-w-0 mobile-stack">
                                 <div
-                                    class="p-3 bg-amber-100 rounded-xl flex-shrink-0"
+                                    class="p-3 bg-amber-100 rounded-xl flex-shrink-0 mx-auto sm:mx-0"
                                 >
                                     <i
                                         class="fas fa-map-marker-alt text-amber-600 text-2xl"
                                     ></i>
                                 </div>
-                                <div class="min-w-0">
+                                <div class="min-w-0 mobile-text-center">
                                     <h1
                                         class="text-xl lg:text-2xl font-bold text-slate-800 truncate"
                                     >
@@ -273,7 +269,7 @@ import "../../styles/admin/poi-admin.css";
                 <form id="poiForm" class="space-y-6">
                     <input type="hidden" id="poiIdHidden" name="id" />
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mobile-stack">
                         <div class="space-y-6">
                             <!-- Basic Information -->
                             <div class="space-y-4">
@@ -472,6 +468,30 @@ import "../../styles/admin/poi-admin.css";
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Operating Hours (old project style) -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-slate-700 mb-3">Giờ hoạt động</h3>
+                                <p class="text-sm text-slate-600 mb-2">Chọn trạng thái cho mỗi ngày và nhập giờ nếu "Mở cửa".</p>
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <div id="operatingHoursContainer" class="space-y-3"></div>
+                                </div>
+                                <input type="hidden" id="poiOperatingHoursJsonInput" name="operating_hours" />
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mobile-stack">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Ngày đóng cửa (closed_dates)</label>
+                                        <input type="text" id="ohClosedDates" placeholder="YYYY-MM-DD,YYYY-MM-DD" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Thông báo (status_message)</label>
+                                        <input type="text" id="ohStatusMessage" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Thông báo EN (status_message_en)</label>
+                                        <input type="text" id="ohStatusMessageEn" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="space-y-6">
@@ -600,18 +620,18 @@ import "../../styles/admin/poi-admin.css";
 
                     <!-- Form Actions -->
                     <div
-                        class="flex justify-end gap-4 pt-6 border-t border-slate-200"
+                        class="flex justify-end gap-4 pt-6 border-t border-slate-200 mobile-stack"
                     >
                         <button
                             type="button"
                             id="clearFormBtn"
-                            class="btn-modern btn-modern-secondary"
+                            class="btn-modern btn-modern-secondary mobile-full-width"
                         >
                             <i class="fas fa-eraser"></i> Xóa Form
                         </button>
                         <button
                             type="submit"
-                            class="btn-modern btn-modern-success"
+                            class="btn-modern btn-modern-success mobile-full-width"
                         >
                             <i class="fas fa-save"></i> Lưu (Thêm / Cập nhật)
                         </button>
@@ -720,6 +740,7 @@ import "../../styles/admin/poi-admin.css";
             let gioHoatDongList = [];
             let map = null;
             let formCoordinates = null;
+            let pickerMarker = null;
 
             const API_URLS = {
                 poi: "/.netlify/functions/data-blobs?file=POI.json",
@@ -776,6 +797,9 @@ import "../../styles/admin/poi-admin.css";
                 document
                     .getElementById("closeMapBtn")
                     .addEventListener("click", closeMapModal);
+
+                // Build Operating Hours UI (status + time inputs)
+                createOperatingHoursUi();
             }
 
             // Status message functions
@@ -872,6 +896,7 @@ import "../../styles/admin/poi-admin.css";
                 document.getElementById("poiForm").reset();
                 document.getElementById("poiIdHidden").value = "";
                 document.getElementById("poiIdDisplay").value = "(Tự động)";
+                clearOperatingHoursUi();
             }
 
             // Populate form for editing
@@ -901,6 +926,8 @@ import "../../styles/admin/poi-admin.css";
                 document
                     .getElementById("poiForm")
                     .scrollIntoView({ behavior: "smooth", block: "start" });
+                // Load operating hours UI from GioHoatDong.json
+                populateOperatingHoursForPoi(poi.id);
                 showStatus(
                     `Đã tải dữ liệu POI ID ${poi.id} vào form.`,
                     false,
@@ -966,6 +993,31 @@ import "../../styles/admin/poi-admin.css";
                     body: JSON.stringify(updatedList),
                 });
 
+                // Upsert operating hours entry for this POI
+                const poiIdNumber = parseInt(poiData.id || currentIdValue, 10);
+                if (!isNaN(poiIdNumber)) {
+                    const hoursObj = getOperatingHoursObjectFromInputs();
+                    const existingIdx = gioHoatDongList.findIndex((g) => parseInt(g.id, 10) === poiIdNumber);
+                    const entry = {
+                        id: poiIdNumber,
+                        operating_hours: JSON.stringify(hoursObj),
+                        closed_dates: getClosedDatesFromInput(),
+                        status_message: getInputValue('ohStatusMessage'),
+                        status_message_en: getInputValue('ohStatusMessageEn')
+                    };
+                    if (existingIdx !== -1) {
+                        gioHoatDongList[existingIdx] = { ...gioHoatDongList[existingIdx], ...entry };
+                    } else {
+                        gioHoatDongList.push(entry);
+                    }
+
+                    await fetchData(API_URLS.gioHoatDong, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(gioHoatDongList),
+                    });
+                }
+
                 showStatus("Đã lưu thành công lên server!", false);
                 await loadAllPoisAndSyncGioHoatDong();
                 clearForm();
@@ -991,6 +1043,17 @@ import "../../styles/admin/poi-admin.css";
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(updatedList),
                 });
+
+                // Also remove operating hours entry
+                const idNum = parseInt(id, 10);
+                if (!isNaN(idNum)) {
+                    gioHoatDongList = gioHoatDongList.filter((g) => parseInt(g.id, 10) !== idNum);
+                    await fetchData(API_URLS.gioHoatDong, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(gioHoatDongList),
+                    });
+                }
 
                 showStatus("Đã xóa và lưu thành công!", false);
                 await loadAllPoisAndSyncGioHoatDong();
@@ -1056,17 +1119,28 @@ import "../../styles/admin/poi-admin.css";
                     },
                 ).addTo(map);
 
-                if (formCoordinates) {
-                    L.marker(formCoordinates).addTo(map);
-                }
+                // Create or reset draggable marker
+                pickerMarker = L.marker(defaultCoords, { draggable: true }).addTo(map);
+
+                // Update inputs when marker is dropped
+                pickerMarker.on('dragend', function (e) {
+                    const latLng = e.target.getLatLng();
+                    formCoordinates = [latLng.lat, latLng.lng];
+                    const latInput = document.getElementById("poiLatInput");
+                    const lonInput = document.getElementById("poiLonInput");
+                    if (latInput) latInput.value = latLng.lat.toFixed(6);
+                    if (lonInput) lonInput.value = latLng.lng.toFixed(6);
+                });
 
                 map.on("click", function (e) {
                     formCoordinates = [e.latlng.lat, e.latlng.lng];
-                    document.getElementById("poiLatInput").value =
-                        e.latlng.lat.toFixed(6);
-                    document.getElementById("poiLonInput").value =
-                        e.latlng.lng.toFixed(6);
-                    closeMapModal();
+                    if (pickerMarker) {
+                        pickerMarker.setLatLng(e.latlng);
+                    }
+                    const latInput = document.getElementById("poiLatInput");
+                    const lonInput = document.getElementById("poiLonInput");
+                    if (latInput) latInput.value = e.latlng.lat.toFixed(6);
+                    if (lonInput) lonInput.value = e.latlng.lng.toFixed(6);
                 });
             }
 
@@ -1157,5 +1231,130 @@ import "../../styles/admin/poi-admin.css";
             // Global functions for onclick handlers
             window.getPoiByIdAndPopulate = getPoiByIdAndPopulate;
             window.deletePoiFromRow = deletePoiFromRow;
+
+            // ------- Operating hours helpers -------
+            function getInputValue(id) {
+                const el = document.getElementById(id);
+                return el ? el.value.trim() : '';
+            }
+
+            // Build UI like old project
+            function createOperatingHoursUi() {
+                const container = document.getElementById('operatingHoursContainer');
+                if (!container) return;
+                container.innerHTML = '';
+                const days = [
+                    { key: 'default', label: 'Mặc định' },
+                    { key: 'mon', label: 'Thứ 2' },
+                    { key: 'tue', label: 'Thứ 3' },
+                    { key: 'wed', label: 'Thứ 4' },
+                    { key: 'thu', label: 'Thứ 5' },
+                    { key: 'fri', label: 'Thứ 6' },
+                    { key: 'sat', label: 'Thứ 7' },
+                    { key: 'sun', label: 'Chủ nhật' }
+                ];
+                const addRow = (day) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center gap-3';
+                    const dayLabel = document.createElement('span');
+                    dayLabel.className = 'w-24 text-sm font-medium text-slate-700';
+                    dayLabel.textContent = day.label;
+                    const select = document.createElement('select');
+                    select.id = `oh_${day.key}_status`;
+                    select.className = 'px-2 py-1 border border-slate-300 rounded';
+                    select.innerHTML = `
+                        <option value="ignore">Không áp dụng</option>
+                        <option value="open">Mở cửa</option>
+                        <option value="closed">Đóng cửa</option>
+                    `;
+                    const timeWrap = document.createElement('div');
+                    timeWrap.id = `oh_${day.key}_time_inputs`;
+                    timeWrap.className = 'hidden flex items-center gap-2';
+                    timeWrap.innerHTML = `
+                        <input type="time" id="oh_${day.key}_start" class="px-2 py-1 border border-slate-300 rounded">
+                        <span class="text-slate-400">-</span>
+                        <input type="time" id="oh_${day.key}_end" class="px-2 py-1 border border-slate-300 rounded">
+                    `;
+                    select.addEventListener('change', () => {
+                        if (select.value === 'open') timeWrap.classList.remove('hidden');
+                        else { timeWrap.classList.add('hidden'); const s=document.getElementById(`oh_${day.key}_start`); const e=document.getElementById(`oh_${day.key}_end`); if(s) s.value=''; if(e) e.value=''; }
+                    });
+                    row.appendChild(dayLabel);
+                    row.appendChild(select);
+                    row.appendChild(timeWrap);
+                    container.appendChild(row);
+                };
+                days.forEach(addRow);
+            }
+
+            function clearOperatingHoursUi() {
+                const container = document.getElementById('operatingHoursContainer');
+                if (!container) return;
+                container.querySelectorAll('select[id^="oh_"]').forEach((s) => { s.value = 'ignore'; s.dispatchEvent(new Event('change')); });
+                document.getElementById('poiOperatingHoursJsonInput').value = '';
+                const closed = document.getElementById('ohClosedDates'); if (closed) closed.value = '';
+                const sm = document.getElementById('ohStatusMessage'); if (sm) sm.value = '';
+                const smen = document.getElementById('ohStatusMessageEn'); if (smen) smen.value = '';
+            }
+
+            function populateOperatingHoursForPoi(poiId) {
+                clearOperatingHoursUi();
+                const idNum = parseInt(poiId, 10);
+                if (isNaN(idNum)) return;
+                const entry = gioHoatDongList.find((g) => parseInt(g.id, 10) === idNum);
+                if (!entry) return;
+                let hours = {};
+                try { hours = JSON.parse(entry.operating_hours || '{}'); } catch {}
+                const mapField = ['default','mon','tue','wed','thu','fri','sat','sun'];
+                mapField.forEach((k) => {
+                    const statusEl = document.getElementById(`oh_${k}_status`);
+                    const startEl = document.getElementById(`oh_${k}_start`);
+                    const endEl = document.getElementById(`oh_${k}_end`);
+                    const val = hours[k];
+                    if (!statusEl) return;
+                    if (typeof val === 'string' && val.toLowerCase() === 'closed') {
+                        statusEl.value = 'closed';
+                        statusEl.dispatchEvent(new Event('change'));
+                    } else if (typeof val === 'string' && val.includes('-') && startEl && endEl) {
+                        const [st, en] = val.split('-').map((s) => s.trim());
+                        if (st && en) {
+                            statusEl.value = 'open';
+                            statusEl.dispatchEvent(new Event('change'));
+                            startEl.value = st;
+                            endEl.value = en;
+                        }
+                    }
+                });
+                const closed = document.getElementById('ohClosedDates');
+                if (closed) closed.value = Array.isArray(entry.closed_dates) ? entry.closed_dates.join(',') : (entry.closed_dates || '');
+                const sm = document.getElementById('ohStatusMessage');
+                if (sm) sm.value = entry.status_message || '';
+                const smen = document.getElementById('ohStatusMessageEn');
+                if (smen) smen.value = entry.status_message_en || '';
+            }
+
+            function getOperatingHoursObjectFromInputs() {
+                const obj = {};
+                const keys = ['default','mon','tue','wed','thu','fri','sat','sun'];
+                keys.forEach((k) => {
+                    const status = getInputValue(`oh_${k}_status`);
+                    if (status === 'closed') {
+                        obj[k] = 'closed';
+                    } else if (status === 'open') {
+                        const st = getInputValue(`oh_${k}_start`);
+                        const en = getInputValue(`oh_${k}_end`);
+                        const valid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(st) && /^([01]\d|2[0-3]):([0-5]\d)$/.test(en);
+                        if (st && en && valid) obj[k] = `${st}-${en}`;
+                    }
+                });
+                return obj;
+            }
+
+            function getClosedDatesFromInput() {
+                const v = getInputValue('ohClosedDates');
+                if (!v) return null;
+                const arr = v.split(',').map((s) => s.trim()).filter(Boolean);
+                return arr.length ? arr : null;
+            }
         </script>
 </Layout>

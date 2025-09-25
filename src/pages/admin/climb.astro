@@ -6,10 +6,11 @@ import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
 import "../../styles/admin/climb-admin.css";
+import "../../styles/admin/responsive-optimization.css";
 ---
 
 <Layout title="Quản lý Leo núi - Admin">
-    <Header currentPage="climb" pageTitle="Quản lý Leo núi - Admin" />
+    <Header currentPage="admin" pageTitle="Quản lý Leo núi - Admin" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       // @ts-nocheck
@@ -27,27 +28,27 @@ import "../../styles/admin/climb-admin.css";
     <!-- Header Card -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
-                <div class="flex items-center gap-4 w-full lg:w-auto">
+            <div class="flex items-center justify-between flex-col lg:flex-row gap-4 mobile-stack">
+                <div class="flex items-center gap-4 w-full lg:w-auto mobile-text-center">
                     <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
                         <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
                     </a>
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="p-3 bg-blue-100 rounded-xl flex-shrink-0">
+                    <div class="flex items-center gap-3 min-w-0 mobile-stack">
+                        <div class="p-3 bg-blue-100 rounded-xl flex-shrink-0 mx-auto sm:mx-0">
                             <i class="fas fa-mountain text-blue-600 text-2xl"></i>
                         </div>
-                        <div class="min-w-0">
+                        <div class="min-w-0 mobile-text-center">
                             <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Leo núi</h1>
                             <p class="text-slate-600 text-sm lg:text-base truncate">Thống kê, thông báo và cài đặt GPS</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
-                    <div class="text-right">
+                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end mobile-stack">
+                    <div class="text-center sm:text-right">
                         <p class="text-sm text-slate-600" id="currentDate">Loading...</p>
                         <p class="text-xs text-slate-500">Hệ thống quản lý</p>
                     </div>
-                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">
+                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition mobile-full-width sm:w-auto">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -76,7 +77,7 @@ import "../../styles/admin/climb-admin.css";
         <!-- Dashboard Content -->
         <div id="dashboard" class="space-y-8">
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mobile-stack">
                 <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                     <div class="flex items-center">
                         <div class="p-3 bg-blue-100 rounded-lg">
@@ -143,7 +144,7 @@ import "../../styles/admin/climb-admin.css";
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mobile-stack">
                 <!-- Notifications Management -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                     <div class="p-6 border-b border-gray-200">
@@ -252,11 +253,11 @@ import "../../styles/admin/climb-admin.css";
                     </h2>
                 </div>
                 <div class="p-6">
-                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex flex-col md:flex-row gap-4 mb-6 mobile-stack">
                         <div class="flex-1">
                             <input type="tel" id="searchPhone" placeholder="Nhập số điện thoại để tìm kiếm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                         </div>
-                        <button id="searchBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        <button id="searchBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors mobile-full-width">
                             <i class="fas fa-search mr-2"></i>Tìm kiếm
                         </button>
                     </div>
@@ -555,21 +556,12 @@ import "../../styles/admin/climb-admin.css";
                 element.style.transform = 'scale(1)';
             }, 200);
             
-            // Find the parent card container to update status
+            // Update the status row entirely to avoid leftover text
             const cardContainer = element.closest('.bg-white.rounded-lg.shadow-sm');
             if (!cardContainer) return;
-            
-            // Update the spinner to check icon
-            const spinnerEl = cardContainer.querySelector('.fa-spinner');
-            const statusEl = cardContainer.querySelector('.text-xs');
-            
-            if (spinnerEl) {
-                spinnerEl.className = 'fas fa-check-circle text-green-500 mr-1 text-xs';
-            }
-            
-            if (statusEl) {
-                statusEl.textContent = 'Đã cập nhật';
-                statusEl.className = 'text-xs text-green-600';
+            const statusRow = cardContainer.querySelector('.flex.items-center.mt-1');
+            if (statusRow) {
+                statusRow.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1 text-xs"></i><span class="text-xs text-green-600">Đã cập nhật</span>';
             }
         }
 

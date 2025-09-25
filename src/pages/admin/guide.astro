@@ -5,10 +5,11 @@ import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
 import "../../styles/admin/guide-admin.css";
+import "../../styles/admin/responsive-optimization.css";
 ---
 
 <Layout title="Quản lý Cẩm nang - Admin">
-    <Header currentPage="guide" pageTitle="Quản lý Cẩm nang - Admin" />
+    <Header currentPage="admin" pageTitle="Quản lý Cẩm nang - Admin" />
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const token = localStorage.getItem('authToken');
@@ -98,27 +99,27 @@ import "../../styles/admin/guide-admin.css";
     <!-- Header Card -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
-                <div class="flex items-center gap-4 w-full lg:w-auto">
+            <div class="flex items-center justify-between flex-col lg:flex-row gap-4 mobile-stack">
+                <div class="flex items-center gap-4 w-full lg:w-auto mobile-text-center">
                     <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
                         <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
                     </a>
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="p-3 bg-emerald-100 rounded-xl flex-shrink-0">
+                    <div class="flex items-center gap-3 min-w-0 mobile-stack">
+                        <div class="p-3 bg-emerald-100 rounded-xl flex-shrink-0 mx-auto sm:mx-0">
                             <i class="fas fa-book text-emerald-600 text-2xl"></i>
                         </div>
-                        <div class="min-w-0">
+                        <div class="min-w-0 mobile-text-center">
                             <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Cẩm nang</h1>
                             <p class="text-slate-600 text-sm lg:text-base truncate">Quản lý và cập nhật thông tin cẩm nang du lịch Núi Bà Đen</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
-                    <div class="text-right">
+                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end mobile-stack">
+                    <div class="text-center sm:text-right">
                         <p class="text-sm text-slate-600" id="currentDate">Loading...</p>
                         <p class="text-xs text-slate-500">Hệ thống quản lý</p>
                     </div>
-                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">
+                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition mobile-full-width sm:w-auto">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -131,7 +132,7 @@ import "../../styles/admin/guide-admin.css";
 
             <!-- Tabs Navigation -->
             <div class="mb-6">
-                <nav class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-lg">
+                <nav class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-lg mobile-stack">
                     <button class="tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-white text-slate-700 shadow-sm" data-tab="tours">
                         <i class="fas fa-route mr-1 lg:mr-2"></i>
                         <span class="hidden sm:inline">Tours</span>
@@ -161,15 +162,15 @@ import "../../styles/admin/guide-admin.css";
 
             <!-- Tab Content -->
             <div id="tabContent">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
-                    <div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 mobile-stack">
+                    <div class="mobile-text-center">
                         <h2 id="tabTitle" class="text-lg lg:text-xl font-semibold text-gray-700">Danh sách Tours (-- mục)</h2>
-                        <div class="flex items-center mt-1">
+                        <div class="flex items-center mt-1 justify-center sm:justify-start">
                             <i class="fas fa-spinner fa-spin text-indigo-500 mr-1 text-xs"></i>
                             <span class="text-xs text-gray-500">Đang tải dữ liệu...</span>
                         </div>
                     </div>
-                    <button id="addBtn" class="bg-indigo-600 text-white font-medium py-2.5 px-4 lg:px-5 rounded-lg shadow-md hover:bg-indigo-700 transition text-sm lg:text-base">
+                    <button id="addBtn" class="bg-indigo-600 text-white font-medium py-2.5 px-4 lg:px-5 rounded-lg shadow-md hover:bg-indigo-700 transition text-sm lg:text-base mobile-full-width">
                         <i class="fas fa-plus mr-1 lg:mr-2"></i>
                         <span class="hidden sm:inline">Thêm mới</span>
                         <span class="sm:hidden">Thêm</span>
@@ -297,13 +298,13 @@ import "../../styles/admin/guide-admin.css";
         function updateUI() {
             // Update title with animation
             const titleEl = document.getElementById('tabTitle');
-            const statusEl = titleEl?.parentNode?.querySelector('.text-xs');
+            const statusRow = titleEl?.parentNode?.querySelector('.flex.items-center.mt-1');
             
             titleEl.textContent = `Danh sách ${SHEET_MAP[currentTab]} (${data.length} mục)`;
             
             // Update status indicator
-            if (statusEl) {
-                statusEl.innerHTML = `
+            if (statusRow) {
+                statusRow.innerHTML = `
                     <i class="fas fa-check-circle text-green-500 mr-1 text-xs"></i>
                     <span class="text-xs text-green-600">Đã cập nhật</span>
                 `;
@@ -500,11 +501,11 @@ import "../../styles/admin/guide-admin.css";
                     
                     // Update title immediately for better UX
                     const titleEl = document.getElementById('tabTitle');
-                    const statusEl = titleEl?.parentNode?.querySelector('.text-xs');
+                    const statusRow = titleEl?.parentNode?.querySelector('.flex.items-center.mt-1');
                     
                     titleEl.textContent = `Danh sách ${SHEET_MAP[tabId]} (-- mục)`;
-                    if (statusEl) {
-                        statusEl.innerHTML = `
+                    if (statusRow) {
+                        statusRow.innerHTML = `
                             <i class="fas fa-spinner fa-spin text-indigo-500 mr-1 text-xs"></i>
                             <span class="text-xs text-gray-500">Đang tải dữ liệu...</span>
                         `;

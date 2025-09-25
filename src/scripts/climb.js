@@ -8,6 +8,7 @@ const CROP_ASPECT_RATIO = 11.89 / 16.73; // Defined aspect ratio
 
 // API URLs
 const COMBINED_API_URL = '/.netlify/functions/combined-data';
+const SSE_UPDATES_URL = '/.netlify/functions/sse-updates';
 
 // Default GPS settings (fallback)
 let GPS_SETTINGS = {
@@ -34,6 +35,7 @@ let selectedRepresentativeType = null; // Stores the selected representative typ
 // --- DOM Elements (sẽ được khởi tạo trong DOMContentLoaded) ---
 let registrationForm, registerBtn, registerSpinner, groupSizeInput, memberListInput, safetyCommitCheckbox, safetyCommitError;
 let phoneVerificationArea, verifyPhoneNumberInput, verifyPhoneBtn, certSpinner, memberSelectionArea, memberListContainer, generateSelectedBtn, generateSpinner, resetVerificationBtn;
+let phoneNotFoundError, phoneVerificationSuccess;
 let certificateResult, certificateResultTitle, certificateResultMessage, downloadLinks;
 let messageBox, currentYearSpan, mapCanvas;
 let cropModal, imageToCrop, cancelCropBtn, confirmCropBtn;
@@ -61,15 +63,19 @@ function showMessage(message, type = 'info', duration = 6000) {
     messageBox.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[300] min-w-[280px] max-w-[90vw] px-4 py-3 rounded-lg shadow-lg border ${colorClass} message-box transition-all duration-300`;
     messageBox.classList.remove('hidden');
     messageBox.classList.add('show');
+    messageBox.classList.add(type); // Thêm class type để dễ kiểm tra
 
     // Nút đóng thủ công
     const closeBtn = document.getElementById('closeMessageBtn');
     if (closeBtn) closeBtn.onclick = hideMessage;
 
-    // Ẩn khi click/touch bất kỳ đâu trên màn hình (trừ messageBox)
+    // Ẩn khi click/touch bất kỳ đâu trên màn hình (trừ messageBox và chỉ với thông báo info)
     function hideOnUserAction(e) {
         if (!messageBox.contains(e.target)) {
-            hideMessage();
+            // Chỉ ẩn thông báo info, không ẩn thông báo error
+            if (messageBox.classList.contains('info')) {
+                hideMessage();
+            }
         }
     }
     document.addEventListener('mousedown', hideOnUserAction, { once: true });
@@ -80,7 +86,10 @@ function showMessage(message, type = 'info', duration = 6000) {
         messageBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
 
-    if (duration > 0) messageTimeout = setTimeout(hideMessage, duration);
+    // Chỉ tự động ẩn thông báo info, không tự động ẩn thông báo error
+    if (duration > 0 && type !== 'error') {
+        messageTimeout = setTimeout(hideMessage, duration);
+    }
 }
 function hideMessage() {
     clearTimeout(messageTimeout);
@@ -319,12 +328,66 @@ function initializeLeafletMap() {
         let accuracyCircle = null;
 
         if (typeof L.Control !== 'undefined' && typeof L.Control.Locate !== 'undefined') {
-            L.control.locate({
-                position: 'topright', flyTo: true,
-                strings: { title: "Hiển thị vị trí của tôi", popup: "Bạn đang ở trong bán kính {distance} {unit} từ điểm này", outsideMapBoundsMsg: "Có vẻ bạn đang ở ngoài phạm vi bản đồ." },
-                locateOptions: { maxZoom: 17, enableHighAccuracy: true },
-                iconElement: 'i', icon: 'fa-solid fa-location-crosshairs', iconLoading: 'fa-solid fa-spinner fa-spin'
+            // Sử dụng plugin Locate Control với cấu hình tối ưu
+            const locateControl = L.control.locate({
+                position: 'topright', 
+                flyTo: true,
+                drawCircle: true,
+                drawMarker: true,
+                showPopup: true,
+                strings: { 
+                    title: "Hiển thị vị trí của tôi", 
+                    popup: "Bạn đang ở trong bán kính {distance} {unit} từ điểm này", 
+                    outsideMapBoundsMsg: "Có vẻ bạn đang ở ngoài phạm vi bản đồ." 
+                },
+                locateOptions: { 
+                    maxZoom: 17, 
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                },
+                iconElement: 'i', 
+                icon: 'fa-solid fa-location-crosshairs', 
+                iconLoading: 'fa-solid fa-spinner fa-spin'
             }).addTo(map);
+            
+            // Xử lý sự kiện cho plugin Locate Control
+            map.on('locate', function(e) {
+                showMessage('Đang yêu cầu quyền định vị và điều hướng...', 'info', 0);
+            });
+            
+            map.on('locationfound', function(e) {
+                hideMessage();
+                showMessage('Đã tìm thấy vị trí của bạn!', 'success', 3000);
+            });
+            
+            map.on('locationerror', function(e) {
+                hideMessage();
+                let errorMsg = 'Lỗi định vị: ';
+                let instructionMsg = '';
+                
+                switch (e.code) {
+                    case e.PERMISSION_DENIED: 
+                        errorMsg += 'Quyền truy cập bị từ chối.';
+                        instructionMsg = 'Vui lòng cấp quyền định vị và điều hướng trong cài đặt trình duyệt và thử lại.';
+                        break;
+                    case e.POSITION_UNAVAILABLE: 
+                        errorMsg += 'Thông tin vị trí không khả dụng.';
+                        instructionMsg = 'Vui lòng kiểm tra GPS và kết nối mạng, sau đó thử lại.';
+                        break;
+                    case e.TIMEOUT: 
+                        errorMsg += 'Yêu cầu vị trí hết thời gian chờ.';
+                        instructionMsg = 'Vui lòng đảm bảo GPS được bật và thử lại.';
+                        break;
+                    default: 
+                        errorMsg += `Lỗi không xác định (${e.code}).`;
+                        instructionMsg = 'Vui lòng kiểm tra cài đặt định vị và thử lại.';
+                        break;
+                }
+                
+                const fullMessage = `${errorMsg} ${instructionMsg}`;
+                showMessage(fullMessage, 'error', 15000);
+            });
         } else {
             // Fallback: add a simple locate button using native Geolocation
             const FallbackLocate = L.Control.extend({
@@ -338,15 +401,59 @@ function initializeLeafletMap() {
                     L.DomEvent.on(link, 'click', function(e) {
                         L.DomEvent.stopPropagation(e);
                         L.DomEvent.preventDefault(e);
-                        map.locate({ setView: true, enableHighAccuracy: true, maxZoom: 17 });
+                        
+                        // Hiển thị thông báo yêu cầu quyền
+                        showMessage('Đang yêu cầu quyền định vị và điều hướng...', 'info', 0);
+                        
+                        // Yêu cầu vị trí với cấu hình tối ưu
+                        map.locate({ 
+                            setView: true, 
+                            enableHighAccuracy: true, 
+                            maxZoom: 17,
+                            timeout: 20000,
+                            maximumAge: 0
+                        });
                     });
                     return container;
                 }
             });
             map.addControl(new FallbackLocate());
+            
+            // Xử lý khi tìm thấy vị trí
             map.on('locationfound', function(e) {
+                hideMessage(); // Ẩn thông báo yêu cầu quyền
+                showMessage('Đã tìm thấy vị trí của bạn!', 'success', 3000);
                 const radius = e.accuracy || 50;
                 ensureUserLocation(e.latlng, radius);
+            });
+            
+            // Xử lý lỗi định vị
+            map.on('locationerror', function(e) {
+                hideMessage(); // Ẩn thông báo yêu cầu quyền
+                let errorMsg = 'Lỗi định vị: ';
+                let instructionMsg = '';
+                
+                switch (e.code) {
+                    case e.PERMISSION_DENIED: 
+                        errorMsg += 'Quyền truy cập bị từ chối.';
+                        instructionMsg = 'Vui lòng cấp quyền định vị và điều hướng trong cài đặt trình duyệt và thử lại.';
+                        break;
+                    case e.POSITION_UNAVAILABLE: 
+                        errorMsg += 'Thông tin vị trí không khả dụng.';
+                        instructionMsg = 'Vui lòng kiểm tra GPS và kết nối mạng, sau đó thử lại.';
+                        break;
+                    case e.TIMEOUT: 
+                        errorMsg += 'Yêu cầu vị trí hết thời gian chờ.';
+                        instructionMsg = 'Vui lòng đảm bảo GPS được bật và thử lại.';
+                        break;
+                    default: 
+                        errorMsg += `Lỗi không xác định (${e.code}).`;
+                        instructionMsg = 'Vui lòng kiểm tra cài đặt định vị và thử lại.';
+                        break;
+                }
+                
+                const fullMessage = `${errorMsg} ${instructionMsg}`;
+                showMessage(fullMessage, 'error', 15000);
             });
         }
 
@@ -470,7 +577,7 @@ function initializeLeafletMap() {
             setTimeout(requestOrientationPermission, 500);
         });
         
-        map.on('locationerror', (e) => { showMessage(`Lỗi định vị bản đồ: ${e.message}`, 'error'); });
+        // Xử lý lỗi định vị đã được di chuyển vào phần fallback locate control
     } catch (error) {
         mapCanvas.innerHTML = '<div class="flex items-center justify-center h-full text-red-600"><i class="fa-solid fa-exclamation-triangle mr-2"></i> Lỗi khởi tạo bản đồ. Vui lòng thử lại.</div>';
     }
@@ -575,7 +682,7 @@ async function handleRegistrationSubmit(event) {
     }
     
     // Kiểm tra vị trí trước khi cho phép đăng ký
-    showMessage('Đang kiểm tra vị trí đăng ký...', 'info', 0);
+    showMessage('Đang yêu cầu quyền định vị và điều hướng...', 'info', 0);
 
     if (!navigator.geolocation) {
         showMessage('Trình duyệt không hỗ trợ định vị. Vui lòng sử dụng thiết bị khác.', 'error');
@@ -709,19 +816,19 @@ function handleLocationErrorForRegistration(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED: 
             errorMsg += 'Quyền truy cập bị từ chối.';
-            detailedMsg = 'Vui lòng cấp quyền truy cập vị trí và thử lại.';
+            detailedMsg = 'Vui lòng cấp quyền định vị và điều hướng trong cài đặt trình duyệt và thử lại.';
             break;
         case error.POSITION_UNAVAILABLE: 
             errorMsg += 'Thông tin vị trí không khả dụng.';
-            detailedMsg = 'Không thể xác định vị trí. Vui lòng kiểm tra GPS và thử lại.';
+            detailedMsg = 'Không thể xác định vị trí. Vui lòng kiểm tra GPS và kết nối mạng, sau đó thử lại.';
             break;
         case error.TIMEOUT: 
             errorMsg += 'Yêu cầu vị trí hết thời gian chờ.';
-            detailedMsg = 'Vui lòng thử lại sau.';
+            detailedMsg = 'Vui lòng đảm bảo GPS được bật và thử lại.';
             break;
         default: 
             errorMsg += `Lỗi không xác định (${error.code}).`;
-            detailedMsg = 'Vui lòng thử lại sau.';
+            detailedMsg = 'Vui lòng kiểm tra cài đặt định vị và thử lại.';
             break;
     }
     
@@ -907,16 +1014,20 @@ function handleVerifyPhoneAndLocation() {
     setLoadingState(verifyPhoneBtn, certSpinner, true);
     hideMemberSelectionAndResults();
 
+    // Clear any previous error messages first
+    if(phoneNotFoundError) phoneNotFoundError.classList.add('hidden');
+    if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
+
     // Kiểm tra xem có yêu cầu GPS cho chứng chỉ không (chỉ bỏ qua khi được đặt rõ ràng là false)
     if (GPS_SETTINGS && GPS_SETTINGS.requireGpsCertificate === false) {
         // Nếu không yêu cầu GPS, tiếp tục trực tiếp
-        showMessage('Đang tải danh sách thành viên...', 'info', 0);
+        showMessage('Đang kiểm tra số điện thoại...', 'info', 0);
         fetchMembersListForSelection(phoneNumber);
         return;
     }
 
     // REFINED MESSAGE
-    showMessage('Đang yêu cầu quyền vị trí...', 'info', 0);
+    showMessage('Đang kiểm tra vị trí và số điện thoại...', 'info', 0);
 
     if (!navigator.geolocation) {
         // REFINED MESSAGE
@@ -925,10 +1036,19 @@ function handleVerifyPhoneAndLocation() {
         return;
     }
 
+    // Yêu cầu cả 2 quyền: định vị và điều hướng
+    showMessage('Đang yêu cầu quyền định vị và điều hướng...', 'info', 0);
+
     navigator.geolocation.getCurrentPosition(
         (position) => handleLocationSuccessForVerification(position, phoneNumber),
         handleLocationErrorForVerification,
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        { 
+            enableHighAccuracy: true, 
+            timeout: 20000, 
+            maximumAge: 0,
+            // Yêu cầu quyền điều hướng (heading) nếu có
+            ...(navigator.geolocation.getCurrentPosition.length > 2 ? {} : {})
+        }
     );
 }
 
@@ -950,7 +1070,7 @@ function handleLocationSuccessForVerification(position, phoneNumber) {
 
     // Xử lý logic tiếp theo dựa trên isValid
     if (isValid) {
-        showMessage(`Vị trí hợp lệ. Đang tải danh sách...`, 'info', 0);
+        showMessage(`Vị trí hợp lệ. Đang kiểm tra số điện thoại...`, 'info', 0);
         fetchMembersListForSelection(phoneNumber);
     } else {
         showMessage(`Vị trí không hợp lệ (cách đỉnh ~${distance.toFixed(0)}m). Cần trong phạm vi ${GPS_SETTINGS.certificateRadius}m. Vui lòng di chuyển đến đỉnh núi và thử lại.`, 'error', 12000);
@@ -961,25 +1081,30 @@ function handleLocationSuccessForVerification(position, phoneNumber) {
 /** Geolocation error handler specific to the verification step. */
 function handleLocationErrorForVerification(error) {
     let errorMsg = 'Lỗi định vị: ';
+    let instructionMsg = '';
     
     switch (error.code) {
         case error.PERMISSION_DENIED: 
             errorMsg += 'Quyền truy cập bị từ chối.';
+            instructionMsg = 'Vui lòng cấp quyền định vị và điều hướng trong cài đặt trình duyệt và thử lại.';
             break;
         case error.POSITION_UNAVAILABLE: 
             errorMsg += 'Thông tin vị trí không khả dụng.';
+            instructionMsg = 'Vui lòng kiểm tra GPS và kết nối mạng, sau đó thử lại.';
             break;
         case error.TIMEOUT: 
             errorMsg += 'Yêu cầu vị trí hết thời gian chờ.';
+            instructionMsg = 'Vui lòng đảm bảo GPS được bật và thử lại.';
             break;
         default: 
             errorMsg += `Lỗi không xác định (${error.code}).`;
+            instructionMsg = 'Vui lòng kiểm tra cài đặt định vị và thử lại.';
             break;
     }
     
-    const fullMessage = `${errorMsg} Vui lòng cấp quyền truy cập vị trí và thử lại.`;
+    const fullMessage = `${errorMsg} ${instructionMsg}`;
     
-    showMessage(fullMessage, 'error', 10000);
+    showMessage(fullMessage, 'error', 15000);
     setLoadingState(verifyPhoneBtn, certSpinner, false);
     if (messageBox.classList.contains('info')) hideMessage();
 }
@@ -1010,26 +1135,52 @@ async function fetchMembersListForSelection(phoneNumber) {
         const result = await response.json();
 
         if (result.success && Array.isArray(result.members)) {
+            // Check if members list is empty (phone not registered)
+            if (result.members.length === 0) {
+                // Hide loading message and show error
+                hideMessage();
+                // Show inline error message for empty list
+                if(phoneNotFoundError) phoneNotFoundError.classList.remove('hidden');
+                if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
+                showMessage(`Số điện thoại ${phoneNumber} chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại.`, 'error', 0);
+                setLoadingState(verifyPhoneBtn, certSpinner, false);
+                return;
+            }
+            
+            // If we have members, hide loading message and proceed
             hideMessage();
+            
             verifiedPhoneNumber = phoneNumber;
             displayMemberListForSelection(result.members, phoneNumber);
             if(phoneVerificationArea) phoneVerificationArea.classList.add('hidden');
             if(memberSelectionArea) memberSelectionArea.classList.remove('hidden');
+            // Hide error messages and show success
+            if(phoneNotFoundError) phoneNotFoundError.classList.add('hidden');
+            if(phoneVerificationSuccess) phoneVerificationSuccess.classList.remove('hidden');
         } else {
              throw new Error(result.message || 'Không thể lấy danh sách thành viên.');
         }
     } catch (error) {
+        // Hide loading message first
+        if (messageBox.classList.contains('info')) hideMessage();
+        
         // Check if it's a "not found" error
         if (error.message.includes('not found') || error.message.includes('Không tìm thấy')) {
-            showMessage(`Số điện thoại ${phoneNumber} chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại hoặc đăng ký trước.`, 'error', 12000);
+            // Show inline error message
+            if(phoneNotFoundError) phoneNotFoundError.classList.remove('hidden');
+            if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
+            // Also show general message
+            showMessage(`Số điện thoại ${phoneNumber} chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại.`, 'error', 0);
         } else {
+            // Hide inline messages for other errors
+            if(phoneNotFoundError) phoneNotFoundError.classList.add('hidden');
+            if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
             showMessage(`Lỗi tải danh sách: ${error.message}. Vui lòng thử lại.`, 'error', 10000);
         }
         resetVerificationProcess();
     } finally {
         setLoadingState(verifyPhoneBtn, certSpinner, false);
         if(memberListContainer) memberListContainer.classList.remove('loading');
-        if (messageBox.classList.contains('info')) hideMessage();
     }
 }
 
@@ -1422,9 +1573,17 @@ function resetVerificationProcess() {
     verifiedPhoneNumber = null;
     uploadedPhotos = {};
     
+    // Hide all inline messages
+    if(phoneNotFoundError) phoneNotFoundError.classList.add('hidden');
+    if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
+    
     setLoadingState(verifyPhoneBtn, certSpinner, false);
     setLoadingState(generateSelectedBtn, generateSpinner, false);
-    hideMessage();
+    
+    // Chỉ ẩn thông báo info, không ẩn thông báo error
+    if (messageBox && messageBox.classList.contains('info')) {
+        hideMessage();
+    }
 
     handleCancelCrop(); // Ensure cropper is reset
 }
@@ -1662,6 +1821,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Khởi tạo hệ thống thông báo admin
     initializeNotificationSystem();
+
+    // Đăng ký SSE để nhận cập nhật realtime liên thiết bị
+    initializeRealtimeUpdatesViaSSE();
     
     // Khởi tạo bản đồ với delay nhỏ để đảm bảo Leaflet đã load
     setTimeout(() => {
@@ -1725,6 +1887,8 @@ function initializeDOMElements() {
     verifyPhoneNumberInput = document.getElementById('verifyPhoneNumber');
     verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
     certSpinner = document.getElementById('certSpinner');
+    phoneNotFoundError = document.getElementById('phoneNotFoundError');
+    phoneVerificationSuccess = document.getElementById('phoneVerificationSuccess');
     memberSelectionArea = document.getElementById('memberSelectionArea');
     memberListContainer = document.getElementById('memberListContainer');
     generateSelectedBtn = document.getElementById('generateSelectedBtn');
@@ -1895,6 +2059,14 @@ function setupEventListeners() {
     if (registrationForm) registrationForm.addEventListener('submit', handleRegistrationSubmit);
     
     if (verifyPhoneBtn) verifyPhoneBtn.addEventListener('click', handleVerifyPhoneAndLocation);
+    
+    // Clear error messages when user types in phone input
+    if (verifyPhoneNumberInput) {
+        verifyPhoneNumberInput.addEventListener('input', function() {
+            if(phoneNotFoundError) phoneNotFoundError.classList.add('hidden');
+            if(phoneVerificationSuccess) phoneVerificationSuccess.classList.add('hidden');
+        });
+    }
     if (generateSelectedBtn) generateSelectedBtn.addEventListener('click', handleGenerateSelectedCertificates);
     if (resetVerificationBtn) resetVerificationBtn.addEventListener('click', resetVerificationProcess);
     if (downloadGpxBtn) downloadGpxBtn.addEventListener('click', handleDownloadGpx);
@@ -2143,18 +2315,21 @@ function dismissNotification(notificationId) {
 }
 
 // Function to load all data from combined API
-async function loadAllDataFromAPI() {
+async function loadAllDataFromAPI(forceFresh = false) {
     try {
         console.log('Loading all data from combined API...');
-        
-        const response = await fetch(COMBINED_API_URL);
+        const url = forceFresh ? `${COMBINED_API_URL}?t=${Date.now()}` : COMBINED_API_URL;
+        const response = await fetch(url, {
+            cache: forceFresh ? 'no-store' : 'default',
+            headers: forceFresh ? { 'Cache-Control': 'no-cache' } : undefined
+        });
         if (response.ok) {
             const result = await response.json();
             console.log('Combined API result:', result);
             
             // Check if we have cached data to compare
             const cachedData = localStorage.getItem('combinedDataCache');
-            if (cachedData) {
+            if (cachedData && !forceFresh) {
                 const cached = JSON.parse(cachedData);
                 const notificationsChanged = cached.notifications.lastModified !== result.notifications.lastModified;
                 const gpsChanged = cached.gpsSettings.lastModified !== result.gpsSettings.lastModified;
@@ -2708,6 +2883,67 @@ function initializeNotificationSystem() {
             }
         }
     });
+}
+
+// --- Realtime via Server-Sent Events (SSE) ---
+function initializeRealtimeUpdatesViaSSE() {
+    try {
+        if (!window.EventSource) {
+            console.warn('SSE not supported, consider fallback polling');
+            // Fallback: periodic refresh every 30s
+            if (!window.__climb_poll_fallback) {
+                window.__climb_poll_fallback = setInterval(() => {
+                    loadAllDataFromAPI();
+                }, 30000);
+            }
+            return;
+        }
+
+        const es = new EventSource(SSE_UPDATES_URL, { withCredentials: false });
+        let reconnectTimer = null;
+
+        const onUpdate = async () => {
+            try {
+                console.log('[SSE] update event received -> refreshing data');
+                await loadAllDataFromAPI(true);
+            } catch (e) {
+                console.warn('Failed to refresh after SSE update', e);
+            }
+        };
+
+        es.addEventListener('hello', () => {
+            console.log('[SSE] connected');
+        });
+        es.addEventListener('snapshot', onUpdate);
+        es.addEventListener('update', onUpdate);
+        es.addEventListener('ping', () => { /* keep-alive */ });
+        es.addEventListener('error', (e) => {
+            console.warn('[SSE] error event', e);
+            // transient errors; rely on built-in reconnection
+        });
+
+        es.onerror = () => {
+            if (reconnectTimer) return;
+            console.warn('[SSE] connection lost, will retry in 3s');
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                try { es.close(); } catch {}
+                initializeRealtimeUpdatesViaSSE();
+            }, 3000);
+        };
+
+        window.addEventListener('beforeunload', () => {
+            try { es.close(); } catch {}
+        });
+    } catch (e) {
+        console.warn('Failed to init SSE:', e);
+        // Fallback: periodic refresh every 30s
+        if (!window.__climb_poll_fallback) {
+            window.__climb_poll_fallback = setInterval(() => {
+                loadAllDataFromAPI();
+            }, 30000);
+        }
+    }
 }
 
 // Function to update registration time status display

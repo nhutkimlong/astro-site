@@ -20,43 +20,43 @@ import climbScriptUrl from '@scripts/climb.js?url';
   <!-- Registration Time Status -->
   <div id="registrationTimeStatus" class="fixed top-32 left-4 right-4 z-[150] max-w-md mx-auto"></div>
 
-  <div class="container mx-auto px-4 py-8 md:px-6 md:py-12 max-w-5xl">
+  <div class="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:px-6 md:py-12 max-w-5xl">
 
-    <header class="text-center mb-10 md:mb-16">
-      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-3 tracking-tight">Chinh phục Núi Bà Đen</h1>
-      <p class="text-lg md:text-xl text-gray-600">Đăng ký chuyến đi, khám phá "Nóc nhà Nam Bộ" (986m) và nhận chứng nhận điện tử độc đáo.</p>
+    <header class="text-center mb-8 sm:mb-10 md:mb-16">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-green-800 mb-2 sm:mb-3 tracking-tight">Chinh phục Núi Bà Đen</h1>
+      <p class="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">Đăng ký chuyến đi, khám phá "Nóc nhà Nam Bộ" (986m) và nhận chứng nhận điện tử độc đáo.</p>
     </header>
 
-    <main class="space-y-10 md:space-y-16">
+    <main class="space-y-8 sm:space-y-10 md:space-y-16">
 
-      <section id="emergency" class="bg-red-100 border-l-4 border-red-600 text-red-800 p-5 rounded-lg shadow-md flex items-start space-x-4">
-        <i class="fa-solid fa-triangle-exclamation text-2xl text-red-600 mt-1"></i>
+      <section id="emergency" class="bg-red-100 border-l-4 border-red-600 text-red-800 p-4 sm:p-5 rounded-lg shadow-md flex items-start space-x-3 sm:space-x-4">
+        <i class="fa-solid fa-triangle-exclamation text-xl sm:text-2xl text-red-600 mt-0.5 sm:mt-1"></i>
         <div>
-          <h2 class="font-bold text-lg uppercase mb-2">Thông Tin Cứu Hộ Khẩn Cấp</h2>
-          <p class="mb-3">Trong trường hợp khẩn cấp trên đường leo núi, vui lòng liên hệ ngay Hotline:</p>
-          <a href="tel:02763875678" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-lg transition duration-150 ease-in-out shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+          <h2 class="font-bold text-base sm:text-lg uppercase mb-2">Thông Tin Cứu Hộ Khẩn Cấp</h2>
+          <p class="mb-3 text-sm sm:text-base">Trong trường hợp khẩn cấp trên đường leo núi, vui lòng liên hệ ngay Hotline:</p>
+          <a href="tel:02763875678" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-base sm:text-lg transition duration-150 ease-in-out shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
             <i class="fa-solid fa-phone mr-2"></i>
             <span>0276.387.5678</span>
           </a>
-          <p class="mt-3 text-sm text-red-700">Luôn mang theo điện thoại, đảm bảo đủ pin và có sóng.</p>
+          <p class="mt-3 text-xs sm:text-sm text-red-700">Luôn mang theo điện thoại, đảm bảo đủ pin và có sóng.</p>
         </div>
       </section>
 
-      <section id="trekking-routes" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
-        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 border-b border-indigo-200 pb-4 flex items-center">
-          <i class="fa-solid fa-map-location-dot text-3xl text-indigo-600 mr-4"></i>
+      <section id="trekking-routes" class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 text-indigo-700 border-b border-indigo-200 pb-3 sm:pb-4 flex items-center">
+          <i class="fa-solid fa-map-location-dot text-2xl sm:text-3xl text-indigo-600 mr-2 sm:mr-4"></i>
           Bản đồ Tuyến đường Leo núi
         </h2>
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tuyến đường Cột Điện (Chính thức)</h3>
-          <p class="text-sm text-gray-600 mb-4">Đây là tuyến đường được Ban Quản lý cho phép. Vui lòng đi đúng theo lộ trình được đánh dấu. Nhấn nút <i class="fa-solid fa-location-crosshairs"></i> trên bản đồ để xem vị trí của bạn.</p>
+        <div class="mb-4 sm:mb-6">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">Tuyến đường Cột Điện (Chính thức)</h3>
+          <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">Đây là tuyến đường được Ban Quản lý cho phép. Vui lòng đi đúng theo lộ trình được đánh dấu. Nhấn nút <i class="fa-solid fa-location-crosshairs"></i> trên bản đồ để xem vị trí của bạn.</p>
           <div id="mapCanvas" class="w-full rounded-md border border-gray-300 shadow-sm bg-gray-200 z-0 relative">
             <div class="flex items-center justify-center h-full text-gray-500">
               <i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải bản đồ...
             </div>
           </div>
           <p class="text-xs text-gray-500 mt-2">Sử dụng nút +/- để phóng to/thu nhỏ.</p>
-          <div class="mt-4 text-center sm:text-left">
+          <div class="mt-3 sm:mt-4 text-center sm:text-left">
             <button type="button" id="downloadGpxBtn" class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
               <i class="fa-solid fa-route mr-2"></i>
               <span>Tải Tuyến đường GPX</span>
@@ -65,42 +65,42 @@ import climbScriptUrl from '@scripts/climb.js?url';
         </div>
       </section>
 
-      <section id="regulations" class="bg-yellow-50 border border-yellow-300 p-6 rounded-lg shadow-sm">
-        <h2 class="text-xl font-semibold text-yellow-900 mb-5 flex items-center">
-          <i class="fa-solid fa-scroll text-2xl text-yellow-600 mr-3"></i>
+      <section id="regulations" class="bg-yellow-50 border border-yellow-300 p-4 sm:p-6 rounded-lg shadow-sm">
+        <h2 class="text-lg sm:text-xl font-semibold text-yellow-900 mb-4 sm:mb-5 flex items-center">
+          <i class="fa-solid fa-scroll text-xl sm:text-2xl text-yellow-600 mr-2 sm:mr-3"></i>
           Quy định An toàn & Bảo vệ Môi trường
         </h2>
-        <p class="text-yellow-800 mb-4 text-sm">Vì sự an toàn của bạn và bảo tồn vẻ đẹp tự nhiên, vui lòng tuân thủ nghiêm ngặt các quy định sau:</p>
-        <ul class="list-none space-y-3 text-yellow-900 text-sm md:text-base">
-          <li class="flex items-start"><i class="fa-solid fa-shoe-prints text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Đi đúng đường mòn:</span> Luôn đi theo chỉ dẫn, không đi đường tắt.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-bottle-water text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Chuẩn bị kỹ lưỡng:</span> Mang đủ nước (1.5-2L+), thức ăn nhẹ, y tế cơ bản.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-shirt text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Trang phục & Trang bị:</span> Quần áo thoải mái, giày chuyên dụng, đèn pin, sạc dự phòng.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-cloud-sun-rain text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Kiểm tra thời tiết:</span> Xem dự báo, chuẩn bị áo mưa/áo khoác nếu cần.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-mobile-screen-button text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Thông báo lịch trình:</span> Cho người thân biết kế hoạch và thời gian dự kiến.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-trash-can text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Giữ gìn vệ sinh:</span> Mang toàn bộ rác xuống núi, không xả rác bừa bãi.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-leaf text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Bảo vệ thiên nhiên:</span> Không bẻ cành, hái hoa, khắc vẽ, săn bắt.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-fire-extinguisher text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Phòng chống cháy rừng:</span> Tuyệt đối không đốt lửa, hút thuốc sai quy định.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-people-group text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Giữ liên lạc:</span> Đi theo đoàn, không tách nhóm đi một mình.</span></li>
-          <li class="flex items-start"><i class="fa-solid fa-flag text-yellow-700 mr-3 mt-1 w-4 text-center"></i><span><span class="font-semibold">Báo cáo sự cố:</span> Gọi ngay Hotline cứu hộ nếu gặp sự cố hoặc nguy cơ.</span></li>
+        <p class="text-yellow-800 mb-3 sm:mb-4 text-xs sm:text-sm">Vì sự an toàn của bạn và bảo tồn vẻ đẹp tự nhiên, vui lòng tuân thủ nghiêm ngặt các quy định sau:</p>
+        <ul class="list-none space-y-2 sm:space-y-3 text-yellow-900 text-xs sm:text-sm md:text-base">
+          <li class="flex items-start"><i class="fa-solid fa-shoe-prints text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Đi đúng đường mòn:</span> Luôn đi theo chỉ dẫn, không đi đường tắt.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-bottle-water text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Chuẩn bị kỹ lưỡng:</span> Mang đủ nước (1.5-2L+), thức ăn nhẹ, y tế cơ bản.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-shirt text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Trang phục & Trang bị:</span> Quần áo thoải mái, giày chuyên dụng, đèn pin, sạc dự phòng.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-cloud-sun-rain text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Kiểm tra thời tiết:</span> Xem dự báo, chuẩn bị áo mưa/áo khoác nếu cần.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-mobile-screen-button text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Thông báo lịch trình:</span> Cho người thân biết kế hoạch và thời gian dự kiến.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-trash-can text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Giữ gìn vệ sinh:</span> Mang toàn bộ rác xuống núi, không xả rác bừa bãi.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-leaf text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Bảo vệ thiên nhiên:</span> Không bẻ cành, hái hoa, khắc vẽ, săn bắt.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-fire-extinguisher text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Phòng chống cháy rừng:</span> Tuyệt đối không đốt lửa, hút thuốc sai quy định.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-people-group text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Giữ liên lạc:</span> Đi theo đoàn, không tách nhóm đi một mình.</span></li>
+          <li class="flex items-start"><i class="fa-solid fa-flag text-yellow-700 mr-2 sm:mr-3 mt-0.5 sm:mt-1 w-3 sm:w-4 text-center text-sm"></i><span><span class="font-semibold">Báo cáo sự cố:</span> Gọi ngay Hotline cứu hộ nếu gặp sự cố hoặc nguy cơ.</span></li>
         </ul>
       </section>
 
-      <section id="registration" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
-        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-green-700 border-b border-green-200 pb-4 flex items-center">
-          <i class="fa-solid fa-clipboard-list text-3xl text-green-600 mr-4"></i>
+      <section id="registration" class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 text-green-700 border-b border-green-200 pb-3 sm:pb-4 flex items-center">
+          <i class="fa-solid fa-clipboard-list text-2xl sm:text-3xl text-green-600 mr-2 sm:mr-4"></i>
           Đăng ký thông tin leo núi
         </h2>
 
         <!-- Nút bắt đầu đăng ký -->
-        <div id="startRegistrationArea" class="text-center py-8">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-mountain text-2xl text-blue-600"></i>
+        <div id="startRegistrationArea" class="text-center py-6 sm:py-8">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <i class="fas fa-mountain text-xl sm:text-2xl text-blue-600"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-3">Bắt đầu đăng ký leo núi</h3>
-            <p class="text-gray-600 mb-6">Vui lòng xác nhận vai trò của bạn trước khi tiến hành đăng ký</p>
-            <button type="button" id="startRegistrationBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md mx-auto">
-              <i class="fa-solid fa-play mr-2"></i>
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3">Bắt đầu đăng ký leo núi</h3>
+            <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Vui lòng xác nhận vai trò của bạn trước khi tiến hành đăng ký</p>
+            <button type="button" id="startRegistrationBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base md:text-lg shadow hover:shadow-md mx-auto">
+              <i class="fa-solid fa-play mr-1.5 sm:mr-2 text-sm"></i>
               <span>Bắt đầu đăng ký</span>
             </button>
           </div>
@@ -108,29 +108,29 @@ import climbScriptUrl from '@scripts/climb.js?url';
 
         <!-- Form đăng ký (ẩn ban đầu) -->
         <div id="registrationFormContainer" class="hidden">
-          <form id="registrationForm" novalidate class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-              <div class="space-y-5">
+          <form id="registrationForm" novalidate class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-4 sm:gap-y-6">
+              <div class="space-y-4 sm:space-y-5">
                 <div class="relative">
-                  <label for="leaderName" class="block text-sm font-medium text-gray-700 mb-1">Họ tên Trưởng đoàn/Người đăng ký <span class="text-red-500">*</span></label>
+                  <label for="leaderName" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Họ tên Trưởng đoàn/Người đăng ký <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" id="leaderName" name="leaderName" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nguyễn Văn An">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-user text-sm"></i></span>
+                    <input type="text" id="leaderName" name="leaderName" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="Nguyễn Văn An">
                   </div>
                 </div>
                 <div class="relative">
-                  <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
+                  <label for="phoneNumber" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-phone"></i></span>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]{10,11}" title="Nhập số điện thoại hợp lệ (10-11 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="09XXXXXXXX">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-phone text-sm"></i></span>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]{10,11}" title="Nhập số điện thoại hợp lệ (10-11 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="09XXXXXXXX">
                   </div>
                   <p class="text-xs text-gray-500 mt-1">Dùng để xác thực nhận chứng nhận.</p>
                 </div>
                 <div class="relative">
-                  <label for="birthday" class="block text-sm font-medium text-gray-700 mb-1">Ngày sinh <span class="text-red-500">*</span></label>
+                  <label for="birthday" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Ngày sinh <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-cake-candles"></i></span>
-                    <input type="date" id="birthday" name="birthday" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" max="2009-12-31" placeholder="Chọn ngày sinh">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-cake-candles text-sm"></i></span>
+                    <input type="date" id="birthday" name="birthday" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" max="2009-12-31" placeholder="Chọn ngày sinh">
                   </div>
                   <p class="text-xs text-gray-500 mt-1">
                     <i class="fa-solid fa-info-circle mr-1"></i>
@@ -138,36 +138,36 @@ import climbScriptUrl from '@scripts/climb.js?url';
                   </p>
                 </div>
                 <div class="relative">
-                  <label for="cccd" class="block text-sm font-medium text-gray-700 mb-1">Căn cước công dân <span class="text-red-500">*</span></label>
+                  <label for="cccd" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Căn cước công dân <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-id-card"></i></span>
-                    <input type="text" id="cccd" name="cccd" required pattern="[0-9]{12}" title="Nhập CCCD hợp lệ (12 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="123456789012">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-id-card text-sm"></i></span>
+                    <input type="text" id="cccd" name="cccd" required pattern="[0-9]{12}" title="Nhập CCCD hợp lệ (12 chữ số)" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="123456789012">
                   </div>
                   <p class="text-xs text-gray-500 mt-1">Nhập đầy đủ 12 số CCCD.</p>
                 </div>
                 <div class="relative">
-                  <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ (Tỉnh/Thành phố) <span class="text-red-500">*</span></label>
+                  <label for="address" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Địa chỉ (Tỉnh/Thành phố) <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-location-dot"></i></span>
-                    <input type="text" id="address" name="address" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="TP. Hồ Chí Minh">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-location-dot text-sm"></i></span>
+                    <input type="text" id="address" name="address" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="TP. Hồ Chí Minh">
                   </div>
                 </div>
                 <div class="relative">
-                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ Email <span class="text-red-500">*</span></label>
+                  <label for="email" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Địa chỉ Email <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" id="email" name="email" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="nguyenvana@email.com">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-envelope text-sm"></i></span>
+                    <input type="email" id="email" name="email" required class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="nguyenvana@email.com">
                   </div>
                   <p class="text-xs text-gray-500 mt-1">Để nhận email xác nhận đăng ký.</p>
                 </div>
               </div>
 
-              <div class="space-y-5">
+              <div class="space-y-4 sm:space-y-5">
                 <div class="relative">
-                  <label for="groupSize" class="block text_sm font-medium text-gray-700 mb-1">Số lượng thành viên (cả trưởng đoàn) <span class="text-red-500">*</span></label>
+                  <label for="groupSize" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Số lượng thành viên (cả trưởng đoàn) <span class="text-red-500">*</span></label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-users"></i></span>
-                    <input type="number" id="groupSize" name="groupSize" required min="1" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nhập số người">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-users text-sm"></i></span>
+                    <input type="number" id="groupSize" name="groupSize" required min="1" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="Nhập số người">
                   </div>
                   <div class="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
                     <p class="text-xs text-yellow-800">
@@ -177,17 +177,17 @@ import climbScriptUrl from '@scripts/climb.js?url';
                   </div>
                 </div>
                 <div class="relative">
-                  <label for="climbDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày leo núi</label>
+                  <label for="climbDate" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Ngày leo núi</label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-calendar-days"></i></span>
-                    <input type="date" id="climbDate" name="climbDate" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-calendar-days text-sm"></i></span>
+                    <input type="date" id="climbDate" name="climbDate" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base">
                   </div>
                 </div>
                 <div class="relative">
-                  <label for="climbTime" class="block text-sm font-medium text-gray-700 mb-1">Giờ leo núi</label>
+                  <label for="climbTime" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Giờ leo núi</label>
                   <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-clock"></i></span>
-                    <input type="time" id="climbTime" name="climbTime" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base">
+                    <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-clock text-sm"></i></span>
+                    <input type="time" id="climbTime" name="climbTime" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base">
                   </div>
                   <div class="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
                     <p class="text-xs text-blue-800">
@@ -197,31 +197,31 @@ import climbScriptUrl from '@scripts/climb.js?url';
                   </div>
                 </div>
                 <div class="relative">
-                  <label for="memberList" class="block text-sm font-medium text-gray-700 mb-1">Danh sách thành viên nhận chứng nhận</label>
+                  <label for="memberList" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Danh sách thành viên nhận chứng nhận</label>
                   <div class="flex items-start border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-green-500 focus-within:border-green-500">
-                    <span class="pl-3 pr-2 pt-2 text-gray-400"><i class="fa-solid fa-list-ul"></i></span>
-                    <textarea id="memberList" name="memberList" rows="3" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-base" placeholder="Nhập mỗi tên trên một dòng (tùy chọn)"></textarea>
+                    <span class="pl-3 pr-2 pt-2 text-gray-400"><i class="fa-solid fa-list-ul text-sm"></i></span>
+                    <textarea id="memberList" name="memberList" rows="3" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm sm:text-base" placeholder="Nhập mỗi tên trên một dòng (tùy chọn)"></textarea>
                   </div>
                   <p class="text-xs text-gray-500 mt-1">Nhập đầy đủ họ tên để in chứng nhận. Sẽ hiển thị để chọn khi nhận chứng nhận.</p>
                 </div>
               </div>
             </div>
 
-            <div class="pt-4 border-t border-gray-200">
+            <div class="pt-3 sm:pt-4 border-t border-gray-200">
               <div class="flex items-start">
-                <div class="flex items-center h-5 mt-0.5">
-                  <input id="safetyCommit" name="safetyCommit" type="checkbox" required class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 rounded">
+                <div class="flex items-center h-4 sm:h-5 mt-0.5">
+                  <input id="safetyCommit" name="safetyCommit" type="checkbox" required class="focus:ring-green-500 h-3 w-3 sm:h-4 sm:w-4 text-green-600 border-gray-300 rounded">
                 </div>
-                <div class="ml-3 text-sm">
+                <div class="ml-2 sm:ml-3 text-xs sm:text-sm">
                   <label for="safetyCommit" class="font-medium text-gray-700">Tôi đã đọc, hiểu rõ và cam kết tuân thủ các <a href="#regulations" class="text-blue-600 hover:underline font-semibold">Quy định An toàn & Bảo vệ Môi trường</a> khi tham gia leo núi <span class="text-red-500">*</span></label>
                 </div>
               </div>
-              <p id="safetyCommitError" class="text-xs text-red-600 mt-1 hidden ml-8">Vui lòng xác nhận cam kết.</p>
+              <p id="safetyCommitError" class="text-xs text-red-600 mt-1 hidden ml-6 sm:ml-8">Vui lòng xác nhận cam kết.</p>
             </div>
 
             <div class="pt-2 flex flex-col sm:flex-row gap-3">
-              <button type="submit" id="registerBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
-                <i class="fa-solid fa-paper-plane mr-2"></i>
+              <button type="submit" id="registerBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base md:text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-paper-plane mr-1.5 sm:mr-2 text-sm"></i>
                 <span>Đăng ký</span>  
                 <div id="registerSpinner" class="spinner hidden"></div>
               </button>
@@ -230,17 +230,17 @@ import climbScriptUrl from '@scripts/climb.js?url';
         </div>
       </section>
 
-      <section id="certification" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
-        <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-blue-700 border-b border-blue-200 pb-4 flex items-center">
-          <i class="fa-solid fa-award text-3xl text-blue-600 mr-4"></i>
+      <section id="certification" class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 sm:mb-6 text-blue-700 border-b border-blue-200 pb-3 sm:pb-4 flex items-center">
+          <i class="fa-solid fa-award text-2xl sm:text-3xl text-blue-600 mr-2 sm:mr-4"></i>
           Nhận Chứng nhận
         </h2>
         
         <!-- Thông tin về thời gian và chứng nhận -->
-        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
+        <div class="bg-blue-50 border border-blue-200 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
           <div class="flex items-start">
-            <i class="fas fa-clock text-blue-600 mt-1 mr-3"></i>
-            <div class="text-sm text-blue-800">
+            <i class="fas fa-clock text-blue-600 mt-0.5 sm:mt-1 mr-2 sm:mr-3 text-sm"></i>
+            <div class="text-xs sm:text-sm text-blue-800">
               <p class="font-semibold mb-2">⏱️ Thông tin thời gian leo núi:</p>
               <ul class="list-disc list-inside space-y-1 text-xs">
                 <li><strong>Thời gian leo:</strong> Được tính từ lúc bắt đầu leo đến lúc xác nhận vị trí trên đỉnh</li>
@@ -254,31 +254,39 @@ import climbScriptUrl from '@scripts/climb.js?url';
 
         <div id="phoneVerificationArea">
           <div class="mb-4 relative">
-            <label for="verifyPhoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Nhập Số điện thoại đã đăng ký <span class="text-red-500">*</span></label>
+            <label for="verifyPhoneNumber" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nhập Số điện thoại đã đăng ký <span class="text-red-500">*</span></label>
             <div class="flex items-center border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
-              <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-mobile-screen-button"></i></span>
+              <span class="pl-3 pr-2 text-gray-400"><i class="fa-solid fa-mobile-screen-button text-sm"></i></span>
               <input type="tel" id="verifyPhoneNumber" name="verifyPhoneNumber" required pattern="[0-9]{10,11}" title="Nhập số điện thoại đã dùng để đăng ký" class="w-full py-2 border-0 rounded-r-md focus:ring-0 focus:outline-none text-sm" placeholder="Nhập lại SĐT đã đăng ký">
             </div>
+            <p id="phoneNotFoundError" class="text-xs text-red-600 mt-2 hidden">
+              <i class="fa-solid fa-exclamation-triangle mr-1"></i>
+              Số điện thoại này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại.
+            </p>
+            <p id="phoneVerificationSuccess" class="text-xs text-green-600 mt-2 hidden">
+              <i class="fa-solid fa-check-circle mr-1"></i>
+              Xác thực thành công! Đã tìm thấy thông tin đăng ký.
+            </p>
           </div>
           <div class="pt-2 flex flex-col sm:flex-row gap-3">
-            <button type="button" id="verifyPhoneBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg focus:outline_none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
-              <i class="fa-solid fa-location-crosshairs mr-2"></i>
+            <button type="button" id="verifyPhoneBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base md:text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-location-crosshairs mr-1.5 sm:mr-2 text-sm"></i>
               <span>Xác thực</span> 
               <div id="certSpinner" class="spinner hidden"></div>
             </button>
           </div>
         </div>
 
-        <div id="memberSelectionArea" class="mt-8 hidden border border-gray-200 rounded-lg p-4 md:p-6 bg-gray-50/50">
-          <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-3">Chọn thành viên & Tải ảnh (tùy chọn)</h3>
-          <p class="text-sm text-gray-600 mb-5">Đánh dấu chọn thành viên muốn nhận chứng nhận. Nhấn "Tải ảnh" để thêm hình ảnh cá nhân lên chứng nhận (bỏ qua nếu không muốn).</p>
+        <div id="memberSelectionArea" class="mt-6 sm:mt-8 hidden border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 bg-gray-50/50">
+          <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-2 sm:mb-3">Chọn thành viên & Tải ảnh (tùy chọn)</h3>
+          <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-5">Đánh dấu chọn thành viên muốn nhận chứng nhận. Nhấn "Tải ảnh" để thêm hình ảnh cá nhân lên chứng nhận (bỏ qua nếu không muốn).</p>
 
-          <div id="memberListContainer" class="space-y-4 mb-6 max-h-96 overflow-y-auto border-t border-b border-gray-200 py-4">
+          <div id="memberListContainer" class="space-y-3 sm:space-y-4 mb-4 sm:mb-6 max-h-96 overflow-y-auto border-t border-b border-gray-200 py-3 sm:py-4">
           </div>
 
-          <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-200">
-            <button type="button" id="generateSelectedBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg focus:outline_none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-base shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
-              <i class="fa-solid fa-file-pdf mr-2"></i>
+          <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200">
+            <button type="button" id="generateSelectedBtn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 sm:py-2.5 sm:px-6 md:py-3 md:px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base md:text-lg shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-file-pdf mr-1.5 sm:mr-2 text-sm"></i>
               <span>Tạo Chứng nhận</span> 
               <div id="generateSpinner" class="spinner hidden"></div>
             </button>
