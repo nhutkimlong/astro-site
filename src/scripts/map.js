@@ -2368,13 +2368,7 @@ function closeRouteInstructionsPanel() {
     routeInstructionsPanel.classList.remove('visible');
     routeInstructionsPanel.classList.add('hidden');
     
-    // Show top bar again on mobile when route instructions panel is closed
-    if (window.innerWidth <= 767) {
-        const topBar = document.querySelector('.top-bar');
-        if (topBar) {
-            topBar.style.display = '';
-        }
-    }
+    // Note: Top bar will remain hidden when route instructions panel is closed
 
     // Hide panel after animation completes
     setTimeout(() => {

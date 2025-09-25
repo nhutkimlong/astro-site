@@ -22,7 +22,7 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
 <html lang={lang} class="notranslate">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="description" content={description}>
     <meta http-equiv="Content-Language" content="vi">
     <meta name="language" content="Vietnamese">
@@ -95,6 +95,9 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
 <body class="bg-gradient-to-br from-green-50 via-emerald-50 to-blue-50 font-sans antialiased text-gray-800">
     <slot />
     
+    <!-- Google Translate Element -->
+    <div id="google_translate_element"></div>
+
     <!-- Language Popup -->
     <div id="languagePopup" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
@@ -155,6 +158,13 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
         }
 
         function translatePage(langCode) {
+            // Close the popup first
+            const popup = document.getElementById('languagePopup');
+            if (popup) {
+                popup.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
             // Set the cookie for Google Translate
             document.cookie = `googtrans=/${langCode}; path=/; domain=.${window.location.hostname}`;
             document.cookie = `googtrans=/${langCode}; path=/; domain=${window.location.hostname}`;
@@ -170,16 +180,12 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
             }
         });
 
-    // Load Google Translate on demand (first open)
-    let googleTranslateLoaded = false;
-    function loadGoogleTranslate() {
-        if (googleTranslateLoaded) return;
-        googleTranslateLoaded = true;
-        var script = document.createElement('script');
-        script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-        script.async = true;
-        document.body.appendChild(script);
-    }
+        // Add Google Translate script
+        function loadGoogleTranslate() {
+            var script = document.createElement('script');
+            script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            document.body.appendChild(script);
+        }
 
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
@@ -190,11 +196,8 @@ const mainScriptSrc = mainScriptUrl as unknown as string;
             }, 'google_translate_element');
         }
 
-        // Load Google Translate only when user opens language popup
-        const langButtons = document.querySelectorAll('.language-selector');
-        langButtons.forEach(btn => btn.addEventListener('click', () => {
-            loadGoogleTranslate();
-        }));
+        // Load Google Translate when the page loads
+        window.onload = loadGoogleTranslate;
     </script>
 
     <!-- Your existing scripts -->
