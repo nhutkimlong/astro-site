@@ -57,12 +57,6 @@ import "../../styles/admin/climb-admin.css";
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-8">
-            <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
-            <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
-        </div>
-
         <!-- Error State -->
         <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div class="flex items-center">
@@ -80,7 +74,7 @@ import "../../styles/admin/climb-admin.css";
         </div>
 
         <!-- Dashboard Content -->
-        <div id="dashboard" class="hidden space-y-8">
+        <div id="dashboard" class="space-y-8">
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
@@ -90,7 +84,11 @@ import "../../styles/admin/climb-admin.css";
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Tổng đăng ký</p>
-                            <p class="text-2xl font-bold text-gray-900" id="totalRegistrations">0</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalRegistrations">--</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-spinner fa-spin text-blue-500 mr-1 text-xs"></i>
+                                <span class="text-xs text-gray-500">Đang cập nhật...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,7 +100,11 @@ import "../../styles/admin/climb-admin.css";
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Hôm nay</p>
-                            <p class="text-2xl font-bold text-gray-900" id="todayRegistrations">0</p>
+                            <p class="text-2xl font-bold text-gray-900" id="todayRegistrations">--</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-spinner fa-spin text-green-500 mr-1 text-xs"></i>
+                                <span class="text-xs text-gray-500">Đang cập nhật...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -114,7 +116,11 @@ import "../../styles/admin/climb-admin.css";
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Tháng này</p>
-                            <p class="text-2xl font-bold text-gray-900" id="monthlyRegistrations">0</p>
+                            <p class="text-2xl font-bold text-gray-900" id="monthlyRegistrations">--</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-spinner fa-spin text-yellow-500 mr-1 text-xs"></i>
+                                <span class="text-xs text-gray-500">Đang cập nhật...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,7 +132,11 @@ import "../../styles/admin/climb-admin.css";
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Thông báo</p>
-                            <p class="text-2xl font-bold text-gray-900" id="activeNotifications">0</p>
+                            <p class="text-2xl font-bold text-gray-900" id="activeNotifications">--</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-spinner fa-spin text-purple-500 mr-1 text-xs"></i>
+                                <span class="text-xs text-gray-500">Đang cập nhật...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -361,9 +371,12 @@ import "../../styles/admin/climb-admin.css";
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadInitialData();
             setupEventListeners();
             updateCurrentDate();
+            setupRealTimeUpdates();
+            
+            // Load data in background (UI is already visible)
+            loadInitialData();
             
             // Update date every minute
             setInterval(updateCurrentDate, 60000);
@@ -403,9 +416,9 @@ import "../../styles/admin/climb-admin.css";
         // Load initial data
         async function loadInitialData() {
             try {
-                showLoading(true);
                 hideMessages();
                 
+                // Load data in background while UI is already visible
                 await Promise.all([
                     loadCombinedData(),
                     loadStats(),
@@ -413,12 +426,10 @@ import "../../styles/admin/climb-admin.css";
                 ]);
                 
                 renderDashboard();
-                showLoading(false);
-                dashboard?.classList.remove('hidden');
+                broadcastUpdate('stats', stats);
             } catch (err) {
                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
                 showError('Lỗi khi tải dữ liệu: ' + msg);
-                showLoading(false);
             }
         }
 
@@ -516,15 +527,11 @@ import "../../styles/admin/climb-admin.css";
 
         // Render dashboard
         function renderDashboard() {
-            // Update stats
-            const totalEl = document.getElementById('totalRegistrations');
-            const todayEl = document.getElementById('todayRegistrations');
-            const monthlyEl = document.getElementById('monthlyRegistrations');
-            const activeEl = document.getElementById('activeNotifications');
-            if (totalEl) totalEl.textContent = String(stats.totalRegistrations || 0);
-            if (todayEl) todayEl.textContent = String(stats.todayRegistrations || 0);
-            if (monthlyEl) monthlyEl.textContent = String(stats.monthlyRegistrations || 0);
-            if (activeEl) activeEl.textContent = String((notifications as NotificationItem[]).filter(n => n.active).length);
+            // Update stats with animation
+            updateStatCard('totalRegistrations', stats.totalRegistrations || 0);
+            updateStatCard('todayRegistrations', stats.todayRegistrations || 0);
+            updateStatCard('monthlyRegistrations', stats.monthlyRegistrations || 0);
+            updateStatCard('activeNotifications', (notifications as NotificationItem[]).filter(n => n.active).length);
 
             // Render notifications
             renderNotifications();
@@ -534,6 +541,36 @@ import "../../styles/admin/climb-admin.css";
             
             // Render recent registrations
             renderRecentRegistrations();
+        }
+
+        // Update stat card with animation
+        function updateStatCard(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            // Update the number with animation
+            element.textContent = String(value);
+            element.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 200);
+            
+            // Find the parent card container to update status
+            const cardContainer = element.closest('.bg-white.rounded-lg.shadow-sm');
+            if (!cardContainer) return;
+            
+            // Update the spinner to check icon
+            const spinnerEl = cardContainer.querySelector('.fa-spinner');
+            const statusEl = cardContainer.querySelector('.text-xs');
+            
+            if (spinnerEl) {
+                spinnerEl.className = 'fas fa-check-circle text-green-500 mr-1 text-xs';
+            }
+            
+            if (statusEl) {
+                statusEl.textContent = 'Đã cập nhật';
+                statusEl.className = 'text-xs text-green-600';
+            }
         }
 
         // Render notifications list
@@ -672,10 +709,42 @@ import "../../styles/admin/climb-admin.css";
                     body: JSON.stringify({ action: 'createNotification', data: notification })
                 });
                 if (!res.ok) throw new Error('Không thể tạo thông báo');
-                await loadCombinedData();
+                
+                // Add notification to local array immediately for instant UI update
+                notifications.push(notification);
+                
+                // Broadcast real-time update IMMEDIATELY (before loading from server)
+                console.log('🚀 Broadcasting new notification immediately:', notification);
+                broadcastUpdate('notifications', { 
+                    activeCount: notifications.filter(n => n.active).length,
+                    newNotification: notification
+                });
+                
+                // Also broadcast via BroadcastChannel for cross-tab communication
+                if (window.adminBroadcastChannel) {
+                    window.adminBroadcastChannel.postMessage({
+                        type: 'notificationCreated',
+                        notification: notification,
+                        timestamp: Date.now()
+                    });
+                }
+                
+                // Update UI immediately
                 renderDashboard();
                 notificationForm?.reset();
                 showSuccess('Thông báo đã được tạo thành công!');
+                
+                // Then reload from server in background to ensure consistency
+                setTimeout(async () => {
+                    try {
+                        await loadCombinedData();
+                        renderDashboard();
+                        console.log('✅ Server data reloaded successfully');
+                    } catch (err) {
+                        console.warn('⚠️ Server reload failed, using local data:', err);
+                    }
+                }, 100);
+                
             } catch (err) {
                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
                 showError('Lỗi khi tạo thông báo: ' + msg);
@@ -709,10 +778,9 @@ import "../../styles/admin/climb-admin.css";
                 await loadCombinedData();
                 renderDashboard();
                 showSuccess('Cài đặt GPS đã được lưu thành công!');
-                // Phát tín hiệu cập nhật ngay cho các tab/trang khác (climb page lắng nghe storage event)
-                try {
-                    localStorage.setItem('gpsSettings', JSON.stringify(newSettings));
-                } catch (_) { /* ignore */ }
+                
+                // Broadcast real-time update for GPS settings
+                broadcastUpdate('gpsSettings', newSettings);
             } catch (err) {
                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
                 showError('Lỗi khi lưu cài đặt GPS: ' + msg);
@@ -813,6 +881,11 @@ import "../../styles/admin/climb-admin.css";
                 await loadCombinedData();
                 renderDashboard();
                 showSuccess('Thông báo đã được xóa thành công!');
+                
+                // Broadcast real-time update
+                broadcastUpdate('notifications', { 
+                    activeCount: (notifications as NotificationItem[]).filter(n => n.active).length 
+                });
             } catch (err) {
                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
                 showError('Lỗi khi xóa thông báo: ' + msg);
@@ -853,6 +926,211 @@ import "../../styles/admin/climb-admin.css";
             error?.classList.add('hidden');
             success?.classList.add('hidden');
         }
+
+        // Real-time updates system
+        function setupRealTimeUpdates() {
+            // Listen for localStorage changes (real-time updates from other admin pages)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'adminDataUpdate') {
+                    const updateData = JSON.parse(e.newValue || '{}');
+                    handleRealTimeUpdate(updateData);
+                }
+            });
+            
+            // Also listen for custom events (same tab updates)
+            window.addEventListener('adminDataUpdate', (e) => {
+                handleRealTimeUpdate(e.detail);
+            });
+            
+            // Setup BroadcastChannel for cross-tab communication
+            if (typeof BroadcastChannel !== 'undefined') {
+                const broadcastChannel = new BroadcastChannel('admin-notifications');
+                
+                // Listen for messages from other admin tabs
+                broadcastChannel.addEventListener('message', function(event) {
+                    if (event.data.type === 'notificationCreated') {
+                        console.log('📢 Notification created in another admin tab:', event.data.notification);
+                        // Refresh data from server
+                        loadCombinedData().then(() => {
+                            renderDashboard();
+                        });
+                    }
+                });
+                
+                // Store channel reference for later use
+                window.adminBroadcastChannel = broadcastChannel;
+            }
+            
+            // Periodic refresh every 30 seconds for fallback
+            setInterval(() => {
+                loadInitialData();
+            }, 30000);
+        }
+
+        function handleRealTimeUpdate(updateData) {
+            if (updateData.type === 'notifications') {
+                // Update notifications count
+                stats.activeNotifications = updateData.data.activeCount || 0;
+                updateStatCard('activeNotifications', stats.activeNotifications);
+                showRealTimeNotification('Thông báo đã được cập nhật');
+            } else if (updateData.type === 'gpsSettings') {
+                // Update GPS settings
+                gpsSettings = updateData.data;
+                populateGpsForm();
+                showRealTimeNotification('Cài đặt GPS đã được cập nhật');
+            } else if (updateData.type === 'stats') {
+                // Update all stats
+                stats = { ...stats, ...updateData.data };
+                renderDashboard();
+                showRealTimeNotification('Thống kê đã được cập nhật');
+            }
+        }
+
+        function showRealTimeNotification(message) {
+            // Create a subtle notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Broadcast updates to other tabs and users
+        function broadcastUpdate(type, data) {
+            const updateData = { type, data, timestamp: Date.now() };
+            
+            // Broadcast to admin tabs (existing system)
+            try {
+                localStorage.setItem('adminDataUpdate', JSON.stringify(updateData));
+            } catch (e) {
+                console.warn('Could not broadcast admin update:', e);
+            }
+            
+            // Broadcast to user tabs - notifications (always broadcast when admin creates/updates)
+            if (type === 'notifications') {
+                try {
+                    const activeNotifications = notifications.filter(n => n.active);
+                    
+                    // Check if this is a new notification (has newNotification in data)
+                    const newNotification = data.newNotification;
+                    
+                    // Always broadcast when admin makes changes (force update)
+                    localStorage.setItem('climbNotifications', JSON.stringify({
+                        notifications: activeNotifications,
+                        lastUpdated: Date.now(),
+                        newNotification: newNotification // Include new notification for immediate display
+                    }));
+                    
+                    // Trigger notification refresh for users with new notification info
+                    localStorage.setItem('notificationUpdate', JSON.stringify({
+                        action: 'refresh',
+                        newCount: activeNotifications.length,
+                        timestamp: Date.now(),
+                        force: true, // Force update
+                        newNotification: newNotification, // Include new notification
+                        isNew: !!newNotification // Flag to indicate this is a new notification
+                    }));
+                    
+                    // Update last notification count
+                    localStorage.setItem('lastNotificationCount', activeNotifications.length.toString());
+                    
+                    console.log(`🚀 Broadcasting notifications update: ${activeNotifications.length} total notifications${newNotification ? ` (NEW: ${newNotification.title})` : ''}`);
+                    
+                    // Also trigger a storage event manually for same-tab updates
+                    window.dispatchEvent(new StorageEvent('storage', {
+                        key: 'notificationUpdate',
+                        newValue: JSON.stringify({
+                            action: 'refresh',
+                            newCount: activeNotifications.length,
+                            timestamp: Date.now(),
+                            force: true,
+                            newNotification: newNotification,
+                            isNew: !!newNotification
+                        })
+                    }));
+                    
+                    // ALSO dispatch custom event for same-tab communication
+                    window.dispatchEvent(new CustomEvent('adminNotificationUpdate', {
+                        detail: {
+                            action: 'refresh',
+                            newCount: activeNotifications.length,
+                            timestamp: Date.now(),
+                            force: true,
+                            newNotification: newNotification,
+                            isNew: !!newNotification
+                        }
+                    }));
+                } catch (e) {
+                    console.warn('Could not broadcast notification update:', e);
+                }
+            }
+            
+            // Broadcast to user tabs - GPS settings
+            if (type === 'gpsSettings') {
+                try {
+                    localStorage.setItem('gpsSettings', JSON.stringify(data));
+                    
+                    // Trigger GPS settings refresh for users
+                    localStorage.setItem('gpsSettingsUpdate', JSON.stringify({
+                        action: 'refresh',
+                        settings: data,
+                        timestamp: Date.now(),
+                        force: true // Force update
+                    }));
+                    
+                    console.log('Broadcasting GPS settings update:', data);
+                    
+                    // Also trigger a storage event manually for same-tab updates
+                    window.dispatchEvent(new StorageEvent('storage', {
+                        key: 'gpsSettingsUpdate',
+                        newValue: JSON.stringify({
+                            action: 'refresh',
+                            settings: data,
+                            timestamp: Date.now(),
+                            force: true
+                        })
+                    }));
+                    
+                    // ALSO dispatch custom event for same-tab communication
+                    window.dispatchEvent(new CustomEvent('adminGpsSettingsUpdate', {
+                        detail: {
+                            action: 'refresh',
+                            settings: data,
+                            timestamp: Date.now(),
+                            force: true
+                        }
+                    }));
+                } catch (e) {
+                    console.warn('Could not broadcast GPS settings update:', e);
+                }
+            }
+            
+            // Custom event (for same tab)
+            window.dispatchEvent(new CustomEvent('adminDataUpdate', { detail: updateData }));
+        }
+
         // Expose delete function globally for inline onclick
         // @ts-ignore
         window.deleteNotification = deleteNotification;

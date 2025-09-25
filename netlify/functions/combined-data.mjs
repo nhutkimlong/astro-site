@@ -9,10 +9,10 @@ export default async (request, context) => {
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
   };
-  // Cache for GET responses (60s) and allow SWR for 5 minutes
+  // Cache for GET responses (30s) and allow SWR for 2 minutes for real-time updates
   const headersGet = {
     ...headers,
-    'Cache-Control': 'public, max-age=60, stale-while-revalidate=300'
+    'Cache-Control': 'public, max-age=30, stale-while-revalidate=120'
   };
 
   // Handle preflight requests
@@ -113,6 +113,9 @@ export default async (request, context) => {
           await notificationsStore.setJSON('active', existingNotifications);
           await notificationsStore.setJSON('lastModified', Date.now());
           
+          // Invalidate cache to force immediate refresh
+          await notificationsStore.setJSON('cacheInvalidated', Date.now());
+          
           return Response.json(newNotification, { status: 201, headers });
 
         case 'updateNotification':
@@ -149,6 +152,10 @@ export default async (request, context) => {
           // Update GPS settings
           await gpsStore.setJSON('current', data);
           await gpsStore.setJSON('lastModified', Date.now());
+          
+          // Invalidate cache to force immediate refresh
+          await gpsStore.setJSON('cacheInvalidated', Date.now());
+          
           return Response.json(data, { headers });
 
 

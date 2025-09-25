@@ -15,7 +15,7 @@ export const getToken = () => localStorage.getItem('authToken') || '';
 
 /** @type {() => Promise<void>} */
 export const loadUsers = async () => {
-  if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">Đang tải...</td></tr>';
+  // Keep existing loading UI visible, just update data in background
   try{
     const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization': 'Bearer ' + getToken() }, body: JSON.stringify({ action: 'list' }) });
     const json = await res.json();

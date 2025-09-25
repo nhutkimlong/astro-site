@@ -1,14 +1,14 @@
 ---
-// Guide Admin Page
+// Guide Admin Page - Optimized version
 import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
 import "../../styles/admin/guide-admin.css";
 ---
 
-<Layout title="Quản lý Cẩm nang - Baden App">
+<Layout title="Quản lý Cẩm nang - Admin">
+    <Header currentPage="guide" pageTitle="Quản lý Cẩm nang - Admin" />
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const token = localStorage.getItem('authToken');
@@ -20,30 +20,114 @@ import "../../styles/admin/guide-admin.css";
         }catch{ window.location.href = '/account'; }
       });
     </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .modal { 
+            display: none; 
+        }
+
+        .modal.active { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .modal-content {
+            max-height: 85vh;
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .tab-content { 
+            display: none; 
+        }
+
+        .tab-content.active { 
+            display: block; 
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
-    <Header currentPage="admin" />
-    <div class="min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Header Section -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-8">
-                <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
-                    <div class="flex items-center gap-4 w-full lg:w-auto">
-                        <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
-                            <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
-                        </a>
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="p-3 bg-emerald-100 rounded-xl flex-shrink-0">
-                                <i class="fas fa-book text-emerald-600 text-2xl"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Cẩm Nang Du Lịch</h1>
-                                <p class="text-slate-600 text-sm lg:text-base truncate">Quản lý và cập nhật thông tin cẩm nang du lịch Núi Bà Đen</p>
-                            </div>
+    <!-- Header Card -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between flex-col lg:flex-row gap-4">
+                <div class="flex items-center gap-4 w-full lg:w-auto">
+                    <a href="/admin" class="p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all duration-200 flex-shrink-0">
+                        <i class="fas fa-arrow-left text-slate-600 text-xl"></i>
+                    </a>
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="p-3 bg-emerald-100 rounded-xl flex-shrink-0">
+                            <i class="fas fa-book text-emerald-600 text-2xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="text-xl lg:text-2xl font-bold text-slate-800 truncate">Quản lý Cẩm nang</h1>
+                            <p class="text-slate-600 text-sm lg:text-base truncate">Quản lý và cập nhật thông tin cẩm nang du lịch Núi Bà Đen</p>
                         </div>
                     </div>
                 </div>
+                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
+                    <div class="text-right">
+                        <p class="text-sm text-slate-600" id="currentDate">Loading...</p>
+                        <p class="text-xs text-slate-500">Hệ thống quản lý</p>
+                    </div>
+                    <button id="refreshBtn" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             <!-- Tabs Navigation -->
             <div class="mb-6">
@@ -78,7 +162,13 @@ import "../../styles/admin/guide-admin.css";
             <!-- Tab Content -->
             <div id="tabContent">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
-                    <h2 id="tabTitle" class="text-lg lg:text-xl font-semibold text-gray-700">Danh sách Tours (0 mục)</h2>
+                    <div>
+                        <h2 id="tabTitle" class="text-lg lg:text-xl font-semibold text-gray-700">Danh sách Tours (-- mục)</h2>
+                        <div class="flex items-center mt-1">
+                            <i class="fas fa-spinner fa-spin text-indigo-500 mr-1 text-xs"></i>
+                            <span class="text-xs text-gray-500">Đang tải dữ liệu...</span>
+                        </div>
+                    </div>
                     <button id="addBtn" class="bg-indigo-600 text-white font-medium py-2.5 px-4 lg:px-5 rounded-lg shadow-md hover:bg-indigo-700 transition text-sm lg:text-base">
                         <i class="fas fa-plus mr-1 lg:mr-2"></i>
                         <span class="hidden sm:inline">Thêm mới</span>
@@ -93,14 +183,26 @@ import "../../styles/admin/guide-admin.css";
                             <!-- Headers will be populated by JavaScript -->
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
-                            <!-- Data will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="6" class="px-4 py-6 text-center text-gray-500">
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-spinner fa-spin text-indigo-500 mr-2"></i>
+                                        <span>Đang tải dữ liệu...</span>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Mobile Cards -->
                 <div class="md:hidden" id="mobileCards">
-                    <!-- Cards will be populated by JavaScript -->
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-spinner fa-spin text-indigo-500 mr-2"></i>
+                            <span>Đang tải dữ liệu...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -193,8 +295,19 @@ import "../../styles/admin/guide-admin.css";
         }
 
         function updateUI() {
-            // Update title
-            document.getElementById('tabTitle').textContent = `Danh sách ${SHEET_MAP[currentTab]} (${data.length} mục)`;
+            // Update title with animation
+            const titleEl = document.getElementById('tabTitle');
+            const statusEl = titleEl?.parentNode?.querySelector('.text-xs');
+            
+            titleEl.textContent = `Danh sách ${SHEET_MAP[currentTab]} (${data.length} mục)`;
+            
+            // Update status indicator
+            if (statusEl) {
+                statusEl.innerHTML = `
+                    <i class="fas fa-check-circle text-green-500 mr-1 text-xs"></i>
+                    <span class="text-xs text-green-600">Đã cập nhật</span>
+                `;
+            }
             
             // Update desktop table
             updateDesktopTable();
@@ -366,6 +479,11 @@ import "../../styles/admin/guide-admin.css";
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize date display
+            updateCurrentDate();
+            setInterval(updateCurrentDate, 60000);
+            
+            // Load initial data immediately (UI is already visible)
             loadTabData(currentTab);
             
             // Tab buttons
@@ -380,12 +498,33 @@ import "../../styles/admin/guide-admin.css";
                     });
                     e.currentTarget.className = 'tab-btn px-3 lg:px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 bg-white text-slate-700 shadow-sm';
                     
+                    // Update title immediately for better UX
+                    const titleEl = document.getElementById('tabTitle');
+                    const statusEl = titleEl?.parentNode?.querySelector('.text-xs');
+                    
+                    titleEl.textContent = `Danh sách ${SHEET_MAP[tabId]} (-- mục)`;
+                    if (statusEl) {
+                        statusEl.innerHTML = `
+                            <i class="fas fa-spinner fa-spin text-indigo-500 mr-1 text-xs"></i>
+                            <span class="text-xs text-gray-500">Đang tải dữ liệu...</span>
+                        `;
+                    }
+                    
                     loadTabData(tabId);
                 });
             });
             
             // Add button
             document.getElementById('addBtn').addEventListener('click', () => openModal());
+            
+            // Refresh button
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    loadTabData(currentTab, true);
+                    showRealTimeNotification('Đang tải lại dữ liệu...', 'info');
+                });
+            }
             
             // Modal close buttons
             document.getElementById('closeModal').addEventListener('click', closeModal);
@@ -431,6 +570,53 @@ import "../../styles/admin/guide-admin.css";
                 closeModal();
             });
         });
+
+        // Update current date display
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const el = document.getElementById('currentDate');
+            if (el) el.textContent = dateStr;
+        }
+        
+        // Show real-time notification
+        function showRealTimeNotification(message: string, type = 'info', duration = 3000) {
+            const notification = document.createElement('div');
+            const iconClass = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full opacity-0`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${iconClass} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, duration);
+        }
 
         // Global functions for onclick handlers
         window.openModal = openModal;

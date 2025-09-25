@@ -1,7 +1,6 @@
 ---
-// Admin POI Management Page
+// Admin POI Management Page - Optimized version
 import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/main.css";
 import "../../styles/tailwind.css";
@@ -9,6 +8,7 @@ import "../../styles/admin/poi-admin.css";
 ---
 
 <Layout title="Quản lý POI - Admin">
+    <Header currentPage="poi" pageTitle="Quản lý POI - Admin" />
         <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -674,10 +674,12 @@ import "../../styles/admin/poi-admin.css";
                             <tr>
                                 <td
                                     colspan="6"
-                                    class="px-4 py-6 text-center text-sm text-slate-500 italic"
+                                    class="px-4 py-6 text-center text-sm text-slate-500"
                                 >
-                                    Chưa có dữ liệu. Nhấn "Tải tất cả POI" để
-                                    bắt đầu.
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-spinner fa-spin text-amber-500 mr-2"></i>
+                                        <span>Đang tải dữ liệu POI...</span>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -728,6 +730,10 @@ import "../../styles/admin/poi-admin.css";
             // Initialize
             document.addEventListener("DOMContentLoaded", function () {
                 setupEventListeners();
+                setupRealTimeUpdates();
+                
+                // Auto-load POI data immediately (UI is already visible)
+                loadAllPoisAndSyncGioHoatDong();
             });
 
             // Setup Event Listeners
@@ -963,6 +969,9 @@ import "../../styles/admin/poi-admin.css";
                 showStatus("Đã lưu thành công lên server!", false);
                 await loadAllPoisAndSyncGioHoatDong();
                 clearForm();
+                
+                // Broadcast real-time update
+                broadcastUpdate('poi', { poiList });
             }
 
             // Delete POI from row
@@ -986,6 +995,9 @@ import "../../styles/admin/poi-admin.css";
                 showStatus("Đã xóa và lưu thành công!", false);
                 await loadAllPoisAndSyncGioHoatDong();
                 clearForm();
+                
+                // Broadcast real-time update
+                broadcastUpdate('poi', { poiList });
             }
 
             // Render POIs table
@@ -1064,6 +1076,82 @@ import "../../styles/admin/poi-admin.css";
                     map.remove();
                     map = null;
                 }
+            }
+
+            // Real-time updates system
+            function setupRealTimeUpdates() {
+                // Listen for localStorage changes (real-time updates from other admin pages)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'adminDataUpdate') {
+                        const updateData = JSON.parse(e.newValue || '{}');
+                        handleRealTimeUpdate(updateData);
+                    }
+                });
+                
+                // Also listen for custom events (same tab updates)
+                window.addEventListener('adminDataUpdate', (e) => {
+                    handleRealTimeUpdate(e.detail);
+                });
+                
+                // Periodic refresh every 30 seconds for fallback
+                setInterval(() => {
+                    loadAllPoisAndSyncGioHoatDong();
+                }, 30000);
+            }
+
+            function handleRealTimeUpdate(updateData) {
+                if (updateData.type === 'poi') {
+                    // Update POI data
+                    poiList = updateData.data.poiList || [];
+                    renderPOIs();
+                    showRealTimeNotification('Dữ liệu POI đã được cập nhật');
+                }
+            }
+
+            function showRealTimeNotification(message) {
+                // Create a subtle notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-amber-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                    notification.style.opacity = '1';
+                }, 100);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // Broadcast updates to other tabs
+            function broadcastUpdate(type, data) {
+                const updateData = { type, data, timestamp: Date.now() };
+                
+                // localStorage event (for other tabs)
+                try {
+                    localStorage.setItem('adminDataUpdate', JSON.stringify(updateData));
+                } catch (e) {
+                    console.warn('Could not broadcast update:', e);
+                }
+                
+                // Custom event (for same tab)
+                window.dispatchEvent(new CustomEvent('adminDataUpdate', { detail: updateData }));
             }
 
             // Global functions for onclick handlers

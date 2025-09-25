@@ -2234,7 +2234,19 @@ function checkForNewNotificationsFromLocalStorage() {
         const storedNotifications = localStorage.getItem('climbNotifications');
         if (!storedNotifications) return;
         
-        const notifications = JSON.parse(storedNotifications);
+        const data = JSON.parse(storedNotifications);
+        
+        // Handle both old format (array) and new format (object with notifications array)
+        let notifications;
+        if (Array.isArray(data)) {
+            notifications = data;
+        } else if (data.notifications && Array.isArray(data.notifications)) {
+            notifications = data.notifications;
+        } else {
+            console.warn('Invalid notifications format in localStorage:', data);
+            return;
+        }
+        
         const activeNotifications = notifications.filter(n => n.active);
         const newNotifications = activeNotifications.filter(isNewNotification);
         
@@ -2255,6 +2267,126 @@ async function checkForNewNotifications() {
     await loadAllDataFromAPI();
 }
 
+// Function to show real-time notification to users (improved version)
+function showRealTimeNotification(message, type = 'info', duration = 3000) {
+    // Create a subtle notification toast
+    const notification = document.createElement('div');
+    const iconClass = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-sync-alt';
+    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+    
+    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full opacity-0`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${iconClass} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+        notification.style.opacity = '1';
+    }, 100);
+    
+    // Auto-remove after duration
+    setTimeout(() => {
+        hideNotification(notification);
+    }, duration);
+    
+    // Click to close
+    notification.addEventListener('click', () => hideNotification(notification));
+    
+    function hideNotification(element) {
+        element.style.transform = 'translateX(100%)';
+        element.style.opacity = '0';
+        setTimeout(() => {
+            if (element.parentNode) {
+                element.parentNode.removeChild(element);
+            }
+        }, 300);
+    }
+}
+
+// Function to load only notifications (not all data) - optimized with cache
+async function loadNotificationsOnly(forceRefresh = false) {
+    try {
+        const fetchNotifications = async () => {
+            const response = await fetch('/.netlify/functions/combined-data');
+            if (!response.ok) throw new Error('Failed to fetch notifications');
+            return await response.json();
+        };
+
+        const result = forceRefresh ? 
+            await fetchNotifications() : 
+            await window.cacheManager.getDataWithStaleWhileRevalidate(
+                'notifications_cache', 
+                fetchNotifications,
+                { forceRefresh: false, showLoading: false }
+            );
+
+        const notifications = result.notifications?.data || [];
+        
+        // Store in localStorage for future use
+        localStorage.setItem('climbNotifications', JSON.stringify({
+            notifications: notifications.filter(n => n.active),
+            lastUpdated: Date.now()
+        }));
+        
+        // Process and show new notifications
+        processNotifications(notifications);
+        
+        console.log('Notifications refreshed successfully');
+        return notifications;
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        // Fallback to localStorage if API fails
+        checkForNewNotificationsFromLocalStorage();
+        return [];
+    }
+}
+
+// Function to load only GPS settings (not all data) - optimized with cache
+async function loadGpsSettingsOnly(forceRefresh = false) {
+    try {
+        const fetchGpsSettings = async () => {
+            const response = await fetch('/.netlify/functions/combined-data');
+            if (!response.ok) throw new Error('Failed to fetch GPS settings');
+            return await response.json();
+        };
+
+        const result = forceRefresh ? 
+            await fetchGpsSettings() : 
+            await window.cacheManager.getDataWithStaleWhileRevalidate(
+                'gps_settings_cache', 
+                fetchGpsSettings,
+                { forceRefresh: false, showLoading: false }
+            );
+
+        const gpsSettings = result.gpsSettings?.data;
+        
+        if (gpsSettings) {
+            // Store in localStorage
+            localStorage.setItem('gpsSettings', JSON.stringify(gpsSettings));
+            
+            // Update global GPS_SETTINGS
+            GPS_SETTINGS = gpsSettings;
+            
+            // Update UI components
+            updateRegistrationTimeStatus();
+            updateCertificateRadiusDisplay();
+            
+            console.log('GPS settings refreshed successfully');
+            return gpsSettings;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error loading GPS settings:', error);
+        return null;
+    }
+}
+
 // Function to initialize notification system
 function initializeNotificationSystem() {
     // Check for notifications immediately on page load (fetch from API first, then localStorage)
@@ -2271,7 +2403,164 @@ function initializeNotificationSystem() {
             }
             checkForNewNotificationsFromLocalStorage();
         }
+        
+        // Listen for real-time notification updates from admin
+        if (e.key === 'notificationUpdate') {
+            console.log('🚀 Real-time notification update received from admin');
+            try {
+                const updateData = JSON.parse(e.newValue || '{}');
+                if (updateData.action === 'refresh') {
+                    console.log('📱 Processing notification update:', updateData);
+                    
+                    // Check if this is a new notification (has newNotification data)
+                    if (updateData.newNotification && updateData.isNew) {
+                        console.log('🆕 New notification received:', updateData.newNotification);
+                        
+                        // Show the new notification immediately
+                        showNotification(updateData.newNotification);
+                        
+                        // Show success message with notification title
+                        showRealTimeNotification(`Thông báo mới: ${updateData.newNotification.title}`, 'success', 5000);
+                        
+                        // Update notifications array immediately
+                        if (window.notifications) {
+                            window.notifications.push(updateData.newNotification);
+                        }
+                        
+                        // Update UI immediately
+                        updateNotificationsDisplay();
+                        
+                        console.log('✅ New notification displayed immediately');
+                    } else {
+                        console.log('🔄 Regular notification refresh');
+                        
+                        // Force refresh notifications immediately
+                        loadNotificationsOnly(true).then((notifications) => {
+                            console.log('📋 Loaded notifications:', notifications);
+                            if (notifications && notifications.length > 0) {
+                                showRealTimeNotification('Thông báo đã được cập nhật', 'success');
+                            }
+                        }).catch(err => {
+                            console.error('❌ Error loading notifications:', err);
+                            // Fallback to localStorage
+                            checkForNewNotificationsFromLocalStorage();
+                            showRealTimeNotification('Thông báo đã được cập nhật', 'info');
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('❌ Error parsing notification update:', err);
+            }
+        }
     });
+    
+    // Listen for custom events from admin panel (same-tab communication)
+    window.addEventListener('adminNotificationUpdate', function(e) {
+        console.log('🚀 Custom admin notification update received:', e.detail);
+        try {
+            const updateData = e.detail;
+            if (updateData.action === 'refresh') {
+                console.log('📱 Processing custom notification update:', updateData);
+                
+                // Check if this is a new notification
+                if (updateData.newNotification && updateData.isNew) {
+                    console.log('🆕 New notification received via custom event:', updateData.newNotification);
+                    
+                    // Show the new notification immediately
+                    showNotification(updateData.newNotification);
+                    
+                    // Show success message with notification title
+                    showRealTimeNotification(`Thông báo mới: ${updateData.newNotification.title}`, 'success', 5000);
+                    
+                    // Update notifications array immediately
+                    if (window.notifications) {
+                        window.notifications.push(updateData.newNotification);
+                    }
+                    
+                    // Update UI immediately
+                    updateNotificationsDisplay();
+                    
+                    console.log('✅ New notification displayed immediately via custom event');
+                } else {
+                    console.log('🔄 Regular notification refresh via custom event');
+                    
+                    // Force refresh notifications immediately
+                    loadNotificationsOnly(true).then((notifications) => {
+                        console.log('📋 Loaded notifications via custom event:', notifications);
+                        if (notifications && notifications.length > 0) {
+                            showRealTimeNotification('Thông báo đã được cập nhật', 'success');
+                        }
+                    }).catch(err => {
+                        console.error('❌ Error loading notifications via custom event:', err);
+                        // Fallback to localStorage
+                        checkForNewNotificationsFromLocalStorage();
+                        showRealTimeNotification('Thông báo đã được cập nhật', 'info');
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('❌ Error processing custom notification update:', err);
+        }
+    });
+    
+    // Listen for custom GPS settings updates from admin panel (same-tab communication)
+    window.addEventListener('adminGpsSettingsUpdate', function(e) {
+        console.log('🚀 Custom admin GPS settings update received:', e.detail);
+        try {
+            const updateData = e.detail;
+            if (updateData.action === 'refresh' && updateData.settings) {
+                console.log('📱 Updating GPS settings via custom event:', updateData.settings);
+                GPS_SETTINGS = updateData.settings;
+                updateRegistrationTimeStatus();
+                updateCertificateRadiusDisplay();
+                showRealTimeNotification('Cài đặt GPS đã được cập nhật bởi quản trị viên', 'success');
+            } else if (updateData.action === 'refresh') {
+                console.log('🔄 Loading GPS settings from API via custom event');
+                loadGpsSettingsOnly(true).then((settings) => {
+                    console.log('📋 Loaded GPS settings via custom event:', settings);
+                    if (settings) {
+                        showRealTimeNotification('Cài đặt GPS đã được cập nhật bởi quản trị viên', 'success');
+                    }
+                }).catch(err => {
+                    console.error('❌ Error loading GPS settings via custom event:', err);
+                    showRealTimeNotification('Cài đặt GPS đã được cập nhật', 'info');
+                });
+            }
+        } catch (err) {
+            console.error('❌ Error processing custom GPS settings update:', err);
+        }
+    });
+    
+    // Setup BroadcastChannel for cross-tab communication with admin
+    if (typeof BroadcastChannel !== 'undefined') {
+        const userBroadcastChannel = new BroadcastChannel('admin-notifications');
+        
+        // Listen for messages from admin tabs
+        userBroadcastChannel.addEventListener('message', function(event) {
+            if (event.data.type === 'notificationCreated') {
+                console.log('📢 New notification created by admin:', event.data.notification);
+                
+                // Show the new notification immediately
+                showNotification(event.data.notification);
+                
+                // Show success message
+                showRealTimeNotification(`Thông báo mới: ${event.data.notification.title}`, 'success', 5000);
+                
+                // Update notifications array immediately
+                if (window.notifications) {
+                    window.notifications.push(event.data.notification);
+                }
+                
+                // Update UI immediately
+                updateNotificationsDisplay();
+                
+                console.log('✅ New notification displayed immediately via BroadcastChannel');
+            }
+        });
+        
+        // Store channel reference for later use
+        window.userBroadcastChannel = userBroadcastChannel;
+    }
     
     // Listen for custom events from admin panel (cross-window communication)
     window.addEventListener('message', function(e) {
@@ -2289,14 +2578,50 @@ function initializeNotificationSystem() {
     window.addEventListener('storage', function(e) {
         if (e.key === 'gpsSettings') {
             console.log('GPS settings changed via storage event, refreshing...');
-            const newSettings = JSON.parse(e.newValue);
-            GPS_SETTINGS = newSettings;
-            console.log('GPS Settings updated from storage:', GPS_SETTINGS);
-            // Update registration time status when GPS settings change
-            updateRegistrationTimeStatus();
-            
-            // Update certificate radius display when GPS settings change
-            updateCertificateRadiusDisplay();
+            try {
+                const newSettings = JSON.parse(e.newValue || '{}');
+                GPS_SETTINGS = newSettings;
+                console.log('GPS Settings updated from storage:', GPS_SETTINGS);
+                // Update registration time status when GPS settings change
+                updateRegistrationTimeStatus();
+                
+                // Update certificate radius display when GPS settings change
+                updateCertificateRadiusDisplay();
+                
+                // Show real-time notification
+                showRealTimeNotification('Cài đặt GPS đã được cập nhật');
+            } catch (err) {
+                console.error('Error parsing GPS settings:', err);
+            }
+        }
+        
+        // Listen for real-time GPS settings updates from admin
+        if (e.key === 'gpsSettingsUpdate') {
+            console.log('Real-time GPS settings update received from admin');
+            try {
+                const updateData = JSON.parse(e.newValue || '{}');
+                if (updateData.action === 'refresh' && updateData.settings) {
+                    console.log('Updating GPS settings directly:', updateData.settings);
+                    GPS_SETTINGS = updateData.settings;
+                    updateRegistrationTimeStatus();
+                    updateCertificateRadiusDisplay();
+                    showRealTimeNotification('Cài đặt GPS đã được cập nhật bởi quản trị viên', 'success');
+                } else if (updateData.action === 'refresh') {
+                    console.log('Loading GPS settings from API');
+                    // Force refresh GPS settings immediately
+                    loadGpsSettingsOnly(true).then((settings) => {
+                        console.log('Loaded GPS settings:', settings);
+                        if (settings) {
+                            showRealTimeNotification('Cài đặt GPS đã được cập nhật bởi quản trị viên', 'success');
+                        }
+                    }).catch(err => {
+                        console.error('Error loading GPS settings:', err);
+                        showRealTimeNotification('Cài đặt GPS đã được cập nhật', 'info');
+                    });
+                }
+            } catch (err) {
+                console.error('Error parsing GPS settings update:', err);
+            }
         }
     });
     
@@ -2309,6 +2634,25 @@ function initializeNotificationSystem() {
         }
     });
     
+    // Set up periodic refresh for both notifications and GPS settings (every 2 minutes)
+    // This serves as a fallback in case real-time updates fail
+    setInterval(() => {
+        // Only refresh if user is active (not idle)
+        if (!document.hidden) {
+            console.log('Periodic refresh: checking for updates...');
+            
+            // Check for notification updates
+            loadNotificationsOnly(false).catch(err => {
+                console.warn('Periodic notification refresh failed:', err);
+            });
+            
+            // Check for GPS settings updates
+            loadGpsSettingsOnly(false).catch(err => {
+                console.warn('Periodic GPS settings refresh failed:', err);
+            });
+        }
+    }, 120000); // 2 minutes - fallback mechanism
+    
     // Clean up old seen notifications (older than 7 days)
     cleanupOldSeenNotifications();
     
@@ -2317,6 +2661,53 @@ function initializeNotificationSystem() {
     
     // Update registration time status every minute
     setInterval(updateRegistrationTimeStatus, 60000);
+    
+    // Check for recent notifications on page load
+    setTimeout(() => {
+        const cachedData = localStorage.getItem('climbNotifications');
+        if (cachedData) {
+            try {
+                const data = JSON.parse(cachedData);
+                const notifications = data.notifications || data;
+                const lastUpdate = data.lastUpdated || 0;
+                const now = Date.now();
+                
+                // If notifications were updated within last 30 seconds, refresh display
+                if (now - lastUpdate < 30000) {
+                    console.log('🔄 Recent notifications detected, refreshing display...');
+                    updateNotificationsDisplay();
+                }
+            } catch (err) {
+                console.warn('Error checking cached notifications:', err);
+            }
+        }
+    }, 1000);
+    
+    // Listen for page visibility changes (when user switches back to tab)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            console.log('📱 Page became visible, checking for recent updates...');
+            
+            // Check for recent notifications
+            const cachedData = localStorage.getItem('climbNotifications');
+            if (cachedData) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    const lastUpdate = data.lastUpdated || 0;
+                    const now = Date.now();
+                    
+                    // If notifications were updated within last 60 seconds, refresh display
+                    if (now - lastUpdate < 60000) {
+                        console.log('🔄 Recent notifications detected on tab focus, refreshing display...');
+                        updateNotificationsDisplay();
+                        showRealTimeNotification('Thông báo đã được cập nhật', 'info', 3000);
+                    }
+                } catch (err) {
+                    console.warn('Error checking cached notifications on tab focus:', err);
+                }
+            }
+        }
+    });
 }
 
 // Function to update registration time status display
@@ -2406,6 +2797,45 @@ function updateCertificateRadiusDisplay() {
 }
 
 
+
+// Function to update notifications display immediately
+function updateNotificationsDisplay() {
+    try {
+        // Get current notifications from localStorage
+        const cachedData = localStorage.getItem('climbNotifications');
+        if (cachedData) {
+            const data = JSON.parse(cachedData);
+            const notifications = data.notifications || data; // Handle both formats
+            
+            // Update the notifications container
+            const container = document.getElementById('notifications-container');
+            if (container && notifications.length > 0) {
+                container.innerHTML = notifications.map(notification => {
+                    const typeInfo = NOTIFICATION_TYPES[notification.type] || NOTIFICATION_TYPES.announcement;
+                    return `
+                        <div class="notification-item ${typeInfo.bgColor} ${typeInfo.borderColor} border-l-4 p-4 rounded-lg mb-3" data-id="${notification.id}">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start">
+                                    <i class="fas ${typeInfo.icon} ${typeInfo.iconColor} mt-1 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold ${typeInfo.textColor}">${notification.title}</h3>
+                                        <p class="text-sm text-gray-700 mt-1">${notification.message}</p>
+                                        <p class="text-xs text-gray-500 mt-2">${new Date(notification.createdAt).toLocaleString('vi-VN')}</p>
+                                    </div>
+                                </div>
+                                <button onclick="dismissNotification('${notification.id}')" class="text-gray-400 hover:text-gray-600 ml-4">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (err) {
+        console.error('Error updating notifications display:', err);
+    }
+}
 
 // Function to cleanup old seen notifications
 function cleanupOldSeenNotifications() {
@@ -2534,9 +2964,41 @@ function validateRegistrationTime() {
 
 // Export functions for global access
 window.refreshNotifications = refreshNotifications;
+// Debug function to test real-time updates
+window.testRealTimeUpdate = function() {
+    console.log('Testing real-time update system...');
+    
+    // Test notification update
+    localStorage.setItem('notificationUpdate', JSON.stringify({
+        action: 'refresh',
+        newCount: 1,
+        timestamp: Date.now(),
+        force: true
+    }));
+    
+    // Test GPS settings update
+    localStorage.setItem('gpsSettingsUpdate', JSON.stringify({
+        action: 'refresh',
+        settings: {
+            registrationRadius: 100,
+            certificateRadius: 150,
+            requireGpsRegistration: true,
+            requireGpsCertificate: true,
+            registrationTimeEnabled: false,
+            registrationStartTime: '06:00',
+            registrationEndTime: '18:00'
+        },
+        timestamp: Date.now(),
+        force: true
+    }));
+    
+    console.log('Test updates sent to localStorage');
+};
+
 window.dismissNotification = dismissNotification;
 window.refreshGpsSettings = refreshGpsSettings;
 window.getGpsSettings = getGpsSettings;
 window.isWithinRegistrationTime = isWithinRegistrationTime;
 window.getRegistrationTimeStatus = getRegistrationTimeStatus;
 window.validateRegistrationTime = validateRegistrationTime;
+window.updateNotificationsDisplay = updateNotificationsDisplay;

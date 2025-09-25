@@ -201,10 +201,26 @@ class CacheManager {
             expired: expired
         };
     }
+
+    /**
+     * Kiểm tra và xử lý real-time updates
+     */
+    handleRealTimeUpdate(updateKey, callback) {
+        const lastUpdate = localStorage.getItem(`last_${updateKey}_update`);
+        const currentTime = Date.now();
+        
+        // Chỉ xử lý nếu có update mới trong 5 phút qua
+        if (!lastUpdate || (currentTime - parseInt(lastUpdate)) < 5 * 60 * 1000) {
+            if (callback) {
+                callback();
+            }
+            localStorage.setItem(`last_${updateKey}_update`, currentTime.toString());
+        }
+    }
 }
 
 // Tạo instance global
 const cacheManager = new CacheManager();
 
 // Export cho sử dụng trong các file khác
-window.cacheManager = cacheManager; 
+window.cacheManager = cacheManager;
