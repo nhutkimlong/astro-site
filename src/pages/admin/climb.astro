@@ -291,6 +291,7 @@ import "../../styles/admin/responsive-optimization.css";
  <script>
         // @ts-nocheck
         // Climb Admin Management JavaScript
+        const REALTIME_UPDATES_ENABLED = false;
         /** @typedef {'weather'|'maintenance'|'announcement'|'emergency'} NotificationType */
         /**
          * @typedef {Object} NotificationItem
@@ -374,7 +375,9 @@ import "../../styles/admin/responsive-optimization.css";
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
             updateCurrentDate();
-            setupRealTimeUpdates();
+            if (REALTIME_UPDATES_ENABLED) {
+                setupRealTimeUpdates();
+            }
             
             // Load data in background (UI is already visible)
             loadInitialData();
@@ -565,17 +568,15 @@ import "../../styles/admin/responsive-optimization.css";
             }
         }
 
-        // Render notifications list
+        // Render notifications list from current in-memory notifications
         function renderNotifications() {
             const container = document.getElementById('notificationsList') as HTMLElement | null;
-            const activeNotifications = (notifications as NotificationItem[]).filter(n => n.active);
-            
             if (!container) return;
+            const activeNotifications = (notifications as NotificationItem[]).filter(n => n.active);
             if (activeNotifications.length === 0) {
                 container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Chưa có thông báo nào</p>';
                 return;
             }
-
             container.innerHTML = activeNotifications.map(notification => `
                 <div class="flex items-start justify-between p-3 bg-gray-50 rounded-lg border-l-4 ${getNotificationBorderColor(notification.type)}">
                     <div class="flex-1 min-w-0">
@@ -721,21 +722,10 @@ import "../../styles/admin/responsive-optimization.css";
                     });
                 }
                 
-                // Update UI immediately
+                // Update UI immediately (no page reload)
                 renderDashboard();
                 notificationForm?.reset();
                 showSuccess('Thông báo đã được tạo thành công!');
-                
-                // Then reload from server in background to ensure consistency
-                setTimeout(async () => {
-                    try {
-                        await loadCombinedData();
-                        renderDashboard();
-                        console.log('✅ Server data reloaded successfully');
-                    } catch (err) {
-                        console.warn('⚠️ Server reload failed, using local data:', err);
-                    }
-                }, 100);
                 
             } catch (err) {
                 const msg = err instanceof Error ? err.message : 'Lỗi không xác định';
@@ -870,7 +860,8 @@ import "../../styles/admin/responsive-optimization.css";
                     body: JSON.stringify({ action: 'deleteNotification', data: { id } })
                 });
                 if (!res.ok) throw new Error('Không thể xóa thông báo');
-                await loadCombinedData();
+                // Optimistically update local state and re-render without full reload
+                notifications = (notifications as NotificationItem[]).filter(n => n.id !== id);
                 renderDashboard();
                 showSuccess('Thông báo đã được xóa thành công!');
                 
@@ -919,45 +910,8 @@ import "../../styles/admin/responsive-optimization.css";
             success?.classList.add('hidden');
         }
 
-        // Real-time updates system
-        function setupRealTimeUpdates() {
-            // Listen for localStorage changes (real-time updates from other admin pages)
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'adminDataUpdate') {
-                    const updateData = JSON.parse(e.newValue || '{}');
-                    handleRealTimeUpdate(updateData);
-                }
-            });
-            
-            // Also listen for custom events (same tab updates)
-            window.addEventListener('adminDataUpdate', (e) => {
-                handleRealTimeUpdate(e.detail);
-            });
-            
-            // Setup BroadcastChannel for cross-tab communication
-            if (typeof BroadcastChannel !== 'undefined') {
-                const broadcastChannel = new BroadcastChannel('admin-notifications');
-                
-                // Listen for messages from other admin tabs
-                broadcastChannel.addEventListener('message', function(event) {
-                    if (event.data.type === 'notificationCreated') {
-                        console.log('📢 Notification created in another admin tab:', event.data.notification);
-                        // Refresh data from server
-                        loadCombinedData().then(() => {
-                            renderDashboard();
-                        });
-                    }
-                });
-                
-                // Store channel reference for later use
-                window.adminBroadcastChannel = broadcastChannel;
-            }
-            
-            // Periodic refresh every 30 seconds for fallback
-            setInterval(() => {
-                loadInitialData();
-            }, 30000);
-        }
+        // Real-time updates system removed
+        function setupRealTimeUpdates() {}
 
         function handleRealTimeUpdate(updateData) {
             if (updateData.type === 'notifications') {
@@ -978,150 +932,10 @@ import "../../styles/admin/responsive-optimization.css";
             }
         }
 
-        function showRealTimeNotification(message) {
-            // Create a subtle notification
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300';
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-sync-alt mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Animate in
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-                notification.style.opacity = '1';
-            }, 100);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
-        }
+        function showRealTimeNotification(_) {}
 
         // Broadcast updates to other tabs and users
-        function broadcastUpdate(type, data) {
-            const updateData = { type, data, timestamp: Date.now() };
-            
-            // Broadcast to admin tabs (existing system)
-            try {
-                localStorage.setItem('adminDataUpdate', JSON.stringify(updateData));
-            } catch (e) {
-                console.warn('Could not broadcast admin update:', e);
-            }
-            
-            // Broadcast to user tabs - notifications (always broadcast when admin creates/updates)
-            if (type === 'notifications') {
-                try {
-                    const activeNotifications = notifications.filter(n => n.active);
-                    
-                    // Check if this is a new notification (has newNotification in data)
-                    const newNotification = data.newNotification;
-                    
-                    // Always broadcast when admin makes changes (force update)
-                    localStorage.setItem('climbNotifications', JSON.stringify({
-                        notifications: activeNotifications,
-                        lastUpdated: Date.now(),
-                        newNotification: newNotification // Include new notification for immediate display
-                    }));
-                    
-                    // Trigger notification refresh for users with new notification info
-                    localStorage.setItem('notificationUpdate', JSON.stringify({
-                        action: 'refresh',
-                        newCount: activeNotifications.length,
-                        timestamp: Date.now(),
-                        force: true, // Force update
-                        newNotification: newNotification, // Include new notification
-                        isNew: !!newNotification // Flag to indicate this is a new notification
-                    }));
-                    
-                    // Update last notification count
-                    localStorage.setItem('lastNotificationCount', activeNotifications.length.toString());
-                    
-                    console.log(`🚀 Broadcasting notifications update: ${activeNotifications.length} total notifications${newNotification ? ` (NEW: ${newNotification.title})` : ''}`);
-                    
-                    // Also trigger a storage event manually for same-tab updates
-                    window.dispatchEvent(new StorageEvent('storage', {
-                        key: 'notificationUpdate',
-                        newValue: JSON.stringify({
-                            action: 'refresh',
-                            newCount: activeNotifications.length,
-                            timestamp: Date.now(),
-                            force: true,
-                            newNotification: newNotification,
-                            isNew: !!newNotification
-                        })
-                    }));
-                    
-                    // ALSO dispatch custom event for same-tab communication
-                    window.dispatchEvent(new CustomEvent('adminNotificationUpdate', {
-                        detail: {
-                            action: 'refresh',
-                            newCount: activeNotifications.length,
-                            timestamp: Date.now(),
-                            force: true,
-                            newNotification: newNotification,
-                            isNew: !!newNotification
-                        }
-                    }));
-                } catch (e) {
-                    console.warn('Could not broadcast notification update:', e);
-                }
-            }
-            
-            // Broadcast to user tabs - GPS settings
-            if (type === 'gpsSettings') {
-                try {
-                    localStorage.setItem('gpsSettings', JSON.stringify(data));
-                    
-                    // Trigger GPS settings refresh for users
-                    localStorage.setItem('gpsSettingsUpdate', JSON.stringify({
-                        action: 'refresh',
-                        settings: data,
-                        timestamp: Date.now(),
-                        force: true // Force update
-                    }));
-                    
-                    console.log('Broadcasting GPS settings update:', data);
-                    
-                    // Also trigger a storage event manually for same-tab updates
-                    window.dispatchEvent(new StorageEvent('storage', {
-                        key: 'gpsSettingsUpdate',
-                        newValue: JSON.stringify({
-                            action: 'refresh',
-                            settings: data,
-                            timestamp: Date.now(),
-                            force: true
-                        })
-                    }));
-                    
-                    // ALSO dispatch custom event for same-tab communication
-                    window.dispatchEvent(new CustomEvent('adminGpsSettingsUpdate', {
-                        detail: {
-                            action: 'refresh',
-                            settings: data,
-                            timestamp: Date.now(),
-                            force: true
-                        }
-                    }));
-                } catch (e) {
-                    console.warn('Could not broadcast GPS settings update:', e);
-                }
-            }
-            
-            // Custom event (for same tab)
-            window.dispatchEvent(new CustomEvent('adminDataUpdate', { detail: updateData }));
-        }
+        function broadcastUpdate() {}
 
         // Expose delete function globally for inline onclick
         // @ts-ignore

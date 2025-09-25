@@ -29,7 +29,7 @@ export const renderUsers = (users) => {
   if(!tbody) return;
   allUsers = users; // Store users globally for modal access
   
-  if(!users.length){ tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">Chưa có người dùng</td></tr>'; return; }
+  if(!users.length){ tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-slate-500">Chưa có người dùng</td></tr>'; return; }
   
   const formatDate = (timestamp) => {
     if (!timestamp) return 'Chưa có';
@@ -54,7 +54,6 @@ export const renderUsers = (users) => {
             </span>
           </td>
           <td class="px-4 py-3 text-slate-700">${u.phone || 'Chưa có'}</td>
-          <td class="px-4 py-3 text-slate-700">${u.successfulClimbCount || 0}</td>
           <td class="px-4 py-3 text-slate-700">${formatDate(u.lastClimbAt)}</td>
           <td class="px-4 py-3 text-right">
             <button class="px-3 py-1 bg-green-600 text-white rounded mr-2 hover:bg-green-700" onclick="editUser('${u.id}')">
@@ -89,7 +88,7 @@ export const editUser = async (id) => {
   document.getElementById('editDob').value = user.dob || '';
   document.getElementById('editIdCard').value = user.idCard || '';
   document.getElementById('editAddress').value = user.address || '';
-  document.getElementById('editClimbCount').value = user.successfulClimbCount || 0;
+  // Removed climb count field
 
   // Show modal
   document.getElementById('editUserModal').classList.remove('hidden');

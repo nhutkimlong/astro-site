@@ -10,6 +10,8 @@ const CROP_ASPECT_RATIO = 11.89 / 16.73; // Defined aspect ratio
 const COMBINED_API_URL = '/.netlify/functions/combined-data';
 const SSE_UPDATES_URL = '/.netlify/functions/sse-updates';
 
+// Removed realtime systems entirely
+
 // Default GPS settings (fallback)
 let GPS_SETTINGS = {
     registrationRadius: 50,
@@ -1819,11 +1821,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load all data from combined API
     await loadAllDataFromAPI();
     
-    // Khởi tạo hệ thống thông báo admin
-    initializeNotificationSystem();
+    // Realtime notification system removed
 
-    // Đăng ký SSE để nhận cập nhật realtime liên thiết bị
-    initializeRealtimeUpdatesViaSSE();
+    // SSE realtime removed
     
     // Khởi tạo bản đồ với delay nhỏ để đảm bảo Leaflet đã load
     setTimeout(() => {
@@ -2254,10 +2254,14 @@ function createNotificationHTML(notification) {
 function showNotification(notification) {
     console.log('Showing notification:', notification);
     
-    const container = document.getElementById('adminNotifications');
+    let container = document.getElementById('adminNotifications');
     if (!container) {
-        console.error('adminNotifications container not found!');
-        return;
+        // Auto-create container if missing
+        container = document.createElement('div');
+        container.id = 'adminNotifications';
+        container.className = 'fixed top-20 left-4 right-4 z-[160] max-w-md mx-auto space-y-3';
+        document.body.appendChild(container);
+        console.warn('adminNotifications container was missing; created dynamically.');
     }
     
     console.log('Found adminNotifications container:', container);
